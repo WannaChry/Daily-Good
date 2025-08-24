@@ -14,3 +14,12 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+# Projektstruktur
+
+Zur Organisation der zu erstellenden Klassen. Damit wir nach einer klaren Struktur arbeiten
+unter lib>pages
+
+- **models/**: Enthält alle Datenklassen (z. B. User, Task, DailyTip).
+- **services/**: Business-Logik & Kommunikation mit DB oder API (z.B. user_service, task_service,...)
+- **pages/**: Screens der App (HomePage, QuestPage, FriendPage, SelfPage).
