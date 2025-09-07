@@ -23,3 +23,6 @@ unter lib>pages
 - **models/**: Enthält alle Datenklassen (z. B. User, Task, DailyTip).
 - **services/**: Business-Logik & Kommunikation mit DB oder API (z.B. user_service, task_service,...)
 - **pages/**: Screens der App (HomePage, QuestPage, FriendPage, SelfPage).
+
+# 4.9.25
+5 neue Klassen hinzugefügt unter models
