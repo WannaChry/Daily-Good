@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "379992548563",
+    "project_id": "daily-good-e5faa",
+    "storage_bucket": "daily-good-e5faa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:379992548563:android:fa14d4bcbd6d317426e026",
+        "android_client_info": {
+          "package_name": "com.example.studyproject"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD42lP7P7rmLDGk0gXkUUsZ_OHFtubXYH8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
