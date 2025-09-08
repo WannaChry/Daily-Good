@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
-import 'pages/pages/home.dart'; // <-- hier importieren
+import 'pages/pages/home.dart';
+import 'pages/state/social_state.dart'; // <-- State importieren
 
 void main() {
-  runApp(const MyApp());
+  final social = SocialState.demo(); // Demo-Daten für Start
+  runApp(
+    SocialScope.provide(
+      state: social,
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -12,7 +19,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: HomePage(), // <-- zeigt die Seite aus home.dart an
+      home: HomePage(),
     );
   }
 }
