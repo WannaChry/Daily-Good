@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'pages/pages/home.dart'; // deine Home-Seite
+import 'pages/pages/home.dart';
+import 'pages/state/social_state.dart'; // <-- State importieren
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // Flutter vorbereiten
-  await Firebase.initializeApp();            // Firebase initialisieren
-  runApp(const MyApp());
+void main() {
+  final social = SocialState.demo(); // Demo-Daten für Start
+  runApp(
+    SocialScope.provide(
+      state: social,
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -15,7 +19,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: HomePage(), // <-- zeigt deine ursprüngliche HomePage
+      home: HomePage(),
     );
   }
 }
