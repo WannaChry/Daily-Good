@@ -14,6 +14,7 @@ import 'package:studyproject/pages/pages/auth_entry_page.dart';
 import 'package:studyproject/pages/pages/sign_in_page.dart';
 import 'package:studyproject/pages/pages/sign_up_page.dart';
 import 'package:studyproject/pages/subpages/eco_facts_dialog.dart';
+import 'package:studyproject/pages/subpages/mood_check_dialog.dart';
 import 'dart:ui' show lerpDouble;
 
 class HomePage extends StatefulWidget {
@@ -75,7 +76,15 @@ class _HomePageState extends State<HomePage> {
             size: 36,
             padding: const EdgeInsets.only(right: 12, top: 8),
             color: Colors.black,
-            onTap: () => debugPrint('Box geklickt'),
+            onTap: () async {
+              final result = await showMoodCheckDialog(context);
+              if (!context.mounted || result == null) return;
+
+              const labels = ['Sehr schlecht', 'Schlecht', 'Mittel', 'Gut', 'Sehr gut'];
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Stimmung: ${labels[result]}')),
+              );
+            },
           ),
         ],
       ),
