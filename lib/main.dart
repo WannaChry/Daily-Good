@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'pages/pages/home.dart';
-import 'pages/state/social_state.dart'; // <-- State importieren
+import 'pages/state/social_state.dart';
 
-void main() {
-  final social = SocialState.demo(); // Demo-Daten für Start
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // 1. Flutter vorbereiten
+  await Firebase.initializeApp();            // 2. Firebase initialisieren
+
+  final social = SocialState.demo();         // 3. State vorbereiten
+
+  // 4. Beides zusammen in runApp
   runApp(
     SocialScope.provide(
       state: social,
