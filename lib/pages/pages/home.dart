@@ -1,4 +1,5 @@
-// lib/pages/home.dart
+// lib/pages/pages/home.dart
+import 'dart:ui' show lerpDouble;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -15,7 +16,6 @@ import 'package:studyproject/pages/pages/sign_in_page.dart';
 import 'package:studyproject/pages/pages/sign_up_page.dart';
 import 'package:studyproject/pages/subpages/eco_facts_dialog.dart';
 import 'package:studyproject/pages/subpages/mood_check_dialog.dart';
-import 'dart:ui' show lerpDouble;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -109,7 +109,7 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-// ==================== Tab 1: Ziele ====================
+// ==================== Tab 1: Ziele (Home) ====================
 class GoalsPage extends StatefulWidget {
   const GoalsPage({super.key, required this.onPointsChanged});
   final ValueChanged<int> onPointsChanged;
@@ -157,37 +157,42 @@ class _GoalsPageState extends State<GoalsPage>
     final pointsStyle =
     GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w800);
 
+    final unlocked = _demoBadges.where((b) => b.unlocked).length;
+    final total = _demoBadges.length;
+
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Column(
         children: [
+          // 1) Baum
           _TreeGrowth(points: _currentPoints, target: _dailyTarget),
           const SizedBox(height: 10),
-          _ProgressCard(current: _currentPoints, target: _dailyTarget),
-          const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.calendar_today, size: 28),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Tägliche Aufgaben',
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+
+          // 2) NEU: Abzeichen-Kachel direkt unter dem Baum
+          _BadgeEntryTile(
+            unlockedCount: unlocked,
+            totalCount: total,
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const BadgeDexPage()),
+              );
+            },
           ),
           const SizedBox(height: 10),
+
+          // 3) Progress-Card
+          _ProgressCard(current: _currentPoints, target: _dailyTarget),
+          const SizedBox(height: 10),
+
+          // 4) Section-Header „Tägliche Aufgaben“
+          _SectionHeaderCard(
+            icon: Icons.calendar_today,
+            title: 'Tägliche Aufgaben',
+            onTap: null,
+          ),
+          const SizedBox(height: 10),
+
+          // 5) Task-Liste
           Expanded(
             child: ListView.separated(
               itemCount: tasks.length,
@@ -205,9 +210,19 @@ class _GoalsPageState extends State<GoalsPage>
                         horizontal: 14, vertical: 12),
                     decoration: BoxDecoration(
                       color: isDone
-                          ? Colors.lightGreen.withOpacity(0.5)
-                          : Colors.grey.shade300,
+                          ? Colors.lightGreen.withValues(alpha: 0.28)
+                          : Colors.black.withValues(alpha: 0.06),
                       borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: Colors.black.withValues(alpha: 0.05),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.04),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Row(
                       children: [
@@ -242,8 +257,497 @@ class _GoalsPageState extends State<GoalsPage>
   }
 }
 
-// Kleiner „wachsender“ Baum
-// Ersetzt deine bisherige _TreeGrowth
+// ---------- Section-Header-Card ----------
+class _SectionHeaderCard extends StatelessWidget {
+  const _SectionHeaderCard({
+    required this.icon,
+    required this.title,
+    this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: Colors.black.withOpacity(0.06)),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x14000000),
+                blurRadius: 10,
+                offset: Offset(0, 6),
+              )
+            ],
+          ),
+          child: Row(
+            children: [
+              Icon(icon, size: 28),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  title,
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              if (onTap != null) const Icon(Icons.chevron_right, size: 22),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ---------- Badge-Entry-Tile ----------
+class _BadgeEntryTile extends StatelessWidget {
+  const _BadgeEntryTile({
+    required this.unlockedCount,
+    required this.totalCount,
+    required this.onTap,
+  });
+
+  final int unlockedCount;
+  final int totalCount;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: const Color(0xFFE0D4FF),
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFD7C7FF)),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.workspace_premium_rounded, size: 28),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Abzeichen',
+                  style: GoogleFonts.poppins(
+                      fontSize: 16, fontWeight: FontWeight.w800),
+                ),
+              ),
+              Container(
+                padding:
+                const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(color: Colors.black.withOpacity(0.06)),
+                ),
+                child: Text(
+                  '$unlockedCount / $totalCount',
+                  style: GoogleFonts.poppins(
+                      fontSize: 13, fontWeight: FontWeight.w800),
+                ),
+              ),
+              const SizedBox(width: 6),
+              const Icon(Icons.chevron_right, size: 22),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ==================== „BadgeDex“-Seite (Vollbild) ====================
+class BadgeDexPage extends StatelessWidget {
+  const BadgeDexPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final unlockedCount = _demoBadges.where((b) => b.unlocked).length;
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
+        title: Text(
+          'Abzeichen  •  $unlockedCount / ${_demoBadges.length}',
+          style:
+          GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w800),
+        ),
+        centerTitle: true,
+        elevation: 0,
+      ),
+      backgroundColor: const Color(0xFFF8F3FA),
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+        child: GridView.builder(
+          itemCount: _demoBadges.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            childAspectRatio: 0.82,
+          ),
+          itemBuilder: (_, i) => _BadgeCell(badge: _demoBadges[i]),
+        ),
+      ),
+    );
+  }
+}
+
+class _BadgeCell extends StatelessWidget {
+  const _BadgeCell({required this.badge});
+  final Badge badge;
+
+  Color _rarityBorder() {
+    switch (badge.rarity) {
+      case BadgeRarity.common:
+        return Colors.black.withOpacity(0.10);
+      case BadgeRarity.rare:
+        return Colors.blueAccent.withOpacity(0.45);
+      case BadgeRarity.epic:
+        return Colors.purple.withOpacity(0.45);
+      case BadgeRarity.legendary:
+        return Colors.orange.withOpacity(0.55);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final locked = !badge.unlocked;
+
+    return InkWell(
+      onTap: () => showModalBottomSheet(
+        context: context,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+        ),
+        builder: (_) => _BadgeDetailSheet(badge: badge),
+      ),
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: _rarityBorder()),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x14000000),
+              blurRadius: 10,
+              offset: Offset(0, 6),
+            )
+          ],
+        ),
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          children: [
+            // Icon-Kreis
+            Container(
+              height: 58,
+              width: 58,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFF7FBF5), Color(0xFFEFF7EA)],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+                border: Border.all(color: Colors.black12),
+              ),
+              alignment: Alignment.center,
+              child: Icon(
+                badge.icon,
+                size: 28,
+                color: locked ? Colors.black26 : Colors.green.shade700,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              badge.title,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.poppins(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w800,
+                color: locked ? Colors.black38 : Colors.black87,
+              ),
+            ),
+            const Spacer(),
+            // Lock / Unlocked Indicator
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  locked ? Icons.lock_outline_rounded : Icons.check_circle_rounded,
+                  size: 16,
+                  color: locked ? Colors.black26 : Colors.green,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  locked ? 'Gesperrt' : 'Freigeschaltet',
+                  style: GoogleFonts.poppins(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w700,
+                    color: locked ? Colors.black38 : Colors.green.shade700,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BadgeDetailSheet extends StatelessWidget {
+  const _BadgeDetailSheet({required this.badge});
+  final Badge badge;
+
+  @override
+  Widget build(BuildContext context) {
+    final locked = !badge.unlocked;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 44,
+            height: 5,
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              color: Colors.black12,
+              borderRadius: BorderRadius.circular(999),
+            ),
+          ),
+          Text(
+            badge.title,
+            style:
+            GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Icon(
+                badge.icon,
+                size: 28,
+                color: locked ? Colors.black26 : Colors.green.shade700,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                _rarityText(badge.rarity),
+                style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black.withOpacity(0.7)),
+              ),
+              const Spacer(),
+              Container(
+                padding:
+                const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: locked ? Colors.black.withOpacity(0.06) : Colors.green.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  locked ? 'Gesperrt' : 'Freigeschaltet',
+                  style: GoogleFonts.poppins(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w800,
+                      color: locked ? Colors.black54 : Colors.green.shade700),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              badge.description,
+              style: GoogleFonts.poppins(
+                fontSize: 13.5,
+                fontWeight: FontWeight.w600,
+                color: Colors.black54,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          if (badge.progress != null)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Fortschritt: ${badge.progress!.current} / ${badge.progress!.target}',
+                style: GoogleFonts.poppins(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          const SizedBox(height: 12),
+        ],
+      ),
+    );
+  }
+
+  static String _rarityText(BadgeRarity r) {
+    switch (r) {
+      case BadgeRarity.common:
+        return 'Gewöhnlich';
+      case BadgeRarity.rare:
+        return 'Selten';
+      case BadgeRarity.epic:
+        return 'Episch';
+      case BadgeRarity.legendary:
+        return 'Legendär';
+    }
+  }
+}
+
+// ==================== Badge-Model (Demo) ====================
+class Badge {
+  final String title;
+  final String description;
+  final IconData icon;
+  final BadgeRarity rarity;
+  final bool unlocked;
+  final BadgeProgress? progress;
+
+  const Badge({
+    required this.title,
+    required this.description,
+    required this.icon,
+    required this.rarity,
+    required this.unlocked,
+    this.progress,
+  });
+}
+
+class BadgeProgress {
+  final int current;
+  final int target;
+  const BadgeProgress(this.current, this.target);
+}
+
+enum BadgeRarity { common, rare, epic, legendary }
+
+// Demo-Badges – später aus State/Firebase
+const List<Badge> _demoBadges = [
+  Badge(
+    title: 'Erster Schritt',
+    description: 'Erledige deine erste Aufgabe.',
+    icon: Icons.check_circle_rounded,
+    rarity: BadgeRarity.common,
+    unlocked: true,
+    progress: BadgeProgress(1, 1),
+  ),
+  Badge(
+    title: 'Umweltfreundlich',
+    description: 'Spare 5 kg CO₂ in einem Monat.',
+    icon: Icons.eco_rounded,
+    rarity: BadgeRarity.rare,
+    unlocked: false,
+    progress: BadgeProgress(2, 5),
+  ),
+  Badge(
+    title: 'Sozial aktiv',
+    description: 'Erledige 10 soziale Aufgaben.',
+    icon: Icons.group_rounded,
+    rarity: BadgeRarity.common,
+    unlocked: true,
+    progress: BadgeProgress(10, 10),
+  ),
+  Badge(
+    title: 'Konzentrationsmeister',
+    description: '3× Deep-Work in einer Woche.',
+    icon: Icons.bolt_rounded,
+    rarity: BadgeRarity.rare,
+    unlocked: false,
+    progress: BadgeProgress(1, 3),
+  ),
+  Badge(
+    title: 'Achtsamkeits-Profi',
+    description: 'Meditiere an 7 Tagen in Folge.',
+    icon: Icons.self_improvement_rounded,
+    rarity: BadgeRarity.epic,
+    unlocked: false,
+    progress: BadgeProgress(3, 7),
+  ),
+  Badge(
+    title: 'Pendlerheld',
+    description: 'Fahre 5× mit dem Rad statt Auto.',
+    icon: Icons.directions_bike_rounded,
+    rarity: BadgeRarity.common,
+    unlocked: true,
+    progress: BadgeProgress(5, 5),
+  ),
+  Badge(
+    title: 'Wasser statt Plastik',
+    description: '10× Leitungswasser statt Plastikflasche.',
+    icon: Icons.local_drink_rounded,
+    rarity: BadgeRarity.common,
+    unlocked: false,
+    progress: BadgeProgress(6, 10),
+  ),
+  Badge(
+    title: 'Bücherwurm',
+    description: 'Lies 5× 30 Minuten in einer Woche.',
+    icon: Icons.menu_book_rounded,
+    rarity: BadgeRarity.rare,
+    unlocked: false,
+    progress: BadgeProgress(2, 5),
+  ),
+  Badge(
+    title: 'Gewohnheits-Champion',
+    description: '10 Tage in Folge mindestens 3 Tasks.',
+    icon: Icons.stars_rounded,
+    rarity: BadgeRarity.legendary,
+    unlocked: false,
+    progress: BadgeProgress(4, 10),
+  ),
+  Badge(
+    title: 'Hydro-Hero',
+    description: 'Trinke 2 Liter Wasser an 7 Tagen.',
+    icon: Icons.opacity_rounded,
+    rarity: BadgeRarity.common,
+    unlocked: false,
+    progress: BadgeProgress(3, 7),
+  ),
+  Badge(
+    title: 'Reflexions-Master',
+    description: 'Schreibe 5 Reflexionen.',
+    icon: Icons.edit_note_rounded,
+    rarity: BadgeRarity.rare,
+    unlocked: false,
+    progress: BadgeProgress(1, 5),
+  ),
+  Badge(
+    title: 'Community-Star',
+    description: 'Tritt einer Community bei und poste.',
+    icon: Icons.forum_rounded,
+    rarity: BadgeRarity.epic,
+    unlocked: false,
+  ),
+];
+
+// ==================== Vorhandene Widgets: Baum + Progress ====================
 class _TreeGrowth extends StatelessWidget {
   const _TreeGrowth({required this.points, required this.target});
 
@@ -255,38 +759,35 @@ class _TreeGrowth extends StatelessWidget {
     final progress = (points / target).clamp(0.0, 1.0);
     final stage = (points / 5).floor().clamp(0, 5); // 0..5 (bei Ziel 25)
 
-    // Emojis als Platzhalter – später gern durch PNG/SVG ersetzen
     final String emoji =
-    stage >= 4 ? '🌳' : stage >= 2 ? '🌿' : '🌱'; // 0–1 = Sprössling, 2–3 = Busch, 4–5 = Baum
+    stage >= 4 ? '🌳' : stage >= 2 ? '🌿' : '🌱';
 
-    // Skaliert sanft mit Fortschritt
     final double size = lerpDouble(52, 86, progress)!;
 
     return Container(
-      height: 160, // << größerer Bereich
+      height: 160,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            const Color(0xFFEFF7EA),
-            const Color(0xFFDFF0D8),
+            Color(0xFFEFF7EA),
+            Color(0xFFDFF0D8),
           ],
         ),
-        border: Border.all(color: Colors.black.withOpacity(0.05)),
-        boxShadow: [
+        border: Border.all(color: Colors.black12),
+        boxShadow: const [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Color(0x10000000),
             blurRadius: 14,
-            offset: const Offset(0, 6),
+            offset: Offset(0, 6),
           ),
         ],
       ),
       child: Stack(
         children: [
-          // Himmel-Schimmer
           Positioned.fill(
             child: IgnorePointer(
               child: DecoratedBox(
@@ -303,8 +804,6 @@ class _TreeGrowth extends StatelessWidget {
               ),
             ),
           ),
-
-          // Boden
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
@@ -316,12 +815,10 @@ class _TreeGrowth extends StatelessWidget {
               ),
             ),
           ),
-
-          // Baum – smoothes Einblenden & Scale je Fortschritt
           Align(
             alignment: Alignment.lerp(
-              const Alignment(0.0, 0.5), // tiefer am Anfang
-              const Alignment(0.0, 0.2), // etwas höher „wächst“
+              const Alignment(0.0, 0.5),
+              const Alignment(0.0, 0.2),
               progress,
             )!,
             child: AnimatedSwitcher(
@@ -334,13 +831,11 @@ class _TreeGrowth extends StatelessWidget {
               ),
               child: Text(
                 emoji,
-                key: ValueKey(emoji), // wechselt zwischen 🌱 / 🌿 / 🌳
+                key: ValueKey(emoji),
                 style: TextStyle(fontSize: size),
               ),
             ),
           ),
-
-          // kleine „Ast-/Blatt“-Indikatoren (5 Punkte-Schritte)
           Positioned(
             right: 8,
             top: 8,
@@ -376,8 +871,6 @@ class _TreeGrowth extends StatelessWidget {
               }),
             ),
           ),
-
-          // Text links
           Align(
             alignment: Alignment.topLeft,
             child: Padding(
@@ -413,7 +906,6 @@ class _TreeGrowth extends StatelessWidget {
   }
 }
 
-
 class _ProgressCard extends StatelessWidget {
   const _ProgressCard({required this.current, required this.target});
   final int current;
@@ -436,7 +928,6 @@ class _ProgressCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Blitz + Text
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -454,8 +945,6 @@ class _ProgressCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-
-          // Animierter Fortschrittsbalken
           LayoutBuilder(
             builder: (context, c) {
               final w = c.maxWidth;
@@ -469,13 +958,10 @@ class _ProgressCard extends StatelessWidget {
 
                   return Stack(
                     children: [
-                      // Track
                       ClipRRect(
                         borderRadius: BorderRadius.circular(999),
                         child: Container(height: barH, color: Colors.white),
                       ),
-
-                      // Füllung (animierte Breite)
                       ClipRRect(
                         borderRadius: BorderRadius.circular(999),
                         child: Align(
@@ -487,8 +973,6 @@ class _ProgressCard extends StatelessWidget {
                           ),
                         ),
                       ),
-
-                      // Knopf
                       Positioned(
                         left: knobX,
                         top: (barH - 2 * knobR) / 2,
@@ -506,8 +990,6 @@ class _ProgressCard extends StatelessWidget {
                           ),
                         ),
                       ),
-
-                      // Label mittig
                       Positioned.fill(
                         child: Center(
                           child: AnimatedSwitcher(

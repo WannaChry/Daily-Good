@@ -1,4 +1,4 @@
-import 'dart:math';
+// lib/pages/pages/community_page.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:studyproject/pages/state/social_state.dart';
@@ -11,6 +11,13 @@ class CommunityPage extends StatefulWidget {
 }
 
 class _CommunityPageState extends State<CommunityPage> {
+  // ---- Pastell-Design Tokens ----
+  static const _bg = Color(0xFFF8F3FA); // Seite-Hintergrund
+  static const _pastelGreen = Color(0xFFB5E48C); // Basisgrün
+  static const _cardBorder = Color(0x14000000); // schwarz 8%
+  static const _shadow = Color(0x0A000000); // schwarz 4%
+  static const _softGrey = Color(0x0D000000); // schwarz 5%
+
   void _toast(String msg) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
@@ -24,7 +31,7 @@ class _CommunityPageState extends State<CommunityPage> {
     final topFriends = social.friends.take(4).toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F3FA),
+      backgroundColor: _bg,
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),
@@ -54,13 +61,11 @@ class _CommunityPageState extends State<CommunityPage> {
                   children: [
                     _ActionButton(
                       label: 'Freund hinzufügen',
-                      color: const Color(0xFFA8D5A2),
                       onTap: _openAddFriendSheet,
                     ),
                     const SizedBox(height: 10),
                     _ActionButton(
                       label: 'Freundschaftsanfragen',
-                      color: const Color(0xFFA8D5A2),
                       onTap: _openRequestsSheet,
                     ),
                   ],
@@ -78,9 +83,12 @@ class _CommunityPageState extends State<CommunityPage> {
                       .map((f) => Column(
                     children: [
                       ListTile(
-                        title: Text(f.name,
-                            style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.w700)),
+                        title: Text(
+                          f.name,
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                         subtitle: Text('Code: ${f.code}', style: hint),
                         trailing: IconButton(
                           icon: const Icon(Icons.delete_outline),
@@ -106,19 +114,16 @@ class _CommunityPageState extends State<CommunityPage> {
                   children: [
                     _ActionButton(
                       label: 'Community beitreten',
-                      color: const Color(0xFFA8D5A2),
                       onTap: _openJoinCommunitySheet,
                     ),
                     const SizedBox(height: 10),
                     _ActionButton(
                       label: 'Community erstellen',
-                      color: const Color(0xFFA8D5A2),
                       onTap: _openCreateCommunitySheet,
                     ),
                     const SizedBox(height: 10),
                     _ActionButton(
                       label: 'Community-Einladungen',
-                      color: const Color(0xFFA8D5A2),
                       onTap: _openInvitesSheet,
                     ),
                   ],
@@ -136,9 +141,12 @@ class _CommunityPageState extends State<CommunityPage> {
                       .map((c) => Column(
                     children: [
                       ListTile(
-                        title: Text(c.name,
-                            style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.w700)),
+                        title: Text(
+                          c.name,
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                         subtitle: Text('Code: ${c.code}', style: hint),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () => _toast('Community "${c.name}" (Demo).'),
@@ -159,7 +167,6 @@ class _CommunityPageState extends State<CommunityPage> {
 
   // ===== Bottom Sheets / Logik =====
 
-  // Freund hinzufügen (Name oder Code)
   void _openAddFriendSheet() {
     final social = SocialState.of(context, listen: false);
     final nameCtrl = TextEditingController();
@@ -174,7 +181,9 @@ class _CommunityPageState extends State<CommunityPage> {
       builder: (_) {
         return Padding(
           padding: EdgeInsets.only(
-            left: 16, right: 16, top: 16,
+            left: 16,
+            right: 16,
+            top: 16,
             bottom: 16 + MediaQuery.of(context).viewInsets.bottom,
           ),
           child: Column(
@@ -214,7 +223,6 @@ class _CommunityPageState extends State<CommunityPage> {
     );
   }
 
-  // Freundschaftsanfragen (eingehend + ausgehend)
   void _openRequestsSheet() {
     final social = SocialState.of(context, listen: false);
     final incoming = social.incomingFriendRequests;
@@ -229,7 +237,9 @@ class _CommunityPageState extends State<CommunityPage> {
       builder: (_) {
         return Padding(
           padding: EdgeInsets.only(
-            left: 16, right: 16, top: 12,
+            left: 16,
+            right: 16,
+            top: 12,
             bottom: 12 + MediaQuery.of(context).viewInsets.bottom,
           ),
           child: Column(
@@ -243,7 +253,8 @@ class _CommunityPageState extends State<CommunityPage> {
 
               Align(
                 alignment: Alignment.centerLeft,
-                child: Text('Eingehend', style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 14)),
+                child: Text('Eingehend',
+                    style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 14)),
               ),
               const SizedBox(height: 4),
               if (incoming.isEmpty)
@@ -271,7 +282,8 @@ class _CommunityPageState extends State<CommunityPage> {
 
               Align(
                 alignment: Alignment.centerLeft,
-                child: Text('Ausgehend', style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 14)),
+                child: Text('Ausgehend',
+                    style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 14)),
               ),
               const SizedBox(height: 4),
               if (outgoing.isEmpty)
@@ -298,7 +310,6 @@ class _CommunityPageState extends State<CommunityPage> {
     );
   }
 
-  // Community-Einladungen
   void _openInvitesSheet() {
     final social = SocialState.of(context, listen: false);
     final invites = social.communityInvites;
@@ -346,7 +357,6 @@ class _CommunityPageState extends State<CommunityPage> {
     );
   }
 
-  // Community beitreten (Code)
   void _openJoinCommunitySheet() {
     final social = SocialState.of(context, listen: false);
     final codeCtrl = TextEditingController();
@@ -373,22 +383,16 @@ class _CommunityPageState extends State<CommunityPage> {
               const SizedBox(height: 8),
               Text(
                 'Community beitreten',
-                style: GoogleFonts.poppins(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                ),
+                style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 12),
 
-              // Eingabe: Code
               _TextField(label: 'Community-Code', controller: codeCtrl),
               const SizedBox(height: 12),
 
-              // Eingabe: Name
               _TextField(label: 'Community-Name', controller: nameCtrl),
               const SizedBox(height: 16),
 
-              // Button
               _PrimaryButton(
                 label: 'Beitreten',
                 onTap: () {
@@ -408,8 +412,8 @@ class _CommunityPageState extends State<CommunityPage> {
                     social.joinCommunityByCode(code);
                     _toast('Community per Code beigetreten (Demo).');
                   } else {
-                    if (social.communities.any((c) =>
-                    c.name.toLowerCase() == name.toLowerCase())) {
+                    if (social.communities
+                        .any((c) => c.name.toLowerCase() == name.toLowerCase())) {
                       return _toast('Schon Mitglied.');
                     }
                     social.joinCommunityByName(name);
@@ -424,11 +428,10 @@ class _CommunityPageState extends State<CommunityPage> {
     );
   }
 
-  // Community erstellen
   void _openCreateCommunitySheet() {
     final social = SocialState.of(context, listen: false);
     final nameCtrl = TextEditingController();
-    final descCtrl = TextEditingController(); // aktuell noch ungenutzt
+    final descCtrl = TextEditingController();
 
     showModalBottomSheet(
       context: context,
@@ -437,10 +440,11 @@ class _CommunityPageState extends State<CommunityPage> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
       ),
       builder: (_) {
-        // Wir erstellen die Community erst beim Tap, damit der Code danach angezeigt wird
         return Padding(
           padding: EdgeInsets.only(
-            left: 16, right: 16, top: 16,
+            left: 16,
+            right: 16,
+            top: 16,
             bottom: 16 + MediaQuery.of(context).viewInsets.bottom,
           ),
           child: Column(
@@ -470,7 +474,6 @@ class _CommunityPageState extends State<CommunityPage> {
     );
   }
 
-  // Freund entfernen
   Future<void> _confirmRemoveFriend(Friend f) async {
     final social = SocialState.of(context, listen: false);
     final ok = await showDialog<bool>(
@@ -506,8 +509,9 @@ class _AvatarWithName extends StatelessWidget {
           width: 64,
           height: 64,
           decoration: BoxDecoration(
-            color: Colors.grey.shade300,
+            color: _CommunityPageState._softGrey, // zartes Grau
             borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: _CommunityPageState._cardBorder),
           ),
         ),
         const SizedBox(height: 6),
@@ -518,16 +522,16 @@ class _AvatarWithName extends StatelessWidget {
 }
 
 class _ActionButton extends StatelessWidget {
-  const _ActionButton({required this.label, required this.onTap, required this.color});
+  const _ActionButton({required this.label, required this.onTap});
 
   final String label;
   final VoidCallback onTap;
-  final Color color;
 
   @override
   Widget build(BuildContext context) {
+    // pastelliger, halbtransparenter Button
     return Material(
-      color: color,
+      color: Colors.transparent,
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
         borderRadius: BorderRadius.circular(14),
@@ -536,9 +540,25 @@ class _ActionButton extends StatelessWidget {
           height: 52,
           alignment: Alignment.centerLeft,
           padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: _CommunityPageState._pastelGreen.withValues(alpha: 0.35),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: _CommunityPageState._cardBorder),
+            boxShadow: const [
+              BoxShadow(
+                color: _CommunityPageState._shadow,
+                blurRadius: 8,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
           child: Text(
             label,
-            style: GoogleFonts.poppins(fontWeight: FontWeight.w800, fontSize: 15.5, color: Colors.black),
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w800,
+              fontSize: 15.5,
+              color: Colors.black,
+            ),
           ),
         ),
       ),
@@ -556,8 +576,10 @@ class _Card extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade300),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8, offset: const Offset(0, 2))],
+        border: Border.all(color: _CommunityPageState._cardBorder),
+        boxShadow: const [
+          BoxShadow(color: _CommunityPageState._shadow, blurRadius: 8, offset: Offset(0, 2)),
+        ],
       ),
       child: child,
     );
@@ -575,10 +597,15 @@ class _TextField extends StatelessWidget {
     return TextField(
       controller: controller,
       maxLines: maxLines,
-      decoration: const InputDecoration(
-        border: OutlineInputBorder(),
-        labelText: '',
-      ).copyWith(labelText: label),
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(
+          borderSide: BorderSide(color: _CommunityPageState._cardBorder),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        filled: true,
+        fillColor: Colors.black.withValues(alpha: 0.03),
+      ),
     );
   }
 }
@@ -591,7 +618,7 @@ class _PrimaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: const Color(0xFFA8D5A2),
+      color: Colors.transparent,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
@@ -600,8 +627,18 @@ class _PrimaryButton extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 14),
           alignment: Alignment.center,
-          child: Text(label,
-              style: GoogleFonts.poppins(fontSize: 15.5, fontWeight: FontWeight.w800, color: Colors.black)),
+          decoration: BoxDecoration(
+            color: _CommunityPageState._pastelGreen.withValues(alpha: 0.35),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: _CommunityPageState._cardBorder),
+            boxShadow: const [
+              BoxShadow(color: _CommunityPageState._shadow, blurRadius: 8, offset: Offset(0, 2)),
+            ],
+          ),
+          child: Text(
+            label,
+            style: GoogleFonts.poppins(fontSize: 15.5, fontWeight: FontWeight.w800, color: Colors.black),
+          ),
         ),
       ),
     );
@@ -621,12 +658,24 @@ class _RequestRow extends StatelessWidget {
       trailing: Wrap(
         spacing: 6,
         children: [
-          OutlinedButton(onPressed: onDecline, child: const Text('Ablehnen')),
+          OutlinedButton(
+            onPressed: onDecline,
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(color: _CommunityPageState._cardBorder),
+              foregroundColor: Colors.black87,
+            ),
+            child: const Text('Ablehnen'),
+          ),
           ElevatedButton(
             onPressed: onAccept,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFA8D5A2),
+              backgroundColor: _CommunityPageState._pastelGreen.withValues(alpha: 0.35),
               foregroundColor: Colors.black,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+                side: const BorderSide(color: _CommunityPageState._cardBorder),
+              ),
             ),
             child: const Text('Annehmen'),
           ),

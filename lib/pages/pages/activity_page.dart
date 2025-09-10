@@ -17,26 +17,36 @@ class _ActivityPageState extends State<ActivityPage> {
     ActivityTask(category: 'Sozial', title: 'Jemandem helfen', points: 5, co2Kg: 0),
     ActivityTask(category: 'Sozial', title: 'Danke-Nachricht senden', points: 5, co2Kg: 0),
     ActivityTask(category: 'Sozial', title: 'Zeit mit Familie/Freunden', points: 10, co2Kg: 0),
+
     // Ökologisch 🌱
     ActivityTask(category: 'Ökologisch', title: 'Fahrrad statt Auto', points: 10, co2Kg: 2.0),
     ActivityTask(category: 'Ökologisch', title: 'Leitungswasser statt Plastik', points: 5, co2Kg: 0.1),
     ActivityTask(category: 'Ökologisch', title: 'Müll vermeiden / Mehrweg', points: 10, co2Kg: 0.5),
+
     // Gesundheit 💪
     ActivityTask(category: 'Gesundheit', title: '10.000 Schritte', points: 10, co2Kg: 0),
     ActivityTask(category: 'Gesundheit', title: 'Atemübung 5 Min', points: 5, co2Kg: 0),
     ActivityTask(category: 'Gesundheit', title: '2 Liter Wasser trinken', points: 5, co2Kg: 0),
+
     // Achtsamkeit 🧘
     ActivityTask(category: 'Achtsamkeit', title: '10 Min Meditation', points: 5, co2Kg: 0),
     ActivityTask(category: 'Achtsamkeit', title: 'Reflexion schreiben', points: 5, co2Kg: 0),
     ActivityTask(category: 'Achtsamkeit', title: '30 Min lesen', points: 10, co2Kg: 0),
+
     // Produktivität ✅
     ActivityTask(category: 'Produktivität', title: 'Deep-Work 30 Min', points: 10, co2Kg: 0),
     ActivityTask(category: 'Produktivität', title: 'Inbox Zero', points: 5, co2Kg: 0),
     ActivityTask(category: 'Produktivität', title: 'To-Do Liste geplant', points: 5, co2Kg: 0),
+
     // Lernen 📚
     ActivityTask(category: 'Lernen', title: '1 Kapitel Fachbuch', points: 10, co2Kg: 0),
     ActivityTask(category: 'Lernen', title: 'Kurzer Online-Kurs', points: 10, co2Kg: 0),
     ActivityTask(category: 'Lernen', title: 'Notizen wiederholen', points: 5, co2Kg: 0),
+
+    // Personalisierte Aufgaben ⭐ (neu)
+    ActivityTask(category: 'Personalisierte Aufgaben', title: '10 Min spazieren gehen', points: 5, co2Kg: 0),
+    ActivityTask(category: 'Personalisierte Aufgaben', title: '15 Min Hobby-Zeit', points: 5, co2Kg: 0),
+    ActivityTask(category: 'Personalisierte Aufgaben', title: '3 Tagesziele notieren', points: 5, co2Kg: 0),
   ];
 
   // Challenge-Ziele (frei anpassbar)
@@ -55,6 +65,13 @@ class _ActivityPageState extends State<ActivityPage> {
     'Achtsamkeit': CategoryTheme(color: Color(0xFFF4ECFF), border: Color(0xFFD7C7FF), icon: Icons.self_improvement_rounded),
     'Produktivität': CategoryTheme(color: Color(0xFFFFEEF0), border: Color(0xFFF8B8C1), icon: Icons.task_alt_rounded),
     'Lernen': CategoryTheme(color: Color(0xFFEFF3FF), border: Color(0xFFBECDFE), icon: Icons.menu_book_rounded),
+
+    // Neu: Personalisierte Aufgaben – Pastellrosé
+    'Personalisierte Aufgaben': CategoryTheme(
+      color: Color(0xFFFFF1F4),
+      border: Color(0xFFFFD6DE),
+      icon: Icons.auto_awesome_rounded,
+    ),
   };
 
   // ---------- Helpers ----------
@@ -84,6 +101,30 @@ class _ActivityPageState extends State<ActivityPage> {
     setState(() => t.done = !t.done);
   }
 
+  // Vorschlagsfeld
+  final TextEditingController _suggestCtrl = TextEditingController();
+
+  void _submitSuggestion() {
+    final text = _suggestCtrl.text.trim();
+    if (text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Bitte gib einen Vorschlag ein.')),
+      );
+      return;
+    }
+    HapticFeedback.lightImpact();
+    _suggestCtrl.clear();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Danke! Vorschlag gesendet: "$text"')),
+    );
+  }
+
+  @override
+  void dispose() {
+    _suggestCtrl.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final textTitle = GoogleFonts.poppins(
@@ -96,7 +137,6 @@ class _ActivityPageState extends State<ActivityPage> {
       padding: const EdgeInsets.all(16),
       child: ListView(
         children: [
-          // ---------- KPI-Zeile: Impact + CO2 ----------
           // ---------- KPI-Karten untereinander ----------
           Column(
             children: [
@@ -105,7 +145,7 @@ class _ActivityPageState extends State<ActivityPage> {
                 value: _impactPoints.toString(),
                 subtitle: 'Summe erledigter Tasks',
                 emoji: '✨',
-                progress: (_impactPoints / 200).clamp(0.0, 1.0), // beliebiges Ziel
+                progress: (_impactPoints / 200).clamp(0.0, 1.0),
               ),
               const SizedBox(height: 14),
               _Co2ImpactCard(
@@ -115,7 +155,6 @@ class _ActivityPageState extends State<ActivityPage> {
             ],
           ),
           const SizedBox(height: 14),
-
 
           // ---------- Challenges ----------
           Text('Challenges', style: textTitle),
@@ -143,6 +182,17 @@ class _ActivityPageState extends State<ActivityPage> {
               theme: theme,
             );
           }),
+
+          const SizedBox(height: 18),
+
+          // ---------- Eigene Aufgaben vorschlagen (neu) ----------
+          Text('Eigene Aufgaben vorschlagen', style: textTitle),
+          const SizedBox(height: 8),
+          _SuggestCard(
+            controller: _suggestCtrl,
+            onSubmit: _submitSuggestion,
+          ),
+
           const SizedBox(height: 80),
         ],
       ),
@@ -221,7 +271,7 @@ class _KpiCard extends StatelessWidget {
                   value: progress,
                   strokeWidth: 10,
                   backgroundColor: Colors.grey.shade200,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blueAccent),
+                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.blueAccent),
                 ),
                 Center(
                   child: Text(emoji, style: const TextStyle(fontSize: 22)),
@@ -236,12 +286,14 @@ class _KpiCard extends StatelessWidget {
               children: [
                 Text(title, style: GoogleFonts.poppins(fontWeight: FontWeight.w800, fontSize: 16)),
                 const SizedBox(height: 4),
-                Text(subtitle,
-                    style: GoogleFonts.poppins(
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black.withOpacity(0.65),
-                    )),
+                Text(
+                  subtitle,
+                  style: GoogleFonts.poppins(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black.withOpacity(0.65),
+                  ),
+                ),
                 const SizedBox(height: 8),
                 Text(
                   value,
@@ -292,7 +344,7 @@ class _Co2ImpactCard extends StatelessWidget {
                   value: p,
                   strokeWidth: 10,
                   backgroundColor: Colors.white,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
                 ),
                 Center(
                   child: Text(
@@ -404,7 +456,6 @@ class _ChallengeCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          // -> Zahl größer & bold
           Text(
             '$progress / $target',
             style: GoogleFonts.poppins(fontWeight: FontWeight.w900, fontSize: 16),
@@ -516,6 +567,79 @@ class _TaskRow extends StatelessWidget {
             Icon(isDone ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded, size: 26),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ---------- Vorschlags-Card (neu) ----------
+class _SuggestCard extends StatelessWidget {
+  const _SuggestCard({
+    required this.controller,
+    required this.onSubmit,
+  });
+
+  final TextEditingController controller;
+  final VoidCallback onSubmit;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.black.withOpacity(0.08)),
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: const [BoxShadow(color: Color(0x14000000), blurRadius: 8, offset: Offset(0, 6))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Hast du eine coole Idee? Teile sie mit uns – vielleicht wird daraus eine neue Aufgabe für alle.',
+            style: GoogleFonts.poppins(fontSize: 13.5, fontWeight: FontWeight.w600, color: Colors.black54),
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: controller,
+            textInputAction: TextInputAction.send,
+            onSubmitted: (_) => onSubmit(),
+            decoration: InputDecoration(
+              hintText: 'Dein Vorschlag (z. B. „Mit dem Rad zur Arbeit“)',
+              hintStyle: GoogleFonts.poppins(fontSize: 14, color: Colors.black45, fontWeight: FontWeight.w600),
+              filled: true,
+              fillColor: Colors.black.withOpacity(0.03),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.black.withOpacity(0.08)),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.black.withOpacity(0.08)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Colors.black87, width: 1),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Align(
+            alignment: Alignment.centerRight,
+            child: ElevatedButton.icon(
+              onPressed: onSubmit,
+              icon: const Icon(Icons.send_rounded, size: 18),
+              label: const Text('Vorschlag senden'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.black,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

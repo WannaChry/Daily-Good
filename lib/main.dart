@@ -1,15 +1,24 @@
+// lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'pages/pages/home.dart';
+
 import 'pages/state/social_state.dart';
+import 'pages/pages/home.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // 1. Flutter vorbereiten
-  await Firebase.initializeApp();            // 2. Firebase initialisieren
+// Intro-Seiten
+import 'pages/intro/splash_page.dart';
+import 'pages/intro/onboarding_page.dart';
+import 'pages/intro/questionnaire_page.dart';
 
-  final social = SocialState.demo();         // 3. State vorbereiten
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-  // 4. Beides zusammen in runApp
+  // Firebase initialisieren (falls noch nicht konfiguriert: vorübergehend auskommentieren)
+  await Firebase.initializeApp();
+
+  // App-weit geteilten State vorbereiten
+  final social = SocialState.demo();
+
   runApp(
     SocialScope.provide(
       state: social,
@@ -23,9 +32,23 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: HomePage(),
+
+      // Intro-Flow startet immer bei Splash
+      initialRoute: '/splash',
+
+      // Routen für Intro + Home
+      routes: {
+        '/splash': (_) => const SplashPage(),
+        '/onboarding': (_) => const OnboardingPage(),
+        '/questionnaire': (_) => const QuestionnairePage(),
+        '/home': (_) => const HomePage(),
+      },
+
+      // Fallback, falls eine Route fehlt
+      onUnknownRoute: (_) =>
+          MaterialPageRoute(builder: (_) => const SplashPage()),
     );
   }
 }
