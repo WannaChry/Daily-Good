@@ -4,6 +4,8 @@ class User{
   final String id;
   String username;
   String email;
+  String sex;
+  String ageGroup;
   int level;
   int points;
   DateTime joinDate;
@@ -17,6 +19,8 @@ class User{
     required this.id,
     required this.username,
     required this.email,
+    required this.sex,
+    required this.ageGroup,
     this.level = 1,
     this.points = 0,
     required this.joinDate,
@@ -65,6 +69,8 @@ class User{
       id: json['id'],
       username: json['username'],
       email: json['email'],
+      sex: json['sex'],
+      ageGroup: json['ageGroup'],
       level: json['level'] ?? 1,
       points: json['points'] ?? 0,
       joinDate: DateTime.parse(json['joinDate']),
@@ -82,6 +88,8 @@ class User{
       'id': id,
       'username': username,
       'email': email,
+      'sex': sex,
+      'ageGroup': ageGroup,
       'level': level,
       'points': points,
       'joinDate': joinDate.toIso8601String(),

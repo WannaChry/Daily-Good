@@ -2,14 +2,17 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:studyproject/pages/models/tipp.dart';
 
 /// Zeigt einen stylischen, zentrierten Klima-/Sozial-Fakt.
 /// Schließen: Tap außerhalb oder auf das X oben rechts.
 Future<void> showEcoFactDialog(BuildContext context) async {
-  final rnd = Random.secure();
+  final rnd = Random();
+
 
   // Kurze, gut lesbare Fakten – gern beliebig erweitern.
-  final facts = <String>[
+  /*final facts = <String>[
     'Bambuswälder produzieren bis zu 35 % mehr Sauerstoff als gleich große Baumbestände.',
     'LED-Lampen verbrauchen ~80 % weniger Strom als Glühbirnen – und halten viel länger.',
     'Regional & saisonal einkaufen spart Transportwege und Verpackungsmüll.',
@@ -28,9 +31,15 @@ Future<void> showEcoFactDialog(BuildContext context) async {
     "Mit ÖPNV fahren verursacht bis zu 75 % weniger CO₂ als Autofahren.",
     "Second-Hand-Kleidung reduziert den Ressourcenverbrauch der Textilindustrie drastisch.",
   ];
+   */
+  // Firestore-Tipps laden
+  final snapshot = await FirebaseFirestore.instance.collection('tipps').get();
+  if (snapshot.docs.isEmpty) return; // Keine Tipps vorhanden
+  // Tipp-Liste aus Dokumenten erstellen
+  final tips = snapshot.docs.map((doc) => Tipp.fromJson(doc.data())).toList();
 
   // Zufälligen Fakt + Akzentfarben wählen
-  final fact = facts[rnd.nextInt(facts.length)];
+  final selectedtips = tips[rnd.nextInt(tips.length)];
   final accents = [
     [const Color(0xFFA7E3A1), const Color(0xFF74C69D)],
     [const Color(0xFFB8E1FF), const Color(0xFF91C3F2)],
@@ -162,7 +171,7 @@ Future<void> showEcoFactDialog(BuildContext context) async {
                                     ),
                                     Expanded(
                                       child: Text(
-                                        fact,
+                                        selectedtips.message,
                                         style: GoogleFonts.poppins(
                                           height: 1.35,
                                           fontSize: 15.5,

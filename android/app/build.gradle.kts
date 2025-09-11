@@ -9,7 +9,7 @@ plugins {
 android {
     namespace = "com.example.studyproject"
     compileSdk = 36
-    ndkVersion = "27.0.12077973"
+    //ndkVersion = flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -45,4 +45,9 @@ flutter {
 }
 dependencies{
     implementation (platform("com.google.firebase:firebase-bom:34.2.0"))
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
+
+    // Weitere Android-spezifische Abhängigkeiten falls nötig
+    implementation("androidx.core:core-ktx:1.12.0")
 }
