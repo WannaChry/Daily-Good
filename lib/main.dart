@@ -1,6 +1,7 @@
-// lib/main.dart
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:studyproject/pages/models/tipp.dart';
 
 import 'pages/state/social_state.dart';
 import 'pages/pages/home.dart';
@@ -13,10 +14,8 @@ import 'pages/intro/questionnaire_page.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Firebase initialisieren (falls noch nicht konfiguriert: vorübergehend auskommentieren)
   await Firebase.initializeApp();
 
-  // App-weit geteilten State vorbereiten
   final social = SocialState.demo();
 
   runApp(
@@ -27,26 +26,52 @@ Future<void> main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  List<Tipp> tips = []; // dynamisch, nicht final
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTips(); // Tipps beim Start laden
+  }
+
+  Future<void> _loadTips() async {
+    try {
+      final snapshot = await FirebaseFirestore.instance.collection('tipps').get();
+      if (snapshot.docs.isEmpty) {
+        print('[EcoFacts] Keine Tipps in Firestore gefunden.');
+        return;
+      }
+      setState(() {
+        tips.addAll(snapshot.docs.map((doc) => Tipp.fromJson(doc.data())).toList());
+      });
+      print('[EcoFacts] Erfolgreich ${tips.length} Tipps geladen.');
+    } catch (e) {
+      print('[EcoFacts] Fehler beim Laden der Tipps: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-
-      // Intro-Flow startet immer bei Splash
       initialRoute: '/splash',
 
-      // Routen für Intro + Home
+      //Routen zu den files
       routes: {
         '/splash': (_) => const SplashPage(),
         '/onboarding': (_) => const OnboardingPage(),
         '/questionnaire': (_) => const QuestionnairePage(),
-        '/home': (_) => const HomePage(),
+        // HomePage bekommt jetzt die geladenen Tipps
+        '/home': (_) => HomePage(tips: tips),
       },
-
-      // Fallback, falls eine Route fehlt
       onUnknownRoute: (_) =>
           MaterialPageRoute(builder: (_) => const SplashPage()),
     );

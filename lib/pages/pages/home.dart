@@ -16,9 +16,11 @@ import 'package:studyproject/pages/pages/sign_in_page.dart';
 import 'package:studyproject/pages/pages/sign_up_page.dart';
 import 'package:studyproject/pages/subpages/eco_facts_dialog.dart';
 import 'package:studyproject/pages/subpages/mood_check_dialog.dart';
+import 'package:studyproject/pages/models/tipp.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final List<Tipp> tips;
+  const HomePage({super.key, required this.tips});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -68,7 +70,7 @@ class _HomePageState extends State<HomePage> {
           padding: const EdgeInsets.only(top: 8),
           rotateOnTap: true,
           color: Colors.black,
-          onTap: () => showEcoFactDialog(context),
+          onTap: () => showEcoFactDialog(context, widget.tips),
         ),
         actions: [
           ReactiveSvgButton(

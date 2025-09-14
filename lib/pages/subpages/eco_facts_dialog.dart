@@ -2,14 +2,14 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:studyproject/pages/models/tipp.dart';
 
 /// Zeigt einen stylischen, zentrierten Klima-/Sozial-Fakt.
 /// Schließen: Tap außerhalb oder auf das X oben rechts.
-Future<void> showEcoFactDialog(BuildContext context) async {
+Future<void> showEcoFactDialog(BuildContext context, List<Tipp> tips) async {
+  if (tips.isEmpty) return;
   final rnd = Random();
-
+  final selectedtips = tips[rnd.nextInt(tips.length)];
 
   // Kurze, gut lesbare Fakten – gern beliebig erweitern.
   /*final facts = <String>[
@@ -32,14 +32,8 @@ Future<void> showEcoFactDialog(BuildContext context) async {
     "Second-Hand-Kleidung reduziert den Ressourcenverbrauch der Textilindustrie drastisch.",
   ];
    */
-  // Firestore-Tipps laden
-  final snapshot = await FirebaseFirestore.instance.collection('tipps').get();
-  if (snapshot.docs.isEmpty) return; // Keine Tipps vorhanden
-  // Tipp-Liste aus Dokumenten erstellen
-  final tips = snapshot.docs.map((doc) => Tipp.fromJson(doc.data())).toList();
-
   // Zufälligen Fakt + Akzentfarben wählen
-  final selectedtips = tips[rnd.nextInt(tips.length)];
+
   final accents = [
     [const Color(0xFFA7E3A1), const Color(0xFF74C69D)],
     [const Color(0xFFB8E1FF), const Color(0xFF91C3F2)],
