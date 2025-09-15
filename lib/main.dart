@@ -4,7 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:studyproject/pages/models/tipp.dart';
 
 import 'pages/state/social_state.dart';
-import 'pages/pages/home.dart';
+import 'pages/pages/home/home.dart';
 
 // Intro-Seiten
 import 'pages/intro/splash_page.dart';

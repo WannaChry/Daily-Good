@@ -11,6 +11,7 @@ class User{
   DateTime joinDate;
   int age;
   String beruf;
+  String mood;
 
   List<Task> completedTasks;
   List<User> friends;
@@ -26,6 +27,7 @@ class User{
     required this.joinDate,
     required this.age,
     required this.beruf,
+    required this.mood,
     List<Task>? completedTasks,
     List<User>? friends,
     List<String>? joinedCommunities,
@@ -76,6 +78,7 @@ class User{
       joinDate: DateTime.parse(json['joinDate']),
       age: json['age'],
       beruf: json['beruf'],
+      mood: json['mood'],
       completedTasks: (json['completedTasks'] as List<dynamic>?)
           ?.map((t) => Task.fromJson(t))
           .toList() ??
@@ -93,6 +96,9 @@ class User{
       'level': level,
       'points': points,
       'joinDate': joinDate.toIso8601String(),
+      'age': age,
+      'beruf': beruf,
+      'mood': mood,
       'completedTasks': completedTasks.map((t) => t.toJson()).toList(),
       // Freunde abspeichern am besten über deren IDs (nicht hier direkt)
     };
