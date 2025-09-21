@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class KpiCard extends StatelessWidget {
-  final String title;
+  final String title; //
   final String value;
   final String subtitle;
   final String emoji;

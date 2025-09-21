@@ -1,14 +1,22 @@
 // lib/pages/pages/profile_page.dart
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:studyproject/pages/subpages/notifications_page.dart';
 import 'package:studyproject/pages/subpages/preferences_page.dart';
 import 'package:studyproject/pages/subpages/deine_daten_page.dart';
 import 'package:studyproject/pages/subpages/privacy_security_page.dart';
 import 'package:studyproject/pages/subpages/help_support_page.dart';
-// NEU: globaler State
 import 'package:studyproject/pages/state/social_state.dart';
+import 'package:studyproject/pages/state/auth_state.dart';
+import 'package:studyproject/pages/pages/sign_in_page.dart';
+import 'package:studyproject/pages/pages/sign_up_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key, required this.totalPoints});
@@ -20,15 +28,15 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   late final String _friendCode;
-
-  // "Über mich" – reaktiv (später gern persistent machen)
   final _aboutCtrl = TextEditingController();
   static const _aboutMaxLen = 200;
+
+  bool _uploadingAvatar = false;
 
   @override
   void initState() {
     super.initState();
-    _friendCode = _generateFriendCode(9); // z. B. "QH93FCVRT"
+    _friendCode = _generateFriendCode(9);
     _aboutCtrl.text = "";
     _aboutCtrl.addListener(() => setState(() {}));
   }
@@ -40,12 +48,11 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   String _generateFriendCode(int length) {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // ohne 0/O/1/I
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     final rnd = Random.secure();
     return List.generate(length, (_) => chars[rnd.nextInt(chars.length)]).join();
   }
 
-  /// Level-Skala: Start 80 Punkte, pro Level +20 mehr (80, 100, 120, …)
   ({int level, int current, int needed}) _levelFromPoints(int points) {
     int level = 1;
     int needed = 80;
@@ -58,21 +65,71 @@ class _ProfilePageState extends State<ProfilePage> {
     return (level: level, current: remaining, needed: needed);
   }
 
+  Future<void> _changeAvatar() async {
+    final auth = AuthState.of(context);
+    final uid = auth.user?.uid;
+    if (uid == null) return;
+
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1024,
+      maxHeight: 1024,
+      imageQuality: 88,
+    );
+    if (picked == null) return;
+
+    setState(() => _uploadingAvatar = true);
+    try {
+      final ref = FirebaseStorage.instance
+          .ref()
+          .child('users')
+          .child(uid)
+          .child('avatar.jpg');
+
+      await ref.putFile(
+        File(picked.path),
+        SettableMetadata(contentType: 'image/jpeg'),
+      );
+
+      final url = await ref.getDownloadURL();
+
+      // in Firestore speichern (wird von SignIn/Profile angezeigt)
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .set({'photoUrl': url}, SetOptions(merge: true));
+
+      // optional auch ins Auth-Profil
+      await FirebaseAuth.instance.currentUser?.updatePhotoURL(url);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Profilbild aktualisiert.')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Upload fehlgeschlagen: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _uploadingAvatar = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // NEU: SocialState
     final social = SocialState.of(context);
+    final auth = AuthState.of(context);
 
     final title = GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w700);
-    final subtitle =
-    GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade700);
+    final subtitle = GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade700);
 
     final lp = _levelFromPoints(widget.totalPoints);
     final level = lp.level;
-    final currentIntoLevel = lp.current;
-    final neededThisLevel = lp.needed;
-    final progress =
-    neededThisLevel == 0 ? 0.0 : (currentIntoLevel / neededThisLevel).clamp(0.0, 1.0);
+    final progress = lp.needed == 0 ? 0.0 : (lp.current / lp.needed).clamp(0.0, 1.0);
+
+    final uid = auth.user?.uid;
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -80,26 +137,83 @@ class _ProfilePageState extends State<ProfilePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // ---------- Header ----------
-            Container(
-              width: 110,
-              height: 110,
-              decoration: const BoxDecoration(
-                color: Colors.grey,
-                shape: BoxShape.circle,
-              ),
-            ),
-            const SizedBox(height: 14),
-            Text('You', style: title),
-            const SizedBox(height: 4),
-            Text(
-              _friendCode,
-              style: GoogleFonts.poppins(
-                fontSize: 13,
-                letterSpacing: 0.8,
-                color: Colors.grey.shade700,
-                fontWeight: FontWeight.w600,
-              ),
+            // ---------- Header mit Avatar (ohne "Profilbild ändern"-Link) ----------
+            StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+              stream: uid == null
+                  ? null
+                  : FirebaseFirestore.instance.collection('users').doc(uid).snapshots(),
+              builder: (context, snap) {
+                final data = snap.data?.data();
+                final displayName =
+                    (data?['name'] as String?) ?? auth.user?.displayName ?? 'You';
+                final photoUrl =
+                    (data?['photoUrl'] as String?) ?? auth.user?.photoURL;
+
+                final initial =
+                (displayName.isNotEmpty ? displayName.trim()[0] : '?').toUpperCase();
+
+                return Column(
+                  children: [
+                    Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        CircleAvatar(
+                          radius: 55,
+                          backgroundColor: Colors.grey.shade400,
+                          backgroundImage:
+                          photoUrl != null ? NetworkImage(photoUrl) : null,
+                          child: photoUrl == null
+                              ? Text(
+                            initial,
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 28,
+                            ),
+                          )
+                              : null,
+                        ),
+                        Positioned(
+                          right: -2,
+                          bottom: -2,
+                          child: Material(
+                            color: Colors.black,
+                            shape: const CircleBorder(),
+                            child: InkWell(
+                              customBorder: const CircleBorder(),
+                              onTap: _uploadingAvatar ? null : _changeAvatar,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: _uploadingAvatar
+                                    ? const SizedBox(
+                                  height: 18,
+                                  width: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation(Colors.white),
+                                  ),
+                                )
+                                    : const Icon(Icons.edit, color: Colors.white, size: 18),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(displayName, style: title),
+                    const SizedBox(height: 4),
+                    Text(
+                      _friendCode,
+                      style: GoogleFonts.poppins(
+                        fontSize: 13,
+                        letterSpacing: 0.8,
+                        color: Colors.grey.shade700,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
 
             const SizedBox(height: 20),
@@ -107,20 +221,19 @@ class _ProfilePageState extends State<ProfilePage> {
             // ---------- Level + Punkte ----------
             _LevelCard(
               level: level,
-              current: currentIntoLevel,
-              needed: neededThisLevel,
+              current: lp.current,
+              needed: lp.needed,
               totalPoints: widget.totalPoints,
               progress: progress,
             ),
 
             const SizedBox(height: 26),
 
-            // ---------- Über mich (editierbar) ----------
+            // ---------- Über mich ----------
             Align(
               alignment: Alignment.centerLeft,
               child: Text('Über mich',
-                  style: GoogleFonts.poppins(
-                      fontSize: 16, fontWeight: FontWeight.w700)),
+                  style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700)),
             ),
             const SizedBox(height: 10),
             Container(
@@ -151,7 +264,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
             const SizedBox(height: 24),
 
-            // ---------- Freunde (aus SocialState) ----------
+            // ---------- Freunde ----------
             _ExpandableSection(
               title: 'Freunde',
               children: (social.friends.isEmpty
@@ -165,7 +278,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
             const SizedBox(height: 16),
 
-            // ---------- Communities (aus SocialState) ----------
+            // ---------- Communities ----------
             _ExpandableSection(
               title: 'Communities',
               children: (social.communities.isEmpty
@@ -185,21 +298,18 @@ class _ProfilePageState extends State<ProfilePage> {
               items: [
                 _GroupItem(
                   label: 'Benachrichtigungen',
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const NotificationsPage()),
-                  ),
+                  onTap: () =>
+                      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NotificationsPage())),
                 ),
                 _GroupItem(
                   label: 'Präferenzen',
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const PreferencesPage()),
-                  ),
+                  onTap: () =>
+                      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PreferencesPage())),
                 ),
                 _GroupItem(
                   label: 'Deine Daten',
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const DeineDatenPage()),
-                  ),
+                  onTap: () =>
+                      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const DeineDatenPage())),
                 ),
               ],
             ),
@@ -212,35 +322,53 @@ class _ProfilePageState extends State<ProfilePage> {
               items: [
                 _GroupItem(
                   label: 'Datenschutz & Sicherheit',
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const PrivacySecurityPage()),
-                    );
-                  },
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const PrivacySecurityPage()),
+                  ),
                 ),
                 _GroupItem(
                   label: 'Hilfe & Support',
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const HelpSupportPage(initialTab: 0)),
-                    );
-                  },
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const HelpSupportPage(initialTab: 0)),
+                  ),
                 ),
                 _GroupItem(
                   label: 'Fehler melden',
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const HelpSupportPage(initialTab: 3)),
-                    );
-                  },
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const HelpSupportPage(initialTab: 3)),
+                  ),
                 ),
               ],
             ),
 
             const SizedBox(height: 24),
 
-            // ---------- Logout ----------
-            _LogoutButton(),
+            // ---------- Login/Logout ----------
+            if (auth.isLoggedIn) ...[
+              _LogoutButton(),
+            ] else ...[
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const SignInPage()),
+                      ),
+                      child: const Text('Einloggen'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const SignUpPage()),
+                      ),
+                      child: const Text('Konto erstellen'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
 
             const SizedBox(height: 12),
           ],
@@ -283,18 +411,11 @@ class _LevelCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Level + Totalpunkte
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Level $level', style: title),
-              Text('$totalPoints Punkte',
-                  style: label.copyWith(color: Colors.grey.shade700)),
-            ],
-          ),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            Text('Level $level', style: title),
+            Text('$totalPoints Punkte', style: label.copyWith(color: Colors.grey.shade700)),
+          ]),
           const SizedBox(height: 10),
-
-          // Progressbar + "current / needed"
           ClipRRect(
             borderRadius: BorderRadius.circular(999),
             child: Stack(
@@ -326,7 +447,6 @@ class _LevelCard extends StatelessWidget {
   }
 }
 
-/// Einklappbare Sektion (Freunde/Communities)
 class _ExpandableSection extends StatefulWidget {
   const _ExpandableSection({required this.title, required this.children});
   final String title;
@@ -357,8 +477,7 @@ class _ExpandableSectionState extends State<_ExpandableSection> {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
               child: Text(
                 widget.title,
-                style: GoogleFonts.poppins(
-                    fontSize: 16, fontWeight: FontWeight.w700),
+                style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700),
               ),
             ),
           ),
@@ -398,7 +517,6 @@ class _ListTileStub extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        // Platzhalter-Avatar
         Container(
           width: 36,
           height: 36,
@@ -411,8 +529,7 @@ class _ListTileStub extends StatelessWidget {
         Expanded(
           child: Text(
             label,
-            style:
-            GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w600),
+            style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w600),
           ),
         ),
       ],
@@ -420,7 +537,6 @@ class _ListTileStub extends StatelessWidget {
   }
 }
 
-/// Gruppierte Karten mit Überschrift und Zeilen (Account/Support)
 class _SectionGroup extends StatelessWidget {
   const _SectionGroup({required this.header, required this.items});
   final String header;
@@ -521,7 +637,20 @@ class _LogoutButton extends StatelessWidget {
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: () {}, // noch ohne Funktion
+        onTap: () async {
+          try {
+            await AuthState.of(context).signOut();
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Abgemeldet.')),
+            );
+          } catch (e) {
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Logout fehlgeschlagen: $e')),
+            );
+          }
+        },
         child: Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
