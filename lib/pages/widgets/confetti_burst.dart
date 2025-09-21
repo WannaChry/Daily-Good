@@ -1,24 +1,18 @@
-// lib/pages/widgets/confetti_burst.dart
 import 'dart:math';
 import 'package:flutter/material.dart';
 
-/// Explosion aus buntem Konfetti an der globalen Klick-Position.
+/// Bunte Konfetti-Explosion rund um [globalTapPosition].
 void showConfettiBurst(BuildContext context, Offset globalTapPosition) {
   final overlay = Overlay.of(context, rootOverlay: true);
   if (overlay == null) return;
 
-  // global -> local, relativ zum Overlay
   final box = overlay.context.findRenderObject() as RenderBox;
   final local = box.globalToLocal(globalTapPosition);
 
-  // Overlay-Ebene einblenden
   late OverlayEntry entry;
   entry = OverlayEntry(
     builder: (_) => Positioned.fill(
-      child: _ConfettiLayer(
-        origin: local,
-        onDone: () => entry.remove(),
-      ),
+      child: _ConfettiLayer(origin: local, onDone: () => entry.remove()),
     ),
   );
   overlay.insert(entry);
@@ -43,16 +37,15 @@ class _ConfettiLayerState extends State<_ConfettiLayer>
   void initState() {
     super.initState();
 
-    // Partikel anlegen
-    _ps = List.generate(80, (_) => _Particle.zero());
-    _initParticles();
+    _ps = List.generate(80, (_) => _Particle());
+    _resetParticles();
 
     _ctrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1100),
     )
       ..addListener(() {
-        _step(1 / 60); // ~60 FPS
+        _tick(1 / 60);
         setState(() {});
       })
       ..addStatusListener((s) {
@@ -62,29 +55,28 @@ class _ConfettiLayerState extends State<_ConfettiLayer>
     _ctrl.forward();
   }
 
-  void _initParticles() {
-    const baseSpeed = 240.0;
+  void _resetParticles() {
+    const base = 240.0;
     for (final p in _ps) {
-      final angle = rnd.nextDouble() * pi * 2;
-      final speed = baseSpeed * (0.55 + rnd.nextDouble());
+      final a = rnd.nextDouble() * pi * 2;
+      final v = base * (0.55 + rnd.nextDouble());
       p.pos = widget.origin;
-      p.vel = Offset(cos(angle) * speed, sin(angle) * speed - 80); // etwas up
+      p.vel = Offset(cos(a) * v, sin(a) * v - 80);
       p.size = 6 + rnd.nextDouble() * 10;
       p.color = _palette[rnd.nextInt(_palette.length)];
-      p.life = 1.0;
+      p.life = 1;
       p.rot = rnd.nextDouble() * pi;
-      p.type = _Shape.values[rnd.nextInt(_Shape.values.length)];
+      p.shape = _Shape.values[rnd.nextInt(_Shape.values.length)];
     }
   }
 
-  void _step(double dt) {
-    // simple Physik
+  void _tick(double dt) {
     for (final p in _ps) {
       if (p.life <= 0) continue;
-      p.vel += const Offset(0, 650) * dt; // Gravitation
+      p.vel += const Offset(0, 650) * dt;
       p.pos += p.vel * dt;
       p.rot += 5 * dt;
-      p.life -= 1.1 * dt; // ausfaden
+      p.life -= 1.1 * dt;
     }
   }
 
@@ -98,9 +90,7 @@ class _ConfettiLayerState extends State<_ConfettiLayer>
   Widget build(BuildContext context) {
     return IgnorePointer(
       ignoring: true,
-      child: CustomPaint(
-        painter: _ConfettiPainter(_ps),
-      ),
+      child: CustomPaint(painter: _ConfettiPainter(_ps)),
     );
   }
 }
@@ -114,9 +104,7 @@ class _Particle {
   double life = 1;
   double rot = 0;
   Color color = Colors.red;
-  _Shape type = _Shape.circle;
-
-  _Particle.zero();
+  _Shape shape = _Shape.circle;
 }
 
 const _palette = <Color>[
@@ -145,7 +133,7 @@ class _ConfettiPainter extends CustomPainter {
       canvas.translate(p.pos.dx, p.pos.dy);
       canvas.rotate(p.rot);
 
-      switch (p.type) {
+      switch (p.shape) {
         case _Shape.circle:
           canvas.drawCircle(Offset.zero, s / 2, paint);
           break;

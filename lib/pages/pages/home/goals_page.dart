@@ -1,7 +1,6 @@
+// lib/pages/pages/home/goals_page.dart
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-import 'package:studyproject/pages/models/AppBadge.dart';
 import 'package:studyproject/pages/pages/home/badge_dex_page.dart';
 import 'package:studyproject/pages/pages/home/TreeGrowth.dart';
 import 'package:studyproject/pages/pages/home/SectionHeaderCard.dart';
@@ -19,7 +18,7 @@ class GoalsPage extends StatefulWidget {
 }
 
 class GoalsPageState extends State<GoalsPage>
-    with AutomaticKeepAliveClientMixin<GoalsPage>, TickerProviderStateMixin {
+    with AutomaticKeepAliveClientMixin<GoalsPage>, SingleTickerProviderStateMixin {
   final List<Map<String, dynamic>> tasks = [
     {"text": "Trenne Müll richtig", "points": 5, "emoji": "🗑️"},
     {"text": "Handypause – 3h ohne Handy", "points": 5, "emoji": "📵"},
@@ -38,10 +37,11 @@ class GoalsPageState extends State<GoalsPage>
   int get _truePoints =>
       _completed.fold<int>(0, (sum, i) => sum + (tasks[i]['points'] as int));
 
-  late AnimationController _counterCtrl;
+  late final AnimationController _counterCtrl;
   late Animation<int> _counterTween;
   int _displayPoints = 0;
 
+  /// Globale Tap-Position für Konfetti
   Offset? _tapPos;
 
   @override
@@ -54,6 +54,9 @@ class GoalsPageState extends State<GoalsPage>
       setState(() => _displayPoints = _counterTween.value);
       widget.onPointsChanged(_displayPoints);
     });
+
+    // sichere Initialisierung (verhindert späte Nullzugriffe)
+    _counterTween = IntTween(begin: 0, end: 0).animate(_counterCtrl);
   }
 
   @override
@@ -63,6 +66,7 @@ class GoalsPageState extends State<GoalsPage>
   }
 
   void _animatePoints(int from, int to) {
+    if (from == to) return; // nichts zu tun
     _counterCtrl.stop();
     _counterTween = IntTween(begin: from, end: to).animate(
       CurvedAnimation(parent: _counterCtrl, curve: Curves.easeOutCubic),
@@ -74,14 +78,17 @@ class GoalsPageState extends State<GoalsPage>
 
   void _toggleTask(int i, bool isDone) {
     final before = _displayPoints;
+
     setState(() {
       isDone ? _completed.remove(i) : _completed.add(i);
     });
+
     final after = _truePoints;
     _animatePoints(before, after);
 
     if (!isDone && _tapPos != null) {
       showConfettiBurst(context, _tapPos!);
+      _tapPos = null; // aufräumen
     }
   }
 
@@ -135,7 +142,7 @@ class GoalsPageState extends State<GoalsPage>
                   points: t['points'] as int,
                   done: isDone,
                   onTap: () => _toggleTask(i, isDone),
-                  onTapDown: (pos) => _tapPos = pos, // Tap-Position fürs Konfetti
+                  onTapDown: (pos) => _tapPos = pos, // globale Tap-Pos fürs Konfetti
                 );
               },
             ),
