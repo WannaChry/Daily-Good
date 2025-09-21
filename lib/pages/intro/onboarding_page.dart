@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'widgets/cute_landscape.dart';
 import 'widgets/gradient_progress.dart';
 
-
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
 
@@ -93,12 +92,29 @@ class _OnboardingPageState extends State<OnboardingPage> {
               child: const SizedBox.expand(),
             ),
 
-            // Landschaft unten
+            // Landschaft unten (mit weicher Einblendung → keine sichtbare Kante)
             Positioned(
               left: 0,
               right: 0,
               bottom: 0,
-              child: CuteLandscape(height: _landscapeH, variant: _index),
+              child: IgnorePointer(
+                child: SizedBox(
+                  height: _landscapeH,
+                  child: ShaderMask(
+                    shaderCallback: (Rect r) => const LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Colors.transparent, Colors.black],
+                      stops: [0.0, 0.22], // Stärke der sanften Einblendung
+                    ).createShader(r),
+                    blendMode: BlendMode.dstIn,
+                    child: CuteLandscape(
+                      height: _landscapeH,
+                      variant: _index,
+                    ),
+                  ),
+                ),
+              ),
             ),
 
             // Inhalt
@@ -181,13 +197,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
                             final active = i == _index;
                             return AnimatedContainer(
                               duration: const Duration(milliseconds: 220),
-                              margin:
-                              const EdgeInsets.symmetric(horizontal: 4),
+                              margin: const EdgeInsets.symmetric(horizontal: 4),
                               height: 10,
                               width: active ? 22 : 10,
                               decoration: BoxDecoration(
-                                color:
-                                active ? Colors.black87 : Colors.black26,
+                                color: active ? Colors.black87 : Colors.black26,
                                 borderRadius: BorderRadius.circular(999),
                               ),
                             );
@@ -270,8 +284,7 @@ class _ParallaxSlide extends StatelessWidget {
           child: Align(
             alignment: Alignment.topCenter,
             child: Padding(
-              padding:
-              const EdgeInsets.only(top: 112, left: 12, right: 12),
+              padding: const EdgeInsets.only(top: 112, left: 12, right: 12),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -305,8 +318,7 @@ class _ParallaxSlide extends StatelessWidget {
 }
 
 class _SlideData {
-  const _SlideData(
-      {required this.emoji, required this.title, required this.text});
+  const _SlideData({required this.emoji, required this.title, required this.text});
   final String emoji;
   final String title;
   final String text;

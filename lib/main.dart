@@ -2,26 +2,36 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:studyproject/pages/models/tipp.dart';
+import 'package:studyproject/pages/models/streak_celebration_page.dart';
 
 import 'pages/state/social_state.dart';
+import 'pages/state/auth_state.dart'; // Auth-State
 import 'pages/pages/home/home.dart';
 
 // Intro-Seiten
 import 'pages/intro/splash_page.dart';
 import 'pages/intro/onboarding_page.dart';
 import 'pages/intro/questionnaire_page.dart';
+import 'pages/intro/review_confirm_page.dart';
+
+// Auth-Seiten
+import 'pages/pages/sign_in_page.dart';
+import 'pages/pages/sign_up_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   await Firebase.initializeApp();
 
   final social = SocialState.demo();
+  final auth = AuthState(); // globaler Auth-State
 
   runApp(
     SocialScope.provide(
       state: social,
-      child: const MyApp(),
+      child: AuthState.provide( // globaler Auth-Provider
+        state: auth,
+        child: const MyApp(),
+      ),
     ),
   );
 }
@@ -34,12 +44,12 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  List<Tipp> tips = []; // dynamisch, nicht final
+  List<Tipp> tips = []; // dynamisch
 
   @override
   void initState() {
     super.initState();
-    _loadTips(); // Tipps beim Start laden
+    _loadTips();
   }
 
   Future<void> _loadTips() async {
@@ -64,16 +74,65 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       initialRoute: '/splash',
 
-      //Routen zu den files
       routes: {
+        // Intro
         '/splash': (_) => const SplashPage(),
         '/onboarding': (_) => const OnboardingPage(),
         '/questionnaire': (_) => const QuestionnairePage(),
-        // HomePage bekommt jetzt die geladenen Tipps
+        '/intro/review': (_) => const ReviewConfirmPage(),
+
+        // NEU: Streak-Celebration (liest Arguments)
+        '/streak': (ctx) {
+          final args = ModalRoute.of(ctx)?.settings.arguments as Map? ?? {};
+          final current = (args['currentStreak'] ?? 1) as int;
+          final best = (args['bestStreak'] ?? current) as int;
+          final last = (args['lastCheckIn'] as DateTime?) ?? DateTime.now();
+          return StreakCelebrationPage(
+            currentStreak: current,
+            bestStreak: best,
+            lastCheckIn: last,
+          );
+        },
+
+        // Auth
+        '/sign-in': (_) => const SignInPage(),
+        '/sign-up': (_) => const SignUpPage(),
+        '/verify': (_) => const _VerifyPlaceholderPage(), // Platzhalter
+
+        // Home
         '/home': (_) => HomePage(tips: tips),
       },
+
       onUnknownRoute: (_) =>
           MaterialPageRoute(builder: (_) => const SplashPage()),
+    );
+  }
+}
+
+// ---------------------------------------------------------
+// Kleiner Stub, damit "2-Faktor aktivieren" / Verifizierung
+// nicht crasht. Später durch echte Seite ersetzen.
+// ---------------------------------------------------------
+class _VerifyPlaceholderPage extends StatelessWidget {
+  const _VerifyPlaceholderPage();
+
+  @override
+  Widget build(BuildContext context) {
+    final args = ModalRoute.of(context)?.settings.arguments as Map? ?? {};
+    final email = args['email'];
+    return Scaffold(
+      appBar: AppBar(title: const Text('Verifizierung')),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            email != null
+                ? 'Hier kommt später die Verifizierung für: $email'
+                : 'Hier kommt später die Verifizierung hin.',
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ),
     );
   }
 }

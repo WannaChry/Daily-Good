@@ -1,6 +1,10 @@
+// lib/pages/pages/sign_in_page.dart
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+import 'package:studyproject/pages/state/auth_state.dart';
 import 'package:studyproject/pages/pages/sign_up_page.dart';
 
 class SignInPage extends StatefulWidget {
@@ -57,7 +61,7 @@ class _SignInPageState extends State<SignInPage> {
       return;
     }
 
-    // TODO: Hier später echte Auth einbauen
+    // Demo-Login (kein echter Login hier)
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Willkommen, ${_userCtrl.text}! (Demo-Anmeldung)')),
     );
@@ -66,15 +70,172 @@ class _SignInPageState extends State<SignInPage> {
 
   @override
   Widget build(BuildContext context) {
+    final auth = AuthState.of(context);
+
     final h1 = GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.w800);
     final label = GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700);
 
+    // ------------------------------------------
+    // Schon eingeloggt? → Status-Screen mit Avatar
+    // ------------------------------------------
+    if (auth.isLoggedIn) {
+      final uid = auth.user!.uid;
+      final email = auth.user?.email ?? 'Anonymes Konto';
+
+      return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+        stream: FirebaseFirestore.instance.collection('users').doc(uid).snapshots(),
+        builder: (context, snap) {
+          final data = snap.data?.data();
+          final name = (data?['name'] as String?) ??
+              auth.user?.displayName ??
+              'Anonymer Nutzer';
+          final photoUrl = (data?['photoUrl'] as String?) ??
+              auth.user?.photoURL;
+
+          final initial =
+          (name.isNotEmpty ? name.trim()[0] : '?').toUpperCase();
+
+          return Scaffold(
+            backgroundColor: const Color(0xFFF8F3FA),
+            appBar: AppBar(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              title: Text('Anmelden',
+                  style: GoogleFonts.poppins(fontWeight: FontWeight.w700)),
+              centerTitle: true,
+            ),
+            body: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Du bist bereits angemeldet', style: h1),
+                    const SizedBox(height: 16),
+
+                    // Karte mit Avatar, Name, E-Mail
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                        border: Border.all(color: Colors.grey.shade200),
+                      ),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 26,
+                            backgroundColor: Colors.grey.shade300,
+                            backgroundImage:
+                            photoUrl != null ? NetworkImage(photoUrl) : null,
+                            child: photoUrl == null
+                                ? Text(
+                              initial,
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 18,
+                              ),
+                            )
+                                : null,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(name,
+                                    style: GoogleFonts.poppins(
+                                        fontSize: 16, fontWeight: FontWeight.w800)),
+                                const SizedBox(height: 2),
+                                Text(
+                                  email,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 13,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const Spacer(),
+
+                    // Buttons: Zur Startseite / Logout
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () => Navigator.of(context)
+                                .pushNamedAndRemoveUntil('/home', (r) => false),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              side: BorderSide(color: Colors.grey.shade400),
+                              backgroundColor: Colors.white,
+                            ),
+                            child: Text(
+                              'Zur Startseite',
+                              style:
+                              GoogleFonts.poppins(fontWeight: FontWeight.w700),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              await auth.signOut();
+                              if (!mounted) return;
+                              Navigator.of(context).maybePop();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red.shade400,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            child: Text(
+                              'Logout',
+                              style:
+                              GoogleFonts.poppins(fontWeight: FontWeight.w800),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    }
+
+    // ------------------------------------------
+    // Nicht eingeloggt → normales Sign-In-Form
+    // ------------------------------------------
     return Scaffold(
       backgroundColor: const Color(0xFFF8F3FA),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text('Anmelden', style: GoogleFonts.poppins(fontWeight: FontWeight.w700)),
+        title: Text('Anmelden',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.w700)),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -95,7 +256,9 @@ class _SignInPageState extends State<SignInPage> {
                   controller: _userCtrl,
                   decoration: _inputDecoration('z. B. max.mustermann'),
                   validator: (v) {
-                    if (v == null || v.trim().isEmpty) return 'Bitte Benutzernamen eingeben.';
+                    if (v == null || v.trim().isEmpty) {
+                      return 'Bitte Benutzernamen eingeben.';
+                    }
                     if (v.trim().length < 3) return 'Mindestens 3 Zeichen.';
                     return null;
                   },
@@ -111,11 +274,14 @@ class _SignInPageState extends State<SignInPage> {
                   decoration: _inputDecoration('••••••••').copyWith(
                     suffixIcon: IconButton(
                       onPressed: () => setState(() => _obscure = !_obscure),
-                      icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off),
+                      icon: Icon(
+                          _obscure ? Icons.visibility : Icons.visibility_off),
                     ),
                   ),
                   validator: (v) {
-                    if (v == null || v.isEmpty) return 'Bitte Passwort eingeben.';
+                    if (v == null || v.isEmpty) {
+                      return 'Bitte Passwort eingeben.';
+                    }
                     if (v.length < 6) return 'Mindestens 6 Zeichen.';
                     return null;
                   },
@@ -184,7 +350,7 @@ class _SignInPageState extends State<SignInPage> {
 
                 const SizedBox(height: 20),
 
-                // CTA – Einloggen
+                // CTA – Einloggen (Demo)
                 Material(
                   color: const Color(0xFFA8D5A2),
                   borderRadius: BorderRadius.circular(16),
@@ -207,11 +373,13 @@ class _SignInPageState extends State<SignInPage> {
 
                 const SizedBox(height: 12),
 
-                // CTA – Konto erstellen (NEU)
+                // CTA – Konto erstellen
                 OutlinedButton(
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                     side: BorderSide(color: Colors.grey.shade400),
                     backgroundColor: Colors.white,
                   ),
@@ -228,7 +396,6 @@ class _SignInPageState extends State<SignInPage> {
 
                 const SizedBox(height: 12),
 
-                // Später
                 TextButton(
                   onPressed: () => Navigator.of(context).maybePop(),
                   child: Text(
@@ -250,8 +417,10 @@ class _SignInPageState extends State<SignInPage> {
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: GoogleFonts.poppins(color: Colors.grey.shade600, fontSize: 14),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      hintStyle:
+      GoogleFonts.poppins(color: Colors.grey.shade600, fontSize: 14),
+      contentPadding:
+      const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       filled: true,
       fillColor: Colors.white,
       border: OutlineInputBorder(
@@ -264,7 +433,8 @@ class _SignInPageState extends State<SignInPage> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: Colors.green.shade400, width: 2),
+        borderSide:
+        BorderSide(color: Colors.green.shade400, width: 2),
       ),
     );
   }

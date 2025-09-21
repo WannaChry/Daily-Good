@@ -4,10 +4,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:studyproject/pages/models/AppBadge.dart';
 import 'package:studyproject/pages/pages/home/badge_dex_page.dart';
 import 'package:studyproject/pages/pages/home/TreeGrowth.dart';
-import 'package:studyproject/pages/pages/home/home.dart';
 import 'package:studyproject/pages/pages/home/SectionHeaderCard.dart';
+import 'package:studyproject/pages/pages/home/progress_card.dart';
 
-// ==================== Tab 1: Ziele (Home) ====================
+import 'package:studyproject/pages/widgets/confetti_burst.dart' show showConfettiBurst;
+import 'package:studyproject/pages/widgets/task_title.dart' show TaskTile;
+
 class GoalsPage extends StatefulWidget {
   const GoalsPage({super.key, required this.onPointsChanged});
   final ValueChanged<int> onPointsChanged;
@@ -17,31 +19,70 @@ class GoalsPage extends StatefulWidget {
 }
 
 class GoalsPageState extends State<GoalsPage>
-    with AutomaticKeepAliveClientMixin<GoalsPage> {
-  // Mehr Aufgaben
+    with AutomaticKeepAliveClientMixin<GoalsPage>, TickerProviderStateMixin {
   final List<Map<String, dynamic>> tasks = [
-    {"text": "Trenne Müll richtig", "points": 5},
-    {"text": "Handypause – 3h ohne Handy", "points": 5},
-    {"text": "Halte einer Person die Tür auf", "points": 5},
-    {"text": "Keine Einwegprodukte verwenden", "points": 10},
-    {"text": "Leitungswasser statt Plastikflasche", "points": 5},
-    {"text": "ÖPNV statt Auto", "points": 10},
-    {"text": "Kleidung spenden/reparieren", "points": 10},
-    {"text": "Regional kochen", "points": 10},
-    {"text": "Positives Feedback schreiben", "points": 5},
+    {"text": "Trenne Müll richtig", "points": 5, "emoji": "🗑️"},
+    {"text": "Handypause – 3h ohne Handy", "points": 5, "emoji": "📵"},
+    {"text": "Halte einer Person die Tür auf", "points": 5, "emoji": "🚪"},
+    {"text": "Keine Einwegprodukte verwenden", "points": 10, "emoji": "♻️"},
+    {"text": "Leitungswasser statt Plastikflasche", "points": 5, "emoji": "🚰"},
+    {"text": "ÖPNV statt Auto", "points": 10, "emoji": "🚌"},
+    {"text": "Kleidung spenden/reparieren", "points": 10, "emoji": "🧵"},
+    {"text": "Regional kochen", "points": 10, "emoji": "🥦"},
+    {"text": "Positives Feedback schreiben", "points": 5, "emoji": "💌"},
   ];
 
   final Set<int> _completed = {};
-  static const int _dailyTarget = 25; // neu
+  static const int _dailyTarget = 25;
 
-  int get _currentPoints =>
+  int get _truePoints =>
       _completed.fold<int>(0, (sum, i) => sum + (tasks[i]['points'] as int));
 
+  late AnimationController _counterCtrl;
+  late Animation<int> _counterTween;
+  int _displayPoints = 0;
+
+  Offset? _tapPos;
+
+  @override
+  void initState() {
+    super.initState();
+    _counterCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    )..addListener(() {
+      setState(() => _displayPoints = _counterTween.value);
+      widget.onPointsChanged(_displayPoints);
+    });
+  }
+
+  @override
+  void dispose() {
+    _counterCtrl.dispose();
+    super.dispose();
+  }
+
+  void _animatePoints(int from, int to) {
+    _counterCtrl.stop();
+    _counterTween = IntTween(begin: from, end: to).animate(
+      CurvedAnimation(parent: _counterCtrl, curve: Curves.easeOutCubic),
+    );
+    _counterCtrl
+      ..reset()
+      ..forward();
+  }
+
   void _toggleTask(int i, bool isDone) {
+    final before = _displayPoints;
     setState(() {
       isDone ? _completed.remove(i) : _completed.add(i);
     });
-    widget.onPointsChanged(_currentPoints);
+    final after = _truePoints;
+    _animatePoints(before, after);
+
+    if (!isDone && _tapPos != null) {
+      showConfettiBurst(context, _tapPos!);
+    }
   }
 
   @override
@@ -50,10 +91,6 @@ class GoalsPageState extends State<GoalsPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final taskText =
-    GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600);
-    final pointsStyle =
-    GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w800);
 
     final unlocked = demoBadges.where((b) => b.unlocked).length;
     final total = demoBadges.length;
@@ -62,11 +99,9 @@ class GoalsPageState extends State<GoalsPage>
       padding: const EdgeInsets.all(12),
       child: Column(
         children: [
-          // 1) Baum
-          TreeGrowth(points: _currentPoints, target: _dailyTarget),
+          TreeGrowth(points: _displayPoints, target: _dailyTarget),
           const SizedBox(height: 10),
 
-          // 2) NEU: Abzeichen-Kachel direkt unter dem Baum
           BadgeEntryTile(
             unlockedCount: unlocked,
             totalCount: total,
@@ -78,19 +113,15 @@ class GoalsPageState extends State<GoalsPage>
           ),
           const SizedBox(height: 10),
 
-          // 3) Progress-Card
-          ProgressCard(current: _currentPoints, target: _dailyTarget),
+          ProgressCard(current: _displayPoints, target: _dailyTarget),
           const SizedBox(height: 10),
 
-          // 4) Section-Header „Tägliche Aufgaben“
-          SectionHeaderCard(
+          const SectionHeaderCard(
             icon: Icons.calendar_today,
             title: 'Tägliche Aufgaben',
-            onTap: null,
           ),
           const SizedBox(height: 10),
 
-          // 5) Task-Liste
           Expanded(
             child: ListView.separated(
               itemCount: tasks.length,
@@ -98,53 +129,13 @@ class GoalsPageState extends State<GoalsPage>
               itemBuilder: (context, i) {
                 final t = tasks[i];
                 final isDone = _completed.contains(i);
-
-                return InkWell(
-                  borderRadius: BorderRadius.circular(16),
+                return TaskTile(
+                  title: t['text'] as String,
+                  emoji: t['emoji'] as String,
+                  points: t['points'] as int,
+                  done: isDone,
                   onTap: () => _toggleTask(i, isDone),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: isDone
-                          ? Colors.lightGreen.withValues(alpha: 0.28)
-                          : Colors.black.withValues(alpha: 0.06),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: Colors.black.withValues(alpha: 0.05),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.04),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(t['text'] as String, style: taskText),
-                        ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text('${t['points']}', style: pointsStyle),
-                            const SizedBox(width: 2),
-                            const Icon(Icons.bolt_rounded, size: 20),
-                          ],
-                        ),
-                        const SizedBox(width: 6),
-                        Icon(
-                          isDone
-                              ? Icons.check_box_rounded
-                              : Icons.check_box_outline_blank_rounded,
-                          size: 28,
-                        ),
-                      ],
-                    ),
-                  ),
+                  onTapDown: (pos) => _tapPos = pos, // Tap-Position fürs Konfetti
                 );
               },
             ),

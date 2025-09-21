@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:studyproject/pages/state/auth_state.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -44,8 +45,8 @@ class _SignUpPageState extends State<SignUpPage> {
   void _genCaptcha() {
     final rnd = Random.secure();
     setState(() {
-      _a = rnd.nextInt(6) + 2; // 2..7
-      _b = rnd.nextInt(6) + 3; // 3..8
+      _a = rnd.nextInt(6) + 2;
+      _b = rnd.nextInt(6) + 3;
       _captchaCtrl.clear();
     });
   }
@@ -53,7 +54,6 @@ class _SignUpPageState extends State<SignUpPage> {
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
 
-    // CAPTCHA check
     final answer = int.tryParse(_captchaCtrl.text.trim());
     if (answer != _a + _b) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -63,15 +63,119 @@ class _SignUpPageState extends State<SignUpPage> {
       return;
     }
 
-    // TODO: Hier später echte Registrierung (API/Firebase) einbauen.
+    // Demo-Registrierung
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Konto erstellt: ${_userCtrl.text} (Demo)')),
     );
-    Navigator.of(context).pop(); // zurück
+    Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
+    final auth = AuthState.of(context);
+
+    if (auth.isLoggedIn) {
+      final title = GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.w800);
+      final subtitle = GoogleFonts.poppins(fontSize: 14, color: Colors.black54);
+      final name = auth.user?.displayName ?? 'Anonymer Nutzer';
+      final email = auth.user?.email ?? 'Anonymes Konto';
+
+      return Scaffold(
+        backgroundColor: const Color(0xFFF4F1F8),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          title: Text('Konto erstellen', style: GoogleFonts.poppins(fontWeight: FontWeight.w700)),
+          centerTitle: true,
+        ),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text('Du bist bereits angemeldet', style: title),
+                const SizedBox(height: 18),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(.05),
+                        blurRadius: 12,
+                        offset: const Offset(0, 6),
+                      )
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 52,
+                        height: 52,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          shape: BoxShape.circle,
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          (name.isNotEmpty ? name[0] : 'U').toUpperCase(),
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(name, style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 16)),
+                            const SizedBox(height: 2),
+                            Text(email, style: subtitle),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Spacer(),
+                OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    side: BorderSide(color: Colors.grey.shade400),
+                    backgroundColor: Colors.white,
+                  ),
+                  onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil('/home', (_) => false),
+                  child: Text('Zur Startseite', style: GoogleFonts.poppins(fontWeight: FontWeight.w700)),
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red.shade400,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  onPressed: () async {
+                    await auth.signOut();
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Abgemeldet.')));
+                    Navigator.of(context).maybePop();
+                  },
+                  child: Text('Logout', style: GoogleFonts.poppins(fontWeight: FontWeight.w800)),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    // nicht eingeloggt -> bestehendes Formular
     final h1 = GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.w800);
     final label = GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700);
 
@@ -94,7 +198,6 @@ class _SignUpPageState extends State<SignUpPage> {
                 Text('Schön, dass du dabei bist ✨', style: h1),
                 const SizedBox(height: 14),
 
-                // Benutzername
                 Text('Benutzername', style: label),
                 const SizedBox(height: 6),
                 TextFormField(
@@ -108,7 +211,6 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 const SizedBox(height: 14),
 
-                // E-Mail
                 Text('E-Mail', style: label),
                 const SizedBox(height: 6),
                 TextFormField(
@@ -124,7 +226,6 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 const SizedBox(height: 14),
 
-                // Passwort
                 Text('Passwort', style: label),
                 const SizedBox(height: 6),
                 TextFormField(
@@ -144,7 +245,6 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 const SizedBox(height: 14),
 
-                // Passwort wiederholen
                 Text('Passwort wiederholen', style: label),
                 const SizedBox(height: 6),
                 TextFormField(
@@ -165,7 +265,6 @@ class _SignUpPageState extends State<SignUpPage> {
 
                 const SizedBox(height: 16),
 
-                // CAPTCHA
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
@@ -223,7 +322,6 @@ class _SignUpPageState extends State<SignUpPage> {
 
                 const SizedBox(height: 14),
 
-                // AGB/Datenschutz (nur Häkchen, ohne Navigation)
                 Row(
                   children: [
                     Checkbox(
@@ -242,7 +340,6 @@ class _SignUpPageState extends State<SignUpPage> {
 
                 const SizedBox(height: 12),
 
-                // CTA – Konto erstellen
                 Material(
                   color: _agree ? const Color(0xFFA8D5A2) : Colors.grey.shade400,
                   borderRadius: BorderRadius.circular(16),
@@ -266,7 +363,6 @@ class _SignUpPageState extends State<SignUpPage> {
 
                 const SizedBox(height: 12),
 
-                // Zurück
                 TextButton(
                   onPressed: () => Navigator.of(context).maybePop(),
                   child: Text(
