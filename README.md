@@ -26,3 +26,6 @@ unter lib>pages
 
 # 4.9.25
 5 neue Klassen hinzugefügt unter models
+
+#21.09.25
+Neuen Branch erstellt - Konflikte beim pullen
