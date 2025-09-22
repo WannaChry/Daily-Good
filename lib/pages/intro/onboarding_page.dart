@@ -52,7 +52,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
         curve: Curves.easeOutCubic,
       );
     } else {
-      Navigator.of(context).pushReplacementNamed('/questionnaire');
+      Navigator.of(context).pushReplacementNamed('/auth_choice');
     }
   }
 

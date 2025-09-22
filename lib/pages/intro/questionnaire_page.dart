@@ -23,10 +23,10 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
   // Neue Frage 2: E-Mail
   final List<_Q> questions = const [
     _Q('Wie heißt du?', type: _QType.text, hint: 'Antwort eingeben'),
-    _Q('Wie lautet deine E-Mail?', type: _QType.text, hint: 'name@example.com'),
     _Q('Was ist dein Alter?', options: ['Unter 18', '18–22', '23–27', '28–35', '35–50', '50+']),
     _Q('Was machst du beruflich?', options: ['Schüler/Student', 'Auszubildende/-r', 'Arbeitnehmer', 'Sonstiges']),
     _Q('Was ist dein Geschlecht?', options: ['Männlich', 'Weiblich', 'Divers']),
+    _Q('Wie lautet deine E-Mail?', type: _QType.text, hint: 'name@example.com'),
     _Q('Wann hast du Geburtstag?', type: _QType.text, hint: 'z. B. 12.08.2000'),
   ];
 

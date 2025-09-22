@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'widgets/interactive_clouds.dart';
 import 'widgets/wind_lines.dart';
 import '../state/auth_state.dart';
+import 'package:studyproject/pages/models/user.dart';
 
 class ReviewConfirmPage extends StatefulWidget {
   const ReviewConfirmPage({super.key});

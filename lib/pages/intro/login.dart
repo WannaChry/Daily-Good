@@ -1,0 +1,157 @@
+import 'dart:math';
+import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _answerController = TextEditingController();
+
+  late int _a, _b; // Zahlen für Matheaufgabe
+  bool _loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _generateQuestion();
+  }
+
+  void _generateQuestion() {
+    final rnd = Random();
+    _a = rnd.nextInt(10) + 1;
+    _b = rnd.nextInt(10) + 1;
+  }
+
+  Future<void> _login() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+    final answer = int.tryParse(_answerController.text.trim());
+
+    print('Versuche Login für: $email');
+
+    if (answer != _a + _b) {
+      print('Sicherheitsfrage falsch: $_a + $_b != $answer');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Falsche Antwort auf die Sicherheitsfrage.')),
+      );
+      return;
+    }
+
+    setState(() => _loading = true);
+
+    try {
+      // 1️⃣ Firebase Auth Login
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
+
+      print('Login erfolgreich! UID: ${userCredential.user!.uid}');
+
+      // 2️⃣ Firestore-Daten abrufen
+      final uid = userCredential.user!.uid;
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .get();
+
+      if (!userDoc.exists) {
+        print('Firestore: Keine Daten für UID $uid gefunden');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Benutzerdaten nicht gefunden.')),
+        );
+        return;
+      }
+
+      final userData = userDoc.data();
+      print('Firestore-Daten geladen: $userData');
+
+      // 3️⃣ Weiterleitung zur Home-Seite mit Userdaten
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(
+        context,
+        '/home',
+        arguments: userData,
+      );
+    } on FirebaseAuthException catch (e) {
+      print('FirebaseAuthException: Code=${e.code}, Message=${e.message}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Login fehlgeschlagen: ${e.message}')),
+      );
+    } catch (e) {
+      print('Allgemeiner Fehler: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ein unerwarteter Fehler ist aufgetreten.')),
+      );
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _answerController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Login'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushReplacementNamed(context, '/auth_choice');
+          },
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                TextField(
+                  controller: _emailController,
+                  decoration: const InputDecoration(labelText: 'E-Mail oder Username'),
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: _passwordController,
+                  decoration: const InputDecoration(labelText: 'Passwort'),
+                  obscureText: true,
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'Was ist $_a + $_b ?',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextField(
+                  controller: _answerController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(hintText: 'Antwort eingeben'),
+                ),
+                const SizedBox(height: 30),
+                ElevatedButton(
+                  onPressed: _loading ? null : _login,
+                  child: _loading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text('Einloggen'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

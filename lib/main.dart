@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:studyproject/pages/intro/auth_choice.dart';
+import 'package:studyproject/pages/intro/login.dart';
 import 'package:studyproject/pages/models/tipp.dart';
 import 'package:studyproject/pages/models/streak_celebration_page.dart';
 
@@ -78,6 +80,8 @@ class _MyAppState extends State<MyApp> {
         // Intro
         '/splash': (_) => const SplashPage(),
         '/onboarding': (_) => const OnboardingPage(),
+        '/auth_choice': (_) => const AuthChoicePage(),
+        '/login': (_) => const LoginPage(),
         '/questionnaire': (_) => const QuestionnairePage(),
         '/intro/review': (_) => const ReviewConfirmPage(),
 

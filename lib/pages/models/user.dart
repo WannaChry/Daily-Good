@@ -4,14 +4,18 @@ class User{
   final String id;
   String username;
   String email;
-  String sex;
+  String password;
+  String gender;
   String ageGroup;
   int level;
   int points;
   DateTime joinDate;
   int age;
-  String beruf;
+  String occupation;
   String mood;
+  int streak;
+  String birthday;
+  String role;
 
   List<Task> completedTasks;
   List<User> friends;
@@ -20,14 +24,18 @@ class User{
     required this.id,
     required this.username,
     required this.email,
-    required this.sex,
+    required this.password,
+    required this.gender,
     required this.ageGroup,
     this.level = 1,
     this.points = 0,
     required this.joinDate,
     required this.age,
-    required this.beruf,
+    required this.occupation,
     required this.mood,
+    required this.streak,
+    required this.birthday,
+    required this.role,
     List<Task>? completedTasks,
     List<User>? friends,
     List<String>? joinedCommunities,
@@ -71,14 +79,18 @@ class User{
       id: json['id'],
       username: json['username'],
       email: json['email'],
-      sex: json['sex'],
+      password: json['password'],
+      gender: json['gender'],
       ageGroup: json['ageGroup'],
       level: json['level'] ?? 1,
       points: json['points'] ?? 0,
       joinDate: DateTime.parse(json['joinDate']),
       age: json['age'],
-      beruf: json['beruf'],
+      occupation: json['occupation'],
       mood: json['mood'],
+      streak: json['streak'],
+      birthday: json['birthday'],
+      role: json['role'],
       completedTasks: (json['completedTasks'] as List<dynamic>?)
           ?.map((t) => Task.fromJson(t))
           .toList() ??
@@ -91,14 +103,18 @@ class User{
       'id': id,
       'username': username,
       'email': email,
-      'sex': sex,
+      'password': password,
+      'gender': gender,
       'ageGroup': ageGroup,
       'level': level,
       'points': points,
       'joinDate': joinDate.toIso8601String(),
       'age': age,
-      'beruf': beruf,
+      'occupation': occupation,
       'mood': mood,
+      'streak': streak,
+      'birthday': birthday,
+      'role': role,
       'completedTasks': completedTasks.map((t) => t.toJson()).toList(),
       // Freunde abspeichern am besten über deren IDs (nicht hier direkt)
     };
