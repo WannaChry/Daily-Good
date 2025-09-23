@@ -27,6 +27,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     _Q('Was machst du beruflich?', options: ['Schüler/Student', 'Auszubildende/-r', 'Arbeitnehmer', 'Sonstiges']),
     _Q('Was ist dein Geschlecht?', options: ['Männlich', 'Weiblich', 'Divers']),
     _Q('Wie lautet deine E-Mail?', type: _QType.text, hint: 'name@example.com'),
+    _Q('Wähle ein Passwort', type: _QType.text, hint: '••••••••'),
     _Q('Wann hast du Geburtstag?', type: _QType.text, hint: 'z. B. 12.08.2000'),
   ];
 
@@ -66,6 +67,10 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
       final okFormat = RegExp(r'^([0-2]?\d|3[01])\.(0?\d|1[0-2])\.(19|20)\d{2}$').hasMatch(v);
       return okChars && okFormat;
     }
+    if (q.title.startsWith('Wähle ein Passwort')) {
+      return v.length >= 6; // Mindestlänge
+    }
+
     return v.isNotEmpty;
   }
 
@@ -130,6 +135,13 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
         LengthLimitingTextInputFormatter(10),
       ];
       keyboardType = TextInputType.datetime;
+      capitalization = TextCapitalization.none;
+    }
+    else if (q.title.startsWith('Wähle ein Passwort')) {
+      inputFormatters = [
+        LengthLimitingTextInputFormatter(30),
+      ];
+      keyboardType = TextInputType.visiblePassword;
       capitalization = TextCapitalization.none;
     }
 
@@ -224,6 +236,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                       inputFormatters: inputFormatters,
                       keyboardType: keyboardType,
                       textCapitalization: capitalization,
+                      obscureText: q.title.startsWith('Wähle ein Passwort'),
                       decoration: InputDecoration(
                         hintText: q.hint ?? 'Antwort eingeben',
                         filled: true,
