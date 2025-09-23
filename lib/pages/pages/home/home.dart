@@ -11,7 +11,7 @@ import 'package:studyproject/pages/pages/activity_page.dart';
 import 'package:studyproject/pages/pages/community_page.dart';
 import 'package:studyproject/pages/pages/profile_page.dart';
 import 'package:studyproject/pages/pages/auth_entry_page.dart';
-import 'package:studyproject/pages/pages/sign_in_page.dart';
+import 'package:studyproject/pages/pages/options.dart';
 import 'package:studyproject/pages/pages/sign_up_page.dart';
 import 'package:studyproject/pages/subpages/eco_facts_dialog.dart';
 import 'package:studyproject/pages/subpages/mood_check_dialog.dart';

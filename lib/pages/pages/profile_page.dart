@@ -15,7 +15,7 @@ import 'package:studyproject/pages/subpages/privacy_security_page.dart';
 import 'package:studyproject/pages/subpages/help_support_page.dart';
 import 'package:studyproject/pages/state/social_state.dart';
 import 'package:studyproject/pages/state/auth_state.dart';
-import 'package:studyproject/pages/pages/sign_in_page.dart';
+import 'package:studyproject/pages/pages/options.dart';
 import 'package:studyproject/pages/pages/sign_up_page.dart';
 
 class ProfilePage extends StatefulWidget {
