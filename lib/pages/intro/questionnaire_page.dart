@@ -18,7 +18,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
   static const double _landscapeH = 180;
 
   int step = 0;
-  final Map<int, String> answers = {};
+  final Map<String, String> answers = {};
 
   // Neue Frage 2: E-Mail
   final List<_Q> questions = const [
@@ -76,7 +76,9 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
 
   void _next() {
     final q = questions[step];
-    if (q.type == _QType.text) answers[step] = _textController.text.trim();
+    if (q.type == _QType.text) {
+      answers[q.title] = _textController.text.trim();
+    }
     if (step < questions.length - 1) {
       setState(() {
         step++;
@@ -87,7 +89,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
       Navigator.of(context).pushNamed(
         '/intro/review',
         arguments: {
-          'answers': Map<int, String>.from(answers),
+          'answers': Map<String, String>.from(answers),
         },
       );
     }
@@ -147,7 +149,8 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
 
     final bool canContinue = q.type == _QType.text
         ? _validTextAnswer(q)
-        : (answers[step]?.isNotEmpty ?? false);
+        : (answers[q.title]?.isNotEmpty ?? false);
+
 
     // Spezielle Optik für die E-Mail-Frage
     final isEmailStep = q.title.startsWith('Wie lautet deine E');
@@ -264,9 +267,9 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                         separatorBuilder: (_, __) => const SizedBox(height: 10),
                         itemBuilder: (_, i) {
                           final opt = q.options![i];
-                          final sel = answers[step] == opt;
+                          final sel = answers[q.title] == opt;
                           return InkWell(
-                            onTap: () => setState(() => answers[step] = opt),
+                            onTap: () => setState(() => answers[q.title] = opt),
                             borderRadius: BorderRadius.circular(16),
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),

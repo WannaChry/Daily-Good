@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:studyproject/pages/intro/auth/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -40,7 +41,8 @@ class _LoginPageState extends State<LoginPage> {
     if (answer != _a + _b) {
       print('Sicherheitsfrage falsch: $_a + $_b != $answer');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Falsche Antwort auf die Sicherheitsfrage.')),
+        const SnackBar(
+            content: Text('Falsche Antwort auf die Sicherheitsfrage.')),
       );
       return;
     }
@@ -49,45 +51,27 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       // 1️⃣ Firebase Auth Login
-      UserCredential userCredential = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: email, password: password);
+      final res = await AuthMethod().loginUser(
+        email: email,
+        password: password,
+      );
 
-      print('Login erfolgreich! UID: ${userCredential.user!.uid}');
-
-      // 2️⃣ Firestore-Daten abrufen
-      final uid = userCredential.user!.uid;
-      final userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(uid)
-          .get();
-
-      if (!userDoc.exists) {
-        print('Firestore: Keine Daten für UID $uid gefunden');
+      if (res == "success") {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Benutzerdaten nicht gefunden.')),
+          const SnackBar(content: Text("Login erfolgreich!")),
         );
-        return;
+        Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Login fehlgeschlagen: $res')),
+        );
       }
-
-      final userData = userDoc.data();
-      print('Firestore-Daten geladen: $userData');
-
-      // 3️⃣ Weiterleitung zur Home-Seite mit Userdaten
-      if (!mounted) return;
-      Navigator.pushReplacementNamed(
-        context,
-        '/home',
-        arguments: userData,
-      );
-    } on FirebaseAuthException catch (e) {
-      print('FirebaseAuthException: Code=${e.code}, Message=${e.message}');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login fehlgeschlagen: ${e.message}')),
-      );
     } catch (e) {
-      print('Allgemeiner Fehler: $e');
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ein unerwarteter Fehler ist aufgetreten.')),
+        SnackBar(content: Text('Fehler: $e')),
       );
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -122,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
               children: [
                 TextField(
                   controller: _emailController,
-                  decoration: const InputDecoration(labelText: 'E-Mail oder Username'),
+                  decoration: const InputDecoration(labelText: 'E-Mail'),
                 ),
                 const SizedBox(height: 20),
                 TextField(
@@ -138,7 +122,8 @@ class _LoginPageState extends State<LoginPage> {
                 TextField(
                   controller: _answerController,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(hintText: 'Antwort eingeben'),
+                  decoration: const InputDecoration(
+                      hintText: 'Antwort eingeben'),
                 ),
                 const SizedBox(height: 30),
                 ElevatedButton(

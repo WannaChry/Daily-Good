@@ -1,3 +1,4 @@
+//Hier entscheidet User ob er Sign in wählt oder Sign Up
 import 'package:flutter/material.dart';
 
 class AuthChoicePage extends StatelessWidget {

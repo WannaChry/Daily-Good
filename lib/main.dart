@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:studyproject/pages/intro/auth_choice.dart';
-import 'package:studyproject/pages/intro/login.dart';
+import 'package:studyproject/pages/intro/auth/auth_choice.dart';
+import 'package:studyproject/pages/intro/anmeldung/sign_in.dart';
 import 'package:studyproject/pages/models/tipp.dart';
 import 'package:studyproject/pages/models/streak_celebration_page.dart';
 
@@ -14,11 +14,11 @@ import 'pages/pages/home/home.dart';
 import 'pages/intro/splash_page.dart';
 import 'pages/intro/onboarding_page.dart';
 import 'pages/intro/questionnaire_page.dart';
-import 'pages/intro/review_confirm_page.dart';
+import 'pages/intro/anmeldung/sign_up.dart';
 
 // Auth-Seiten
 import 'pages/pages/sign_in_page.dart';
-import 'pages/pages/sign_up_page.dart';
+//import 'pages/pages/sign_up_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -83,7 +83,7 @@ class _MyAppState extends State<MyApp> {
         '/auth_choice': (_) => const AuthChoicePage(),
         '/login': (_) => const LoginPage(),
         '/questionnaire': (_) => const QuestionnairePage(),
-        '/intro/review': (_) => const ReviewConfirmPage(),
+        '/intro/review': (_) => const SignUpPage(),
 
         // NEU: Streak-Celebration (liest Arguments)
         '/streak': (ctx) {
