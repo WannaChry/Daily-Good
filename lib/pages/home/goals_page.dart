@@ -1,10 +1,10 @@
 // lib/pages/pages/home/goals_page.dart
 import 'package:flutter/material.dart';
 
-import 'package:studyproject/pages/pages/home/badge_dex_page.dart';
-import 'package:studyproject/pages/pages/home/TreeGrowth.dart';
-import 'package:studyproject/pages/pages/home/SectionHeaderCard.dart';
-import 'package:studyproject/pages/pages/home/progress_card.dart';
+import 'package:studyproject/pages/home/badge_dex_page.dart';
+import 'package:studyproject/pages/home/TreeGrowth.dart';
+import 'package:studyproject/pages/home/SectionHeaderCard.dart';
+import 'package:studyproject/pages/home/progress_card.dart';
 
 import 'package:studyproject/pages/widgets/confetti_burst.dart' show showConfettiBurst;
 import 'package:studyproject/pages/widgets/task_title.dart' show TaskTile;

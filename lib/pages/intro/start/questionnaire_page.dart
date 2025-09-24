@@ -1,8 +1,8 @@
 // lib/pages/intro/questionnaire_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'widgets/cute_landscape.dart';
-import 'widgets/gradient_progress.dart';
+import '../widgets/cute_landscape.dart';
+import '../widgets/gradient_progress.dart';
 // Die beiden Imports sind hier unnötig; kannst du entfernen wenn du magst
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:studyproject/pages/models/user.dart';

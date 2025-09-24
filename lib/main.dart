@@ -8,12 +8,12 @@ import 'package:studyproject/pages/models/streak_celebration_page.dart';
 
 import 'pages/state/social_state.dart';
 import 'pages/state/auth_state.dart'; // Auth-State
-import 'pages/pages/home/home.dart';
+import 'pages/home/home.dart';
 
 // Intro-Seiten
-import 'pages/intro/splash_page.dart';
-import 'pages/intro/onboarding_page.dart';
-import 'pages/intro/questionnaire_page.dart';
+import 'pages/intro/start/splash_page.dart';
+import 'pages/intro/start/onboarding_page.dart';
+import 'pages/intro/start/questionnaire_page.dart';
 import 'pages/intro/anmeldung/sign_up.dart';
 
 // Auth-Seiten

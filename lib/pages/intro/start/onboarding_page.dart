@@ -1,8 +1,8 @@
 // lib/pages/intro/onboarding_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'widgets/cute_landscape.dart';
-import 'widgets/gradient_progress.dart';
+import '../widgets/cute_landscape.dart';
+import '../widgets/gradient_progress.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});

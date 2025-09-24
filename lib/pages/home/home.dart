@@ -1,4 +1,5 @@
 // lib/pages/pages/home.dart
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -7,20 +8,22 @@ import 'package:google_fonts/google_fonts.dart';
 // Achte auf snake_case-Dateinamen:
 import 'package:studyproject/pages/ButtonsReaktion.dart';
 import 'package:studyproject/pages/bottom_nav_only.dart';
-import 'package:studyproject/pages/pages/activity_page.dart';
+import 'package:studyproject/pages/home/activity_page.dart';
 import 'package:studyproject/pages/pages/community_page.dart';
 import 'package:studyproject/pages/pages/profile_page.dart';
 import 'package:studyproject/pages/pages/auth_entry_page.dart';
 import 'package:studyproject/pages/pages/options.dart';
 import 'package:studyproject/pages/pages/sign_up_page.dart';
 import 'package:studyproject/pages/subpages/eco_facts_dialog.dart';
-import 'package:studyproject/pages/subpages/mood_check_dialog.dart';
+import 'package:studyproject/pages/home/mood/mood_dialog.dart';
+import 'package:studyproject/pages/home/services/mood_service.dart';
 import 'package:studyproject/pages/models/tipp.dart';
-import 'package:studyproject/pages/pages/home/goals_page.dart';
+import 'package:studyproject/pages/home/goals_page.dart';
+import 'package:studyproject/pages/home/services/mood_service.dart';
 
 import 'package:studyproject/pages/models/AppBadge.dart';
-import 'package:studyproject/pages/pages/home/badge_dex_page.dart';
-import 'package:studyproject/pages/pages/home/SectionHeaderCard.dart';
+import 'package:studyproject/pages/home/badge_dex_page.dart';
+import 'package:studyproject/pages/home/SectionHeaderCard.dart';
 
 class HomePage extends StatefulWidget {
   final List<Tipp> tips;
@@ -83,14 +86,17 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.only(right: 12, top: 8),
             color: Colors.black,
             onTap: () async {
-              final result = await showMoodCheckDialog(context);
+              final result = await showMoodPicker(context);
               if (!context.mounted || result == null) return;
 
               const labels = ['Sehr schlecht', 'Schlecht', 'Mittel', 'Gut', 'Sehr gut'];
+              final mood = labels[result];
+
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Stimmung: ${labels[result]}')),
+                SnackBar(content: Text('Stimmung: $mood')),
               );
             },
+
           ),
         ],
       ),
