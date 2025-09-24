@@ -11,27 +11,7 @@ Future<void> showEcoFactDialog(BuildContext context, List<Tipp> tips) async {
   final rnd = Random();
   final selectedtips = tips[rnd.nextInt(tips.length)];
 
-  // Kurze, gut lesbare Fakten – gern beliebig erweitern.
-  /*final facts = <String>[
-    'Bambuswälder produzieren bis zu 35 % mehr Sauerstoff als gleich große Baumbestände.',
-    'LED-Lampen verbrauchen ~80 % weniger Strom als Glühbirnen – und halten viel länger.',
-    'Regional & saisonal einkaufen spart Transportwege und Verpackungsmüll.',
-    'Eine vegetarische Mahlzeit spart im Schnitt 1–2 kg CO₂ im Vergleich zu Fleisch.',
-    'Eine Mehrweg-Glasflasche kann 30–50 Mal wiederbefüllt werden.',
-    '3 km zu Fuß statt Auto spart ~500 g CO₂ – und tut gut.',
-    '1 °C weniger Heizung ≈ 6 % weniger Energieverbrauch.',
-    'Geräte komplett ausschalten statt Standby spart bis zu 10 % Strom.',
-    'Sharing statt Kaufen: Werkzeuge teilen reduziert Ressourcenverbrauch deutlich.',
-    'Wälder schützen bindet langfristig mehr CO₂ als einzelne Neupflanzungen.',
-    "Ein baum filtert pro Jahr bis zu 100kg CO₂ aus der Luft.",
-    "Recycling von Aluminium spart bis zu 95 % der Energie im Vergleich zur Neuproduktion.",
-    "Mit einer Stunde Radfahren statt Autofahren sparst du rund 250 g CO₂.",
-    "Wasserhahn zu beim Zähneputzen spart bis zu 12 Liter Wasser pro Minute",
-    "Ein Fairtrade-Kaffee sichert bessere Arbeitsbedingungen für Bauern weltweit.",
-    "Mit ÖPNV fahren verursacht bis zu 75 % weniger CO₂ als Autofahren.",
-    "Second-Hand-Kleidung reduziert den Ressourcenverbrauch der Textilindustrie drastisch.",
-  ];
-   */
+
   // Zufälligen Fakt + Akzentfarben wählen
 
   final accents = [
