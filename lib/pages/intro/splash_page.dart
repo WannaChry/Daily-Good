@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 /// Splash: Logo zoomt ein, Screen färbt sich per Left→Right-Wipe von schwarz zu grün.
 class SplashPage extends StatefulWidget {
@@ -19,16 +20,38 @@ class _SplashPageState extends State<SplashPage>
   @override
   void initState() {
     super.initState();
-    _ac = AnimationController(vsync: this, duration: const Duration(milliseconds: 1600));
+    _ac = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1600),
+    );
 
-    _logoScale = CurvedAnimation(parent: _ac, curve: const Interval(0.0, 0.55, curve: Curves.easeOutBack));
-    _logoYOffset = CurvedAnimation(parent: _ac, curve: const Interval(0.0, 0.55, curve: Curves.easeOut));
-    _wipe       = CurvedAnimation(parent: _ac, curve: const Interval(0.35, 1.0, curve: Curves.easeInOutCubic));
+    _logoScale = CurvedAnimation(
+      parent: _ac,
+      curve: const Interval(0.0, 0.55, curve: Curves.easeOutBack),
+    );
+    _logoYOffset = CurvedAnimation(
+      parent: _ac,
+      curve: const Interval(0.0, 0.55, curve: Curves.easeOut),
+    );
+    _wipe = CurvedAnimation(
+      parent: _ac,
+      curve: const Interval(0.35, 1.0, curve: Curves.easeInOutCubic),
+    );
 
     _ac.forward();
 
-    Timer(const Duration(milliseconds: 1850), () {
-      if (mounted) Navigator.of(context).pushReplacementNamed('/onboarding');
+    // Nach Animation: Auth-Status prüfen
+    Timer(const Duration(milliseconds: 1850), () async {
+      if (!mounted) return;
+
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        // ✅ Schon eingeloggt → Home
+        Navigator.of(context).pushReplacementNamed('/home');
+      } else {
+        // ❌ Nicht eingeloggt
+        Navigator.of(context).pushReplacementNamed('/onboarding');
+      }
     });
   }
 
