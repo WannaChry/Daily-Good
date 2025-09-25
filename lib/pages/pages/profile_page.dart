@@ -347,29 +347,8 @@ class _ProfilePageState extends State<ProfilePage> {
             if (auth.isLoggedIn) ...[
               _LogoutButton(),
             ] else ...[
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const SignInPage()),
-                      ),
-                      child: const Text('Einloggen'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const SignUpPage()),
-                      ),
-                      child: const Text('Konto erstellen'),
-                    ),
-                  ),
-                ],
-              ),
+              const SizedBox.shrink(),
             ],
-
             const SizedBox(height: 12),
           ],
         ),
@@ -396,7 +375,7 @@ class _LevelCard extends StatelessWidget {
   final double progress;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext conteoverxt) {
     final title = GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w800);
     final label = GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600);
 
@@ -641,6 +620,8 @@ class _LogoutButton extends StatelessWidget {
           try {
             await AuthState.of(context).signOut();
             if (!context.mounted) return;
+            Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Abgemeldet.')),
             );
