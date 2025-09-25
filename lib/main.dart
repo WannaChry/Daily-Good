@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:studyproject/pages/intro/auth/auth_choice.dart';
 import 'package:studyproject/pages/intro/anmeldung/sign_in.dart';
+
+//models
 import 'package:studyproject/pages/models/tipp.dart';
+import 'package:studyproject/pages/models/task.dart';
 import 'package:studyproject/pages/models/streak_celebration_page.dart';
 
 import 'pages/state/social_state.dart';
@@ -47,11 +50,13 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   List<Tipp> tips = []; // dynamisch
+  List<Task> tasks =[];
 
   @override
   void initState() {
     super.initState();
     _loadTips();
+    _loadTasks();
   }
 
   Future<void> _loadTips() async {
@@ -69,7 +74,50 @@ class _MyAppState extends State<MyApp> {
       print('[EcoFacts] Fehler beim Laden der Tipps: $e');
     }
   }
+  Future<void> _loadTasks() async {
+    print('[Tasks] Lade Tasks von Firestore...');
 
+    try {
+      final snapshot = await FirebaseFirestore.instance.collection('tasks').get();
+
+      if (snapshot.docs.isEmpty) {
+        print('[Tasks] Keine Dokumente in der Collection gefunden.');
+        return;
+      }
+
+      print('[Tasks] Firestore-Dokumente gefunden: ${snapshot.docs.length}');
+
+      final loadedTasks = snapshot.docs.map((doc) {
+        final data = doc.data();
+        if (data == null) {
+          print('[Tasks] Dokument ${doc.id} enthält null!');
+          return null;
+        }
+        print('[Tasks] Dokument ${doc.id} Daten: $data');
+        try {
+          return Task.fromJson(data as Map<String, dynamic>);
+        } catch (e) {
+          print('[Tasks] Fehler beim Mapping von Dokument ${doc.id}: $e');
+          return null;
+        }
+      }).where((t) => t != null).cast<Task>().toList();
+
+      print('[Tasks] Nach Mapping gültige Tasks: ${loadedTasks.length}');
+
+      if (loadedTasks.isEmpty) {
+        print('[Tasks] Kein gültiger Task nach Mapping gefunden.');
+        return;
+      }
+
+      setState(() {
+        tasks = loadedTasks;
+      });
+
+      print('[Tasks] Erfolgreich ${tasks.length} Tasks geladen.');
+    } catch (e) {
+      print('[Tasks] Fehler beim Laden der Tasks: $e');
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -104,7 +152,7 @@ class _MyAppState extends State<MyApp> {
         '/verify': (_) => const _VerifyPlaceholderPage(), // Platzhalter
 
         // Home
-        '/home': (_) => HomePage(tips: tips),
+        '/home': (_) => HomePage(tips: tips, tasks: tasks),
       },
 
       onUnknownRoute: (_) =>

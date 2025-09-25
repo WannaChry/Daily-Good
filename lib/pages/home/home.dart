@@ -18,16 +18,19 @@ import 'package:studyproject/pages/subpages/eco_facts_dialog.dart';
 import 'package:studyproject/pages/home/mood/mood_dialog.dart';
 import 'package:studyproject/pages/home/services/mood_service.dart';
 import 'package:studyproject/pages/models/tipp.dart';
-import 'package:studyproject/pages/home/goals_page.dart';
+import 'package:studyproject/pages/models/task.dart';
+import 'package:studyproject/pages/home/tasks/goals_page.dart';
 import 'package:studyproject/pages/home/services/mood_service.dart';
 
 import 'package:studyproject/pages/models/AppBadge.dart';
 import 'package:studyproject/pages/home/badge_dex_page.dart';
-import 'package:studyproject/pages/home/SectionHeaderCard.dart';
+import 'package:studyproject/pages/home/tasks/SectionHeaderCard.dart';
 
 class HomePage extends StatefulWidget {
   final List<Tipp> tips;
-  const HomePage({super.key, required this.tips});
+  final List<Task> tasks;
+
+  const HomePage({super.key, required this.tips, required this.tasks});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -44,6 +47,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     _goalsPage = GoalsPage(
       onPointsChanged: (p) => setState(() => _totalPoints = p),
+      tasks: widget.tasks,
     );
   }
 

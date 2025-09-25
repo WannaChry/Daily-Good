@@ -16,12 +16,12 @@ dependencies:
   google_fonts: ^6.3.0
 
   # Firebase (2.x/4.x Reihe – bleibt wie bei dir)
-  firebase_core: ^2.32.0
-  firebase_auth: ^4.20.0
-  cloud_firestore: ^4.17.5
+  firebase_core: ^4.1.1
+  firebase_auth: ^6.1.0
+  cloud_firestore: ^6.0.2
 
   # Firebase Storage – KOMPATIBEL zu obiger Reihe
-  firebase_storage: ^11.7.7   # <- downgrade von 12.x auf 11.x
+  firebase_storage: ^13.0.2   # <- downgrade von 12.x auf 11.x
 
   # Medienauswahl / Utils
   image_picker: ^1.1.2
@@ -30,7 +30,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true

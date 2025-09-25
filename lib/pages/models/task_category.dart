@@ -5,5 +5,6 @@ enum Task_category{
   Achtsamkeit,
   Produktivitaet,
   Lernen,
+  DefaultCategory,
   //personalisierte Aufgaben später
 }

@@ -7,8 +7,7 @@ class Task {
   int points;
   double co2kg;
   bool isCompleted;
-  DateTime dueDate;
-  String assignedToUserId; // Referenz auf User-ID statt direktem Objekt
+  final String emoji;
   Task_category category;
 
   Task({
@@ -18,8 +17,7 @@ class Task {
     required this.points,
     required this.co2kg,
     this.isCompleted = false,
-    required this.dueDate,
-    required this.assignedToUserId,
+    required this.emoji,
     required this.category,
   });
 
@@ -45,11 +43,11 @@ class Task {
       description: json['description'],
       points: json['points'],
       co2kg: json['co2kg'],
+      emoji: json['emoji'],
       isCompleted: json['isCompleted'] ?? false,
-      dueDate: DateTime.parse(json['dueDate']),
-      assignedToUserId: json['assignedToUserId'],
         category: Task_category.values.firstWhere(
               (e) => e.toString() == 'TaskCategory.${json['category']}',
+          orElse: () => Task_category.DefaultCategory,
     ));
   }
 
@@ -61,9 +59,8 @@ class Task {
       'description': description,
       'points': points,
       'co2kg': co2kg,
+      'emoji': emoji,
       'isCompleted': isCompleted,
-      'dueDate': dueDate.toIso8601String(),
-      'assignedToUserId': assignedToUserId,
       'category': category.toString().split('.').last,
     };
   }
