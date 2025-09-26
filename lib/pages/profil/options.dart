@@ -1,9 +1,9 @@
-// lib/pages/pages/options.dart
+// lib/profil/profil/options.dart
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:studyproject/pages/state/auth_state.dart';
-import 'package:studyproject/pages/pages/sign_up_page.dart';
+import 'package:studyproject/pages/profil/sign_up_page.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});

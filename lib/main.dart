@@ -20,8 +20,8 @@ import 'pages/intro/start/questionnaire_page.dart';
 import 'pages/intro/anmeldung/sign_up.dart';
 
 // Auth-Seiten
-import 'pages/pages/options.dart';
-//import 'pages/pages/sign_up_page.dart';
+import 'pages/profil/options.dart';
+//import 'profil/profil/sign_up_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

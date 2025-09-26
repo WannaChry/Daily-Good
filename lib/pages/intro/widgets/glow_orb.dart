@@ -1,4 +1,4 @@
-// lib/pages/intro/widgets/background/glow_orb.dart
+// lib/profil/intro/widgets/background/glow_orb.dart
 import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';

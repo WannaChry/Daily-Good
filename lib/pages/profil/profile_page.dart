@@ -1,4 +1,4 @@
-// lib/pages/pages/profile_page.dart
+// lib/profil/profil/profile_page.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';

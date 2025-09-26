@@ -1,4 +1,4 @@
-// lib/pages/intro/widgets/wind_lines.dart
+// lib/profil/intro/widgets/wind_lines.dart
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 

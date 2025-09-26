@@ -1,4 +1,4 @@
-// lib/pages/pages/community_page.dart
+// lib/profil/profil/community_page.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:studyproject/pages/state/social_state.dart';

@@ -1,4 +1,4 @@
-// lib/pages/intro/questionnaire_page.dart
+// lib/profil/intro/questionnaire_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../widgets/cute_landscape.dart';

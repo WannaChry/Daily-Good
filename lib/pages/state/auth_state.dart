@@ -1,4 +1,4 @@
-// lib/pages/state/auth_state.dart
+// lib/profil/state/auth_state.dart
 import 'dart:typed_data';
 import 'package:flutter/widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fa;

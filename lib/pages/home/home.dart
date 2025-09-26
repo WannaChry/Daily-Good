@@ -1,4 +1,4 @@
-// lib/pages/pages/home.dart
+// lib/profil/profil/home.dart
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,12 +8,12 @@ import 'package:google_fonts/google_fonts.dart';
 // Achte auf snake_case-Dateinamen:
 import 'package:studyproject/pages/ButtonsReaktion.dart';
 import 'package:studyproject/pages/bottom_nav_only.dart';
-import 'package:studyproject/pages/home/activity_page.dart';
-import 'package:studyproject/pages/pages/community_page.dart';
-import 'package:studyproject/pages/pages/profile_page.dart';
-import 'package:studyproject/pages/pages/auth_entry_page.dart';
-import 'package:studyproject/pages/pages/options.dart';
-import 'package:studyproject/pages/pages/sign_up_page.dart';
+import 'package:studyproject/pages/second_page/activity_page.dart';
+import 'package:studyproject/pages/profil/community_page.dart';
+import 'package:studyproject/pages/profil/profile_page.dart';
+import 'package:studyproject/pages/profil/auth_entry_page.dart';
+import 'package:studyproject/pages/profil/options.dart';
+import 'package:studyproject/pages/profil/sign_up_page.dart';
 import 'package:studyproject/pages/subpages/eco_facts_dialog.dart';
 import 'package:studyproject/pages/home/mood/mood_dialog.dart';
 import 'package:studyproject/pages/home/services/mood_service.dart';

@@ -1,4 +1,4 @@
-// lib/pages/intro/widgets/interactive_clouds.dart
+// lib/profil/intro/widgets/interactive_clouds.dart
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Step E: Haptik

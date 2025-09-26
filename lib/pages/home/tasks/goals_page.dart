@@ -1,4 +1,4 @@
-// lib/pages/pages/home/goals_page.dart
+// lib/profil/profil/home/goals_page.dart
 import 'package:flutter/material.dart';
 
 import 'package:studyproject/pages/home/badge_dex_page.dart';
