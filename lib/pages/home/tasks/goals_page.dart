@@ -6,6 +6,7 @@ import 'package:studyproject/pages/home/tasks/TreeGrowth.dart';
 import 'package:studyproject/pages/home/tasks/SectionHeaderCard.dart';
 import 'package:studyproject/pages/home/tasks/progress_card.dart';
 import 'package:studyproject/pages/home/tasks/confetti_burst.dart' show showConfettiBurst;
+import 'package:studyproject/pages/models/submodels/categoryTheme.dart';
 import 'package:studyproject/pages/widgets/task_title.dart' show TaskTile;
 
 //models
@@ -132,36 +133,60 @@ class GoalsPageState extends State<GoalsPage>
               itemBuilder: (context, i) {
                 final task = tasksToShow[i];
                 final isDone = _completed.contains(i);
+                final categoryTheme = CategoryTheme.themes[task.category]!;
 
                 return GestureDetector(
                   onTapDown: (details) => _tapPos = details.globalPosition,
                   onTap: () => _toggleTask(i),
                   child: Card(
-                    color: isDone ? Colors.green[100] : Colors.white,
+                    color: isDone ? Colors.green[100] : categoryTheme.color, // Farbe nach Kategorie
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(color: categoryTheme.border, width: 1), // optionaler Border
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                     child: Padding(
                       padding: const EdgeInsets.all(12),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // Task info
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          // Linke Seite: Kategorie-Icon + Task Emoji + Text
+                          Row(
                             children: [
-                              Text(
-                                '${task.emoji} ${task.title}',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  decoration: isDone ? TextDecoration.lineThrough : null,
+                              // Kategorie-Icon
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: categoryTheme.border.withOpacity(0.2),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  categoryTheme.icon,
+                                  size: 20,
+                                  color: isDone ? Colors.green : categoryTheme.border,
                                 ),
                               ),
-                              if (task.co2kg > 0)
-                                Text(
-                                  '${task.co2kg} kg CO₂',
-                                  style: const TextStyle(fontSize: 12, color: Colors.grey),
-                                ),
+                              const SizedBox(width: 8),
+                              // Task Emoji + Titel
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '${task.emoji} ${task.title}',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      decoration: isDone ? TextDecoration.lineThrough : null,
+                                    ),
+                                  ),
+                                  if (task.co2kg > 0)
+                                    Text(
+                                      '${task.co2kg} kg CO₂',
+                                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                    ),
+                                ],
+                              ),
                             ],
                           ),
-                          // Points
+                          // Rechte Seite: Punkte
                           Text(
                             '+${task.points} P',
                             style: TextStyle(

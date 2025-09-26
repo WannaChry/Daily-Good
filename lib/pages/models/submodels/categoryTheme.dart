@@ -15,5 +15,6 @@ class CategoryTheme {
     Task_category.Achtsamkeit: CategoryTheme(color: Color(0xFFF4ECFF), border: Color(0xFFD7C7FF), icon: Icons.self_improvement_rounded),
     Task_category.Produktivitaet: CategoryTheme(color: Color(0xFFFFEEF0), border: Color(0xFFF8B8C1), icon: Icons.task_alt_rounded),
     Task_category.Lernen: CategoryTheme(color: Color(0xFFEFF3FF), border: Color(0xFFBECDFE), icon: Icons.menu_book_rounded),
+    Task_category.DefaultCategory : CategoryTheme(color: Colors.grey[200]!, border: Colors.grey, icon: Icons.help_outline),
   };
 }

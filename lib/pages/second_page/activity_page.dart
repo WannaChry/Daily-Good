@@ -6,9 +6,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:studyproject/pages/models/task.dart';
 import 'package:studyproject/pages/models/task_category.dart';
 import 'package:studyproject/pages/models/submodels/categoryTheme.dart';
+import 'package:studyproject/pages/second_page/subpages/suggest_Card.dart';
 
 import 'package:studyproject/pages/second_page/subpages/task_row.dart';
-import 'package:studyproject/pages/widgets/suggest_card.dart';
 import 'package:studyproject/pages/second_page/subpages/kpiCard.dart';
 import 'package:studyproject/pages/second_page/subpages/category_section.dart';
 import 'package:studyproject/pages/second_page/subpages/co2_impact_card.dart';
