@@ -1,8 +1,6 @@
 // lib/profil/profil/home.dart
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 // Achte auf snake_case-Dateinamen:
@@ -11,20 +9,14 @@ import 'package:studyproject/pages/bottom_nav_only.dart';
 import 'package:studyproject/pages/second_page/activity_page.dart';
 import 'package:studyproject/pages/profil/community_page.dart';
 import 'package:studyproject/pages/profil/profile_page.dart';
-import 'package:studyproject/pages/profil/auth_entry_page.dart';
 import 'package:studyproject/pages/profil/options.dart';
-import 'package:studyproject/pages/profil/sign_up_page.dart';
 import 'package:studyproject/pages/subpages/eco_facts_dialog.dart';
 import 'package:studyproject/pages/home/mood/mood_dialog.dart';
-import 'package:studyproject/pages/home/services/mood_service.dart';
 import 'package:studyproject/pages/models/tipp.dart';
 import 'package:studyproject/pages/models/task.dart';
 import 'package:studyproject/pages/home/tasks/goals_page.dart';
-import 'package:studyproject/pages/home/services/mood_service.dart';
 
 import 'package:studyproject/pages/models/AppBadge.dart';
-import 'package:studyproject/pages/home/badge_dex_page.dart';
-import 'package:studyproject/pages/home/tasks/SectionHeaderCard.dart';
 
 class HomePage extends StatefulWidget {
   final List<Tipp> tips;
