@@ -83,10 +83,13 @@ class GoalsPageState extends State<GoalsPage>
     setState(() {
       if (_completed.contains(i)) {
         _completed.remove(i);
+        task.isCompleted = false; // Task wird wieder unerledigt
       } else {
         _completed.add(i);
+        task.isCompleted = true;  // Task erledigt markieren
       }
     });
+
     final after = _truePoints;
     _animatePoints(before, after);
 
@@ -139,7 +142,7 @@ class GoalsPageState extends State<GoalsPage>
                   onTapDown: (details) => _tapPos = details.globalPosition,
                   onTap: () => _toggleTask(i),
                   child: Card(
-                    color: isDone ? Colors.green[100] : categoryTheme.color, // Farbe nach Kategorie
+                    color: isDone ? Colors.green[300] : categoryTheme.color, // Farbe nach Kategorie
                     shape: RoundedRectangleBorder(
                       side: BorderSide(color: categoryTheme.border, width: 1), // optionaler Border
                       borderRadius: BorderRadius.circular(8),

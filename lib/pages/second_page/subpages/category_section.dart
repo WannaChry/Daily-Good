@@ -40,11 +40,14 @@ class CategorySection extends StatelessWidget {
             name,
             style: GoogleFonts.poppins(fontWeight: FontWeight.w800, fontSize: 16),
           ),
-          children: [
-            Column(
-              children: tasks.map((t) => TaskRow(task: t, onToggle: onToggle)).toList(),
-            ),
-          ],
+          children: tasks.isEmpty
+              ? [Padding(
+            padding: const EdgeInsets.all(8),
+            child: Text('Keine erledigten Tasks', style: TextStyle(color: Colors.grey)),
+          )]
+              : tasks.map((t) => TaskRow(task: t, onToggle: onToggle)).toList(),
+
+
         ),
       ),
     );

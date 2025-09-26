@@ -107,7 +107,7 @@ class _HomePageState extends State<HomePage> {
           _goalsPage,                               // Tab 1
           ActivityPage(
               totalPoints: _totalPoints,
-            tasks: [],),  // Tab 2
+            tasks: widget.tasks,),  // Tab 2
           const CommunityPage(),                    // Tab 3
           ProfilePage(totalPoints: _totalPoints),   // Tab 4
         ],

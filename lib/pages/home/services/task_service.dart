@@ -1,5 +1,6 @@
 // lib/services/task_service.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:collection/collection.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:studyproject/pages/models/task.dart';
 
@@ -29,9 +30,9 @@ class TaskService {
 
       await ref.set({
         'id': task.id,
-        //'title': task.title,
-        //'points': task.points,
-        //'co2kg': task.co2kg,
+        'category': task.category,
+        'points': task.points,
+        'co2kg': task.co2kg,
         'completedAt': FieldValue.serverTimestamp(),
       });
 
@@ -56,4 +57,36 @@ class TaskService {
 
     return doc.exists;
   }
+  Future<void> uncompleteTask(Task task) async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+
+    task.isCompleted = false;
+
+    await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .collection('completedTasks')
+        .doc(task.id)
+        .delete();
+  }
+
+  Future<void> loadCompletedTasks(List<Task> allTasks) async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+
+    final snapshot = await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .collection('completedTasks')
+        .get();
+
+    for (var doc in snapshot.docs) {
+      final task = allTasks.firstWhereOrNull((t) => t.id == doc.id);
+      if (task != null) {
+        task.isCompleted = true;
+      }
+    }
+  }
+
 }
