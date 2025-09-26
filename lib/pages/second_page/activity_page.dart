@@ -7,29 +7,31 @@ import 'package:studyproject/pages/models/task.dart';
 import 'package:studyproject/pages/models/task_category.dart';
 import 'package:studyproject/pages/models/submodels/categoryTheme.dart';
 
-import 'package:studyproject/pages/widgets/task_row.dart';
+import 'package:studyproject/pages/second_page/subpages/task_row.dart';
 import 'package:studyproject/pages/widgets/suggest_card.dart';
-import 'package:studyproject/pages/widgets/kpiCard.dart';
-import 'package:studyproject/pages/widgets/category_section.dart';
-import 'package:studyproject/pages/widgets/co2_impact_card.dart';
-import 'package:studyproject/pages/widgets/challenge_row.dart';
+import 'package:studyproject/pages/second_page/subpages/kpiCard.dart';
+import 'package:studyproject/pages/second_page/subpages/category_section.dart';
+import 'package:studyproject/pages/second_page/subpages/co2_impact_card.dart';
+import 'package:studyproject/pages/second_page/subpages/challenge_row.dart';
 
 import 'package:studyproject/pages/constants/goals.dart';
 
 class ActivityPage extends StatefulWidget {
-  const ActivityPage({super.key, required this.totalPoints});
+  const ActivityPage({super.key, required this.totalPoints, required this.tasks,});
   final int totalPoints;
+  final List<Task> tasks;
 
   @override
   State<ActivityPage> createState() => _ActivityPageState();
 }
 
 class _ActivityPageState extends State<ActivityPage> {
-  // ---------- Demo-Daten ----------
+
   final List<Task> _tasks = []; // aktuell leer, später kannst du echte Daten laden
 
   // ---------- Helpers ----------
-  List<Task> get _completedTasks => _tasks.where((t) => t.isCompleted).toList();
+  List<Task> get _completedTasks =>
+      widget.tasks.where((t) => t.isCompleted).toList();
 
   int get _impactPoints =>
       _completedTasks.fold<int>(0, (sum, t) => sum + t.points);

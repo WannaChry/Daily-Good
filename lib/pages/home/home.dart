@@ -30,7 +30,10 @@ class HomePage extends StatefulWidget {
   final List<Tipp> tips;
   final List<Task> tasks;
 
-  const HomePage({super.key, required this.tips, required this.tasks});
+  const HomePage({
+    super.key,
+    required this.tips,
+    required this.tasks});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -110,7 +113,9 @@ class _HomePageState extends State<HomePage> {
         index: _currentIndex,
         children: [
           _goalsPage,                               // Tab 1
-          ActivityPage(totalPoints: _totalPoints),  // Tab 2
+          ActivityPage(
+              totalPoints: _totalPoints,
+            tasks: [],),  // Tab 2
           const CommunityPage(),                    // Tab 3
           ProfilePage(totalPoints: _totalPoints),   // Tab 4
         ],

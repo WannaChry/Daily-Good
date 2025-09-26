@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'package:studyproject/pages/models/task.dart';
 import 'package:studyproject/pages/models/task_category.dart';
-import 'package:studyproject/pages/widgets/task_row.dart';
+import 'package:studyproject/pages/second_page/subpages/task_row.dart';
 import 'package:studyproject/pages/models/submodels/categoryTheme.dart';
 
 class CategorySection extends StatelessWidget {

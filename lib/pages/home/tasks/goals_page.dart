@@ -7,8 +7,12 @@ import 'package:studyproject/pages/home/tasks/SectionHeaderCard.dart';
 import 'package:studyproject/pages/home/tasks/progress_card.dart';
 import 'package:studyproject/pages/home/tasks/confetti_burst.dart' show showConfettiBurst;
 import 'package:studyproject/pages/widgets/task_title.dart' show TaskTile;
+
 //models
 import 'package:studyproject/pages/models/task.dart';
+
+//services
+import 'package:studyproject/pages/home/services/task_service.dart';
 
 class GoalsPage extends StatefulWidget {
   const GoalsPage({
@@ -27,6 +31,7 @@ class GoalsPage extends StatefulWidget {
 class GoalsPageState extends State<GoalsPage>
     with AutomaticKeepAliveClientMixin<GoalsPage>, SingleTickerProviderStateMixin {
 
+  final TaskService _doTask = TaskService();
   final Set<int> _completed = {};
   static const int _dailyTarget = 25;
 
@@ -69,8 +74,11 @@ class GoalsPageState extends State<GoalsPage>
       ..forward();
   }
 
-  void _toggleTask(int i) {
+
+  void _toggleTask(int i) async{
     final before = _displayPoints;
+    final task = widget.tasks[i];
+
     setState(() {
       if (_completed.contains(i)) {
         _completed.remove(i);
@@ -81,7 +89,12 @@ class GoalsPageState extends State<GoalsPage>
     final after = _truePoints;
     _animatePoints(before, after);
 
-    if (_tapPos != null && !_completed.contains(i)) {
+
+    if (!_completed.contains(i)) {
+      await _doTask.completeTask(task);
+    }
+
+    if (_tapPos != null && _completed.contains(i)) {
       showConfettiBurst(context, _tapPos!);
       _tapPos = null;
     }
