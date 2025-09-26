@@ -13,10 +13,19 @@ import 'package:studyproject/pages/subpages/preferences_page.dart';
 import 'package:studyproject/pages/subpages/deine_daten_page.dart';
 import 'package:studyproject/pages/subpages/privacy_security_page.dart';
 import 'package:studyproject/pages/subpages/help_support_page.dart';
+
 import 'package:studyproject/pages/state/social_state.dart';
 import 'package:studyproject/pages/state/auth_state.dart';
+
 import 'package:studyproject/pages/pages/options.dart';
 import 'package:studyproject/pages/pages/sign_up_page.dart';
+
+import 'package:studyproject/pages/widgets/profile/level_card.dart';
+import 'package:studyproject/pages/widgets/profile/expandable_section.dart';
+import 'package:studyproject/pages/widgets/profile/list_tile_stub.dart';
+import 'package:studyproject/pages/widgets/profile/section_group.dart';
+import 'package:studyproject/pages/widgets/profile/logout_button.dart';
+
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key, required this.totalPoints});
@@ -219,7 +228,7 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 20),
 
             // ---------- Level + Punkte ----------
-            _LevelCard(
+            LevelCard(
               level: level,
               current: lp.current,
               needed: lp.needed,
@@ -265,48 +274,48 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 24),
 
             // ---------- Freunde ----------
-            _ExpandableSection(
+            ExpandableSection(
               title: 'Freunde',
               children: (social.friends.isEmpty
                   ? const [
                 'Noch keine Freunde – füge welche auf der Community-Seite hinzu.'
               ]
                   : social.friends.map((f) => '${f.name} • ${f.code}'))
-                  .map((label) => _ListTileStub(label: label))
+                  .map((label) => ListTileStub(label: label))
                   .toList(),
             ),
 
             const SizedBox(height: 16),
 
             // ---------- Communities ----------
-            _ExpandableSection(
+            ExpandableSection(
               title: 'Communities',
               children: (social.communities.isEmpty
                   ? const [
                 'Noch keine Communities – tritt per Code bei oder erstelle eine.'
               ]
                   : social.communities.map((c) => '${c.name} • Code: ${c.code}'))
-                  .map((label) => _ListTileStub(label: label))
+                  .map((label) => ListTileStub(label: label))
                   .toList(),
             ),
 
             const SizedBox(height: 24),
 
             // ---------- Gruppen: Account ----------
-            _SectionGroup(
+            SectionGroup(
               header: 'Account',
               items: [
-                _GroupItem(
+                GroupItem(
                   label: 'Benachrichtigungen',
                   onTap: () =>
                       Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NotificationsPage())),
                 ),
-                _GroupItem(
+                GroupItem(
                   label: 'Präferenzen',
                   onTap: () =>
                       Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PreferencesPage())),
                 ),
-                _GroupItem(
+                GroupItem(
                   label: 'Deine Daten',
                   onTap: () =>
                       Navigator.of(context).push(MaterialPageRoute(builder: (_) => const DeineDatenPage())),
@@ -317,22 +326,22 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 20),
 
             // ---------- Gruppen: Support ----------
-            _SectionGroup(
+            SectionGroup(
               header: 'Support',
               items: [
-                _GroupItem(
+                GroupItem(
                   label: 'Datenschutz & Sicherheit',
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const PrivacySecurityPage()),
                   ),
                 ),
-                _GroupItem(
+                GroupItem(
                   label: 'Hilfe & Support',
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const HelpSupportPage(initialTab: 0)),
                   ),
                 ),
-                _GroupItem(
+                GroupItem(
                   label: 'Fehler melden',
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const HelpSupportPage(initialTab: 3)),
@@ -345,326 +354,12 @@ class _ProfilePageState extends State<ProfilePage> {
 
             // ---------- Login/Logout ----------
             if (auth.isLoggedIn) ...[
-              _LogoutButton(),
+              LogoutButton(),
             ] else ...[
               const SizedBox.shrink(),
             ],
             const SizedBox(height: 12),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-// ===== Helper Widgets =====
-
-class _LevelCard extends StatelessWidget {
-  const _LevelCard({
-    required this.level,
-    required this.current,
-    required this.needed,
-    required this.totalPoints,
-    required this.progress,
-  });
-
-  final int level;
-  final int current;
-  final int needed;
-  final int totalPoints;
-  final double progress;
-
-  @override
-  Widget build(BuildContext conteoverxt) {
-    final title = GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w800);
-    final label = GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600);
-
-    const barH = 18.0;
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        children: [
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Text('Level $level', style: title),
-            Text('$totalPoints Punkte', style: label.copyWith(color: Colors.grey.shade700)),
-          ]),
-          const SizedBox(height: 10),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(999),
-            child: Stack(
-              children: [
-                Container(height: barH, color: Colors.white),
-                FractionallySizedBox(
-                  alignment: Alignment.centerLeft,
-                  widthFactor: progress,
-                  child: Container(height: barH, color: Colors.green.shade300),
-                ),
-                Positioned.fill(
-                  child: Center(
-                    child: Text(
-                      '$current / $needed',
-                      style: GoogleFonts.poppins(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black.withOpacity(0.8),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ExpandableSection extends StatefulWidget {
-  const _ExpandableSection({required this.title, required this.children});
-  final String title;
-  final List<Widget> children;
-
-  @override
-  State<_ExpandableSection> createState() => _ExpandableSectionState();
-}
-
-class _ExpandableSectionState extends State<_ExpandableSection> {
-  bool _open = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Column(
-        children: [
-          InkWell(
-            borderRadius: BorderRadius.circular(14),
-            onTap: () => setState(() => _open = !_open),
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-              child: Text(
-                widget.title,
-                style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700),
-              ),
-            ),
-          ),
-          AnimatedCrossFade(
-            crossFadeState:
-            _open ? CrossFadeState.showFirst : CrossFadeState.showSecond,
-            duration: const Duration(milliseconds: 200),
-            firstChild: Column(
-              children: [
-                const Divider(height: 1),
-                ...widget.children
-                    .expand<Widget>((w) => [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 10),
-                    child: w,
-                  ),
-                  const Divider(height: 1),
-                ])
-                    .toList()
-                  ..removeLast(),
-              ],
-            ),
-            secondChild: const SizedBox.shrink(),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ListTileStub extends StatelessWidget {
-  const _ListTileStub({required this.label});
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 36,
-          height: 36,
-          decoration: BoxDecoration(
-            color: Colors.grey.shade300,
-            shape: BoxShape.circle,
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Text(
-            label,
-            style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w600),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _SectionGroup extends StatelessWidget {
-  const _SectionGroup({required this.header, required this.items});
-  final String header;
-  final List<_GroupItem> items;
-
-  @override
-  Widget build(BuildContext context) {
-    final headerStyle =
-    GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(header, style: headerStyle),
-        const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(14),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.03),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              )
-            ],
-            border: Border.all(color: Colors.grey.shade300),
-          ),
-          child: Column(
-            children: List.generate(items.length, (i) {
-              final item = items[i];
-              final isLast = i == items.length - 1;
-              return Column(
-                children: [
-                  _GroupRow(label: item.label, onTap: item.onTap),
-                  if (!isLast) const Divider(height: 1, thickness: 1),
-                ],
-              );
-            }),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _GroupItem {
-  const _GroupItem({required this.label, this.onTap});
-  final String label;
-  final VoidCallback? onTap;
-}
-
-class _GroupRow extends StatelessWidget {
-  const _GroupRow({required this.label, this.onTap});
-  final String label;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(14),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  label,
-                  style: GoogleFonts.poppins(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              Text(
-                '›',
-                style: GoogleFonts.poppins(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _LogoutButton extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.red.shade400,
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: () async {
-          final confirm = await showDialog<bool>(
-            context: context,
-            builder: (dCtx) => AlertDialog(
-              title: const Text('Logout?'),
-              content: const Text('Willst du dich wirklich ausloggen?'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(dCtx).pop(false),
-                  child: const Text('Abbrechen'),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.of(dCtx).pop(true),
-                  child: const Text('Ja, ausloggen'),
-                ),
-              ],
-            ),
-          ) ?? false;
-
-          if (!confirm) return;
-
-          try {
-            await AuthState.of(context).signOut();
-            if (!context.mounted) return;
-
-            Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
-
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Abgemeldet.')),
-            );
-          } catch (e) {
-            if (!context.mounted) return;
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Logout fehlgeschlagen: $e')),
-            );
-          }
-        },
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-          alignment: Alignment.center,
-          child: Text(
-            'Logout',
-            style: GoogleFonts.poppins(
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              color: Colors.white,
-            ),
-          ),
         ),
       ),
     );
