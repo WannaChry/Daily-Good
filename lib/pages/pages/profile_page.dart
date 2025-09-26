@@ -617,6 +617,26 @@ class _LogoutButton extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: () async {
+          final confirm = await showDialog<bool>(
+            context: context,
+            builder: (dCtx) => AlertDialog(
+              title: const Text('Logout?'),
+              content: const Text('Willst du dich wirklich ausloggen?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(dCtx).pop(false),
+                  child: const Text('Abbrechen'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(dCtx).pop(true),
+                  child: const Text('Ja, ausloggen'),
+                ),
+              ],
+            ),
+          ) ?? false;
+
+          if (!confirm) return;
+
           try {
             await AuthState.of(context).signOut();
             if (!context.mounted) return;
