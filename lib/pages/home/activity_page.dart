@@ -11,6 +11,8 @@ import 'package:studyproject/pages/widgets/task_row.dart';
 import 'package:studyproject/pages/widgets/suggest_card.dart';
 import 'package:studyproject/pages/widgets/kpiCard.dart';
 import 'package:studyproject/pages/widgets/category_section.dart';
+import 'package:studyproject/pages/widgets/co2_impact_card.dart';
+import 'package:studyproject/pages/widgets/challenge_row.dart';
 
 class ActivityPage extends StatefulWidget {
   const ActivityPage({super.key, required this.totalPoints});
