@@ -1,6 +1,5 @@
 // lib/profil/profil/home/goals_page.dart
 import 'package:flutter/material.dart';
-
 import 'package:studyproject/pages/home/badge_dex_page.dart';
 import 'package:studyproject/pages/home/tasks/TreeGrowth.dart';
 import 'package:studyproject/pages/home/tasks/SectionHeaderCard.dart';
@@ -75,32 +74,37 @@ class GoalsPageState extends State<GoalsPage>
       ..forward();
   }
 
-
-  void _toggleTask(int i) async{
+  void _toggleTask(int i) async {
     final before = _displayPoints;
     final task = widget.tasks[i];
+
+    bool justCompleted = false;
 
     setState(() {
       if (_completed.contains(i)) {
         _completed.remove(i);
-        task.isCompleted = false; // Task wird wieder unerledigt
+        task.isCompleted = false;
       } else {
         _completed.add(i);
-        task.isCompleted = true;  // Task erledigt markieren
+        task.isCompleted = true;
+        justCompleted = true;
       }
     });
 
     final after = _truePoints;
     _animatePoints(before, after);
 
+    if (justCompleted) {
+      try {
+        await _doTask.completeTask(task);
 
-    if (!_completed.contains(i)) {
-      await _doTask.completeTask(task);
-    }
-
-    if (_tapPos != null && _completed.contains(i)) {
-      showConfettiBurst(context, _tapPos!);
-      _tapPos = null;
+        if (_tapPos != null) {
+          showConfettiBurst(context, _tapPos!);
+          _tapPos = null;
+        }
+      } catch (e) {
+        print('Fehler beim Speichern des Tasks: $e');
+      }
     }
   }
 
@@ -111,7 +115,7 @@ class GoalsPageState extends State<GoalsPage>
   Widget build(BuildContext context) {
     super.build(context);
 
-    final tasksToShow = widget.tasks.take(6).toList(); // nur die ersten 6 Tasks
+    final tasksToShow = widget.tasks.take(6).toList();
 
     return Padding(
       padding: const EdgeInsets.all(12),
@@ -142,9 +146,9 @@ class GoalsPageState extends State<GoalsPage>
                   onTapDown: (details) => _tapPos = details.globalPosition,
                   onTap: () => _toggleTask(i),
                   child: Card(
-                    color: isDone ? Colors.green[300] : categoryTheme.color, // Farbe nach Kategorie
+                    color: isDone ? Colors.green[300] : categoryTheme.color,
                     shape: RoundedRectangleBorder(
-                      side: BorderSide(color: categoryTheme.border, width: 1), // optionaler Border
+                      side: BorderSide(color: categoryTheme.border, width: 1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Padding(
@@ -152,10 +156,8 @@ class GoalsPageState extends State<GoalsPage>
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // Linke Seite: Kategorie-Icon + Task Emoji + Text
                           Row(
                             children: [
-                              // Kategorie-Icon
                               Container(
                                 padding: const EdgeInsets.all(6),
                                 decoration: BoxDecoration(
@@ -169,7 +171,6 @@ class GoalsPageState extends State<GoalsPage>
                                 ),
                               ),
                               const SizedBox(width: 8),
-                              // Task Emoji + Titel
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -189,7 +190,6 @@ class GoalsPageState extends State<GoalsPage>
                               ),
                             ],
                           ),
-                          // Rechte Seite: Punkte
                           Text(
                             '+${task.points} P',
                             style: TextStyle(

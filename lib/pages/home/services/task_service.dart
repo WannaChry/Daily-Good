@@ -29,8 +29,7 @@ class TaskService {
           .doc(task.id);
 
       await ref.set({
-        'id': task.id,
-        'category': task.category,
+        'category': task.category.toString().split('.').last,
         'points': task.points,
         'co2kg': task.co2kg,
         'completedAt': FieldValue.serverTimestamp(),
