@@ -1,6 +1,5 @@
 // lib/pages/pages/profile_page.dart
 import 'dart:io';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -17,14 +16,15 @@ import 'package:studyproject/pages/subpages/help_support_page.dart';
 import 'package:studyproject/pages/state/social_state.dart';
 import 'package:studyproject/pages/state/auth_state.dart';
 
-import 'package:studyproject/pages/pages/options.dart';
-import 'package:studyproject/pages/pages/sign_up_page.dart';
-
 import 'package:studyproject/pages/widgets/profile/level_card.dart';
 import 'package:studyproject/pages/widgets/profile/expandable_section.dart';
 import 'package:studyproject/pages/widgets/profile/list_tile_stub.dart';
 import 'package:studyproject/pages/widgets/profile/section_group.dart';
 import 'package:studyproject/pages/widgets/profile/logout_button.dart';
+
+import 'package:studyproject/pages/utils/friend_code.dart';
+import 'package:studyproject/pages/utils/profile_level.dart';
+
 
 
 class ProfilePage extends StatefulWidget {
@@ -45,7 +45,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    _friendCode = _generateFriendCode(9);
+    _friendCode = generateFriendCode(9);
     _aboutCtrl.text = "";
     _aboutCtrl.addListener(() => setState(() {}));
   }
@@ -54,24 +54,6 @@ class _ProfilePageState extends State<ProfilePage> {
   void dispose() {
     _aboutCtrl.dispose();
     super.dispose();
-  }
-
-  String _generateFriendCode(int length) {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    final rnd = Random.secure();
-    return List.generate(length, (_) => chars[rnd.nextInt(chars.length)]).join();
-  }
-
-  ({int level, int current, int needed}) _levelFromPoints(int points) {
-    int level = 1;
-    int needed = 80;
-    int remaining = points;
-    while (remaining >= needed) {
-      remaining -= needed;
-      level += 1;
-      needed += 20;
-    }
-    return (level: level, current: remaining, needed: needed);
   }
 
   Future<void> _changeAvatar() async {
@@ -134,7 +116,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final title = GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w700);
     final subtitle = GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade700);
 
-    final lp = _levelFromPoints(widget.totalPoints);
+    final lp = levelFromPoints(widget.totalPoints);
     final level = lp.level;
     final progress = lp.needed == 0 ? 0.0 : (lp.current / lp.needed).clamp(0.0, 1.0);
 
