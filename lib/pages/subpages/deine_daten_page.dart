@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class DeineDatenPage extends StatefulWidget {
   const DeineDatenPage({super.key});
@@ -18,6 +20,11 @@ class _DeineDatenPageState extends State<DeineDatenPage> {
   final _ageCtrl = TextEditingController();
   final _jobCtrl = TextEditingController();
   final _aboutCtrl = TextEditingController();
+  final _birthdayCtrl = TextEditingController();
+
+  late final DocumentReference<Map<String, dynamic>> _userDoc;
+  bool _prefilled = false;
+  bool _saving = false;
 
   // Freundschaftscode + Verknüpfungen
   late String _friendCode;
@@ -27,14 +34,10 @@ class _DeineDatenPageState extends State<DeineDatenPage> {
   @override
   void initState() {
     super.initState();
-    _friendCode = _generateFriendCode(9);
 
-    // Demo-Defaults – später durch echte Userdaten ersetzen
-    _nameCtrl.text = 'You';
-    _emailCtrl.text = '';
-    _ageCtrl.text = '';
-    _jobCtrl.text = '';
-    _aboutCtrl.text = '';
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+    _userDoc = FirebaseFirestore.instance.collection('users').doc(uid);
+    _friendCode = _generateFriendCode(9);
   }
 
   @override
@@ -44,6 +47,7 @@ class _DeineDatenPageState extends State<DeineDatenPage> {
     _ageCtrl.dispose();
     _jobCtrl.dispose();
     _aboutCtrl.dispose();
+    _birthdayCtrl.dispose();
     super.dispose();
   }
 
@@ -51,6 +55,49 @@ class _DeineDatenPageState extends State<DeineDatenPage> {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // ohne 0/O/1/I
     final rnd = Random.secure();
     return List.generate(length, (_) => chars[rnd.nextInt(chars.length)]).join();
+  }
+  DateTime? _parseBirthday(String s) {
+    try {
+      if (RegExp(r'^\d{2}\.\d{2}\.\d{4}$').hasMatch(s)) {
+        final p = s.split('.');
+        return DateTime(int.parse(p[2]), int.parse(p[1]), int.parse(p[0]));
+      } else if (RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(s)) {
+        final p = s.split('-');
+        return DateTime(int.parse(p[0]), int.parse(p[1]), int.parse(p[2]));
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  String _fmt2(int n) => n.toString().padLeft(2, '0');
+  String _formatDate(DateTime d) => '${_fmt2(d.day)}.${_fmt2(d.month)}.${d.year}';
+
+  int? _calcAge(String s) {
+    final dob = _parseBirthday(s);
+    if (dob == null) return null;
+    final now = DateTime.now();
+    var age = now.year - dob.year;
+    if (now.month < dob.month || (now.month == dob.month && now.day < dob.day)) age--;
+    return age;
+  }
+
+  Future<void> _pickBirthday() async {
+    final now = DateTime.now();
+    final initial = _parseBirthday(_birthdayCtrl.text) ?? DateTime(now.year - 18, now.month, now.day);
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: DateTime(1900, 1, 1),
+      lastDate: now,
+      helpText: 'Geburtstag wählen',
+    );
+    if (picked != null) {
+      final text = _formatDate(picked);
+      setState(() {
+        _birthdayCtrl.text = text;
+        _ageCtrl.text = (_calcAge(text) ?? '').toString();
+      });
+    }
   }
 
   Map<String, dynamic> _collectData() {
@@ -267,6 +314,37 @@ class _DeineDatenPageState extends State<DeineDatenPage> {
     }
   }
 
+  Future<void> _saveProfile() async {
+    FocusScope.of(context).unfocus();
+    setState(() => _saving = true);
+    try {
+      final age = _calcAge(_birthdayCtrl.text);
+      await _userDoc.set({
+        'name': _nameCtrl.text.trim(),
+        'email': _emailCtrl.text.trim(),
+        'birthday': _birthdayCtrl.text.trim(),
+        'age': age,
+        'occupation': _jobCtrl.text.trim(),
+        'bio': _aboutCtrl.text.trim(),
+        'friendCode': _friendCode,
+        // 'ageRange': _ageCtrl.text.trim(),    // <- nur falls du die Range brauchst
+      }, SetOptions(merge: true));
+
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Gespeichert')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Fehler: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final h1 = GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w800);
@@ -280,7 +358,38 @@ class _DeineDatenPageState extends State<DeineDatenPage> {
         centerTitle: true,
         title: Text('Deine Daten', style: GoogleFonts.poppins(fontWeight: FontWeight.w700)),
       ),
-      body: ListView(
+
+      body: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+          stream: _userDoc.snapshots(),
+          builder: (context, snap) {
+            if (snap.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (!snap.hasData || !snap.data!.exists) {
+              return const Center(child: Text('Keine Profildaten gefunden'));
+            }
+
+            final d = snap.data!.data()!;
+            if (!_prefilled) {
+              _prefilled = true;
+              _nameCtrl.text = (d['name'] ?? '') as String;
+              _emailCtrl.text = (d['email'] ?? '') as String;
+              _birthdayCtrl.text = (d['birthday'] ?? '') as String;
+              _ageCtrl.text = (d['ageRange'] ?? '') as String;
+              _ageCtrl.text = (_calcAge(_birthdayCtrl.text) ?? '').toString();
+              _jobCtrl.text = (d['occupation'] ?? '') as String;
+              _aboutCtrl.text = (d['bio'] ?? '') as String;
+
+
+              final code = (d['friendCode'] ?? '') as String;
+              if (code.isNotEmpty) {
+                _friendCode = code;
+              } else {
+                _userDoc.set({'friendCode': _friendCode}, SetOptions(merge: true));
+              }
+            }
+
+        return ListView(
         padding: const EdgeInsets.all(16),
         children: [
           // ---------- Profil ----------
@@ -295,7 +404,21 @@ class _DeineDatenPageState extends State<DeineDatenPage> {
                   const Divider(height: 1),
                   _TextRow(label: 'E-Mail', controller: _emailCtrl, hint: 'z. B. max@mail.com', keyboard: TextInputType.emailAddress),
                   const Divider(height: 1),
-                  _TextRow(label: 'Alter', controller: _ageCtrl, hint: 'z. B. 22', keyboard: TextInputType.number),
+                  _TextRow(
+                    label: 'Geburtstag',
+                    controller: _birthdayCtrl,
+                    hint: 'TT.MM.JJJJ',
+                    readOnly: true,
+                    onTap: _pickBirthday,
+                    suffix: const Icon(Icons.calendar_today_outlined, size: 18),
+                  ),
+                  const Divider(height: 1),
+                  _TextRow(
+                    label: 'Alter',
+                    controller: _ageCtrl,
+                    hint: 'wird berechnet',
+                    readOnly: true,
+                  ),
                   const Divider(height: 1),
                   _TextRow(label: 'Beruf', controller: _jobCtrl, hint: 'z. B. Student:in'),
                   const Divider(height: 1),
@@ -323,13 +446,11 @@ class _DeineDatenPageState extends State<DeineDatenPage> {
                         foregroundColor: Colors.black,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
-                      onPressed: () {
-                        // Placeholder – später persistieren
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Profil gespeichert (Demo).')),
-                        );
-                      },
-                      child: const Text('Speichern'),
+                      onPressed: _saving ? null : _saveProfile,
+                      child: _saving
+                          ? const SizedBox(
+                          height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                          : const Text('Speichern'),
                     ),
                   ),
                 ],
@@ -431,6 +552,8 @@ class _DeineDatenPageState extends State<DeineDatenPage> {
 
           const SizedBox(height: 32),
         ],
+        ); // <— WICHTIG: Semikolon nach return ListView
+              },
       ),
     );
   }
@@ -468,11 +591,18 @@ class _TextRow extends StatelessWidget {
     required this.controller,
     this.hint,
     this.keyboard,
+    this.readOnly = false,
+    this.onTap,
+    this.suffix,
   });
+
   final String label;
   final TextEditingController controller;
   final String? hint;
   final TextInputType? keyboard;
+  final bool readOnly;
+  final VoidCallback? onTap;
+  final Widget? suffix;
 
   @override
   Widget build(BuildContext context) {
@@ -488,11 +618,14 @@ class _TextRow extends StatelessWidget {
           Expanded(
             child: TextField(
               controller: controller,
+              readOnly: readOnly,
+              onTap: onTap,
               keyboardType: keyboard,
               decoration: InputDecoration(
                 isDense: true,
                 hintText: hint,
                 border: const OutlineInputBorder(),
+                suffixIcon: suffix,
               ),
             ),
           ),
@@ -501,3 +634,4 @@ class _TextRow extends StatelessWidget {
     );
   }
 }
+
