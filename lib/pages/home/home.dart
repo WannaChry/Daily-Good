@@ -1,4 +1,5 @@
 // lib/profil/profil/home.dart
+//import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -18,6 +19,8 @@ import 'package:studyproject/pages/home/tasks/goals_page.dart';
 
 import 'package:studyproject/pages/models/AppBadge.dart';
 
+import '../models/user.dart';
+
 class HomePage extends StatefulWidget {
   final List<Tipp> tips;
   final List<Task> tasks;
@@ -25,7 +28,8 @@ class HomePage extends StatefulWidget {
   const HomePage({
     super.key,
     required this.tips,
-    required this.tasks});
+    required this.tasks,
+    });
 
   @override
   State<HomePage> createState() => _HomePageState();

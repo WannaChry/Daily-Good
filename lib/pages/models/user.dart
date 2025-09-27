@@ -1,6 +1,6 @@
 import 'package:studyproject/pages/models/task.dart';
 
-class User{
+class User {
   final String id;
   String username;
   String email;
@@ -38,9 +38,9 @@ class User{
     required this.role,
     List<Task>? completedTasks,
     List<User>? friends,
-    List<String>? joinedCommunities,
-}): completedTasks = completedTasks ?? [],
+  })  : completedTasks = completedTasks ?? [],
         friends = friends ?? [];
+
   /// Punkte hinzufügen und Level prüfen
   void addPoints(int newPoints) {
     points += newPoints;
@@ -49,10 +49,12 @@ class User{
 
   /// Level-Up Logik
   void checkLevelUp() {
-    if (points >= level * 100) {
+    while (points >= level * 100) {
+      points -= level * 100; // Punkte werden für Level-Up abgezogen
       level++;
     }
   }
+
   /// Task als erledigt markieren
   void completeTask(Task task) {
     if (!task.isCompleted) {
@@ -73,6 +75,47 @@ class User{
   void removeFriend(User friend) {
     friends.remove(friend);
   }
+
+  /// CopyWith für Immutable Updates
+  User copyWith({
+    String? username,
+    String? email,
+    String? password,
+    String? gender,
+    String? ageGroup,
+    int? level,
+    int? points,
+    DateTime? joinDate,
+    int? age,
+    String? occupation,
+    String? mood,
+    int? streak,
+    String? birthday,
+    String? role,
+    List<Task>? completedTasks,
+    List<User>? friends,
+  }) {
+    return User(
+      id: id,
+      username: username ?? this.username,
+      email: email ?? this.email,
+      password: password ?? this.password,
+      gender: gender ?? this.gender,
+      ageGroup: ageGroup ?? this.ageGroup,
+      level: level ?? this.level,
+      points: points ?? this.points,
+      joinDate: joinDate ?? this.joinDate,
+      age: age ?? this.age,
+      occupation: occupation ?? this.occupation,
+      mood: mood ?? this.mood,
+      streak: streak ?? this.streak,
+      birthday: birthday ?? this.birthday,
+      role: role ?? this.role,
+      completedTasks: completedTasks ?? this.completedTasks,
+      friends: friends ?? this.friends,
+    );
+  }
+
   /// JSON-Methoden für Firebase
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
@@ -95,7 +138,8 @@ class User{
           ?.map((t) => Task.fromJson(t))
           .toList() ??
           [],
-      friends: []); // Freunde müsstest du separat laden (IDs statt Objekte)
+      friends: [], // Freunde separat laden (z.B. über IDs)
+    );
   }
 
   Map<String, dynamic> toJson() {
@@ -116,9 +160,7 @@ class User{
       'birthday': birthday,
       'role': role,
       'completedTasks': completedTasks.map((t) => t.toJson()).toList(),
-      // Freunde abspeichern am besten über deren IDs (nicht hier direkt)
+      // Freunde am besten über deren IDs speichern
     };
   }
-
-
 }

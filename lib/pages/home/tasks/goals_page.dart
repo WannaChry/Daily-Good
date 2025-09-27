@@ -7,6 +7,7 @@ import 'package:studyproject/pages/home/tasks/progress_card.dart';
 import 'package:studyproject/pages/home/tasks/confetti_burst.dart' show showConfettiBurst;
 import 'package:studyproject/pages/models/submodels/categoryTheme.dart';
 import 'package:studyproject/pages/widgets/task_title.dart' show TaskTile;
+import 'package:studyproject/pages/home/tree/home_tree_card.dart';
 
 //models
 import 'package:studyproject/pages/models/task.dart';
@@ -121,7 +122,11 @@ class GoalsPageState extends State<GoalsPage>
       padding: const EdgeInsets.all(12),
       child: Column(
         children: [
-          TreeGrowth(points: _displayPoints, target: _dailyTarget),
+          HomeTreeCard(
+            level: 3, // oder eine Variable, falls dynamisch
+            totalPoints: _displayPoints,
+            progress: _displayPoints / _dailyTarget,
+          ),
           const SizedBox(height: 10),
 
           ProgressCard(current: _displayPoints, target: _dailyTarget),
