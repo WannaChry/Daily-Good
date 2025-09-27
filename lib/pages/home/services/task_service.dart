@@ -9,8 +9,6 @@ class TaskService {
   final _auth = FirebaseAuth.instance;
 
   /// Markiert einen Task als erledigt:
-  /// 1. isCompleted im lokalen Task-Objekt setzen
-  /// 2. Task in der Subcollection `completedTasks` des Users speichern
   Future<void> completeTask(Task task) async {
     final user = _auth.currentUser;
     if (user == null) {
@@ -85,6 +83,38 @@ class TaskService {
       if (task != null) {
         task.isCompleted = true;
       }
+    }
+  }
+  // Alle Tasks laden, isCompleted bleibt false
+  Future<List<Task>> fetchAllTasks() async {
+    print('[Tasks] Lade Tasks von Firestore...');
+    try {
+      final snapshot = await _firestore.collection('tasks').get();
+
+      if (snapshot.docs.isEmpty) {
+        print('[Tasks] Keine Dokumente gefunden.');
+        return [];
+      }
+
+      final loadedTasks = snapshot.docs.map((doc) {
+        final data = doc.data();
+        if (data == null) {
+          print('[Tasks] Dokument ${doc.id} enthält null!');
+          return null;
+        }
+        try {
+          return Task.fromJson(data as Map<String, dynamic>);
+        } catch (e) {
+          print('[Tasks] Fehler beim Mapping von Dokument ${doc.id}: $e');
+          return null;
+        }
+      }).where((t) => t != null).cast<Task>().toList();
+
+      print('[Tasks] ${loadedTasks.length} Tasks geladen.');
+      return loadedTasks;
+    } catch (e) {
+      print('[Tasks] Fehler beim Laden: $e');
+      return [];
     }
   }
 

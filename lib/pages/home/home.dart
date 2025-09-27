@@ -10,7 +10,7 @@ import 'package:studyproject/pages/second_page/activity_page.dart';
 import 'package:studyproject/pages/profil/community_page.dart';
 import 'package:studyproject/pages/profil/profile_page.dart';
 import 'package:studyproject/pages/profil/options.dart';
-import 'package:studyproject/pages/subpages/eco_facts_dialog.dart';
+import 'package:studyproject/pages/home/tasks/eco_facts.dart';
 import 'package:studyproject/pages/home/mood/mood_dialog.dart';
 import 'package:studyproject/pages/models/tipp.dart';
 import 'package:studyproject/pages/models/task.dart';
