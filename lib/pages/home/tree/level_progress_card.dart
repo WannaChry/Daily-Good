@@ -3,14 +3,10 @@ import 'package:google_fonts/google_fonts.dart';
 
 class LevelProgressCard extends StatefulWidget {
   final int totalPoints;
-  final int level;
-  final double progress;
 
   const LevelProgressCard({
     super.key,
     required this.totalPoints,
-    required this.level,
-    required this.progress,
   });
 
   @override
@@ -22,6 +18,37 @@ class _LevelProgressCardState extends State<LevelProgressCard>
   late AnimationController _controller;
   late Animation<double> _progressAnimation;
 
+  // Level-Schwellen
+  final List<int> _levelThresholds = [0, 5, 25, 50, 100, 200];
+
+  int _getLevel(int points) {
+    int level = 1;
+    for (int i = 0; i < _levelThresholds.length; i++) {
+      if (points >= _levelThresholds[i]) {
+        level = i + 1;
+      }
+    }
+    return level;
+  }
+
+  int _getNextLevelPoints(int points) {
+    for (final threshold in _levelThresholds) {
+      if (points < threshold) return threshold;
+    }
+    return _levelThresholds.last;
+  }
+
+  double _getProgress(int points) {
+    int currentLevel = _getLevel(points);
+    int prevThreshold = _levelThresholds[currentLevel - 1];
+    int nextThreshold = _getNextLevelPoints(points);
+
+    int gained = points - prevThreshold;
+    int needed = nextThreshold - prevThreshold;
+
+    return needed == 0 ? 1.0 : gained / needed;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -30,30 +57,25 @@ class _LevelProgressCardState extends State<LevelProgressCard>
       duration: const Duration(milliseconds: 800),
     );
 
-    _progressAnimation = Tween<double>(begin: 0, end: widget.progress)
-        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+    _progressAnimation = Tween<double>(
+      begin: 0,
+      end: _getProgress(widget.totalPoints),
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
 
     _controller.forward();
-  }
-
-  int _getNextLevelPoints(int points) {
-    const levelThresholds = [0, 5, 25, 50, 100, 200];
-    for (final threshold in levelThresholds) {
-      if (points < threshold) return threshold;
-    }
-    return levelThresholds.last;
   }
 
   @override
   void didUpdateWidget(covariant LevelProgressCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.progress != widget.progress) {
-      _progressAnimation = Tween<double>(begin: _progressAnimation.value, end: widget.progress)
-          .animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
-      _controller
-        ..reset()
-        ..forward();
-    }
+    final newProgress = _getProgress(widget.totalPoints);
+    _progressAnimation = Tween<double>(
+      begin: _progressAnimation.value,
+      end: newProgress,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+    _controller
+      ..reset()
+      ..forward();
   }
 
   @override
@@ -64,6 +86,7 @@ class _LevelProgressCardState extends State<LevelProgressCard>
 
   @override
   Widget build(BuildContext context) {
+    final level = _getLevel(widget.totalPoints);
     final nextLevelPoints = _getNextLevelPoints(widget.totalPoints);
 
     return Container(
@@ -71,7 +94,9 @@ class _LevelProgressCardState extends State<LevelProgressCard>
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: const [BoxShadow(color: Color(0x14000000), blurRadius: 10, offset: Offset(0, 6))],
+        boxShadow: const [
+          BoxShadow(color: Color(0x14000000), blurRadius: 10, offset: Offset(0, 6))
+        ],
       ),
       child: Row(
         children: [
@@ -90,7 +115,9 @@ class _LevelProgressCardState extends State<LevelProgressCard>
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.green.shade400),
                   ),
                 ),
-                Center(child: Icon(Icons.eco, size: 32, color: Colors.green.shade700)),
+                Center(
+                  child: Icon(Icons.eco, size: 32, color: Colors.green.shade700),
+                ),
               ],
             ),
           ),
@@ -100,7 +127,7 @@ class _LevelProgressCardState extends State<LevelProgressCard>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Level ${widget.level}',
+                  'Level $level',
                   style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
@@ -111,7 +138,11 @@ class _LevelProgressCardState extends State<LevelProgressCard>
                 const SizedBox(height: 8),
                 Text(
                   'Fortschritt zum nächsten Level',
-                  style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black54),
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black54,
+                  ),
                 ),
               ],
             ),

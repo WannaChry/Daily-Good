@@ -14,8 +14,8 @@ import 'package:studyproject/pages/second_page/subpages/kpiCard.dart';
 import 'package:studyproject/pages/second_page/subpages/category_section.dart';
 import 'package:studyproject/pages/second_page/subpages/co2_impact_card.dart';
 import 'package:studyproject/pages/second_page/subpages/challenge_row.dart';
-import 'package:studyproject/pages/second_page/subpages/level_progess.dart';
-import 'package:studyproject/pages/second_page/subpages/level_progress_card.dart';
+import 'package:studyproject/pages/home/tree/level_progess.dart';
+import 'package:studyproject/pages/home/tree/level_progress_card.dart';
 
 import 'package:studyproject/pages/constants/goals.dart';
 
@@ -124,8 +124,8 @@ class _ActivityPageState extends State<ActivityPage> {
             children: [
               LevelProgressCard(
                 totalPoints: _impactPoints,
-                level: getLevel(_impactPoints),
-                progress: getLevelProgress(_impactPoints),
+                //level: getLevel(_impactPoints),
+                //progress: getLevelProgress(_impactPoints),
               ),
               const SizedBox(height: 14),
               Co2ImpactCard(

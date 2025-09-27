@@ -36,7 +36,7 @@ class AuthMethod {
         'password': password,
         'createdAt': FieldValue.serverTimestamp(),
         'level': 1,
-        'points': 0,
+        'totalpoints': 0,
         'role': 'user',
         'streak': 0,
       };

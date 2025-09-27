@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 
 class ProgressCard extends StatelessWidget {
   const ProgressCard({super.key, required this.current, required this.target});
-
   final int current;
   final int target;
 
@@ -113,5 +112,4 @@ class ProgressCard extends StatelessWidget {
         ],
       ),
     );
-  }
-}
+  }}
