@@ -19,7 +19,7 @@ import 'pages/home/home.dart';
 import 'pages/intro/start/splash_page.dart';
 import 'pages/intro/start/onboarding_page.dart';
 import 'pages/intro/start/questionnaire_page.dart';
-import 'pages/intro/anmeldung/sign_up.dart';
+import 'pages/intro/anmeldung/account_details_summary.dart';
 
 // Auth-Seiten
 import 'pages/profil/options.dart';

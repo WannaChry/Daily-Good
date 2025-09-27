@@ -3,7 +3,7 @@ import '../pages/intro/start/splash_page.dart';
 import '../pages/intro/start/onboarding_page.dart';
 import '../pages/intro/auth/auth_choice.dart';
 import '../pages/intro/anmeldung/sign_in.dart';
-import '../pages/intro/anmeldung/sign_up.dart';
+import '../pages/intro/anmeldung/account_details_summary.dart';
 import '../pages/intro/start/questionnaire_page.dart';
 import '../pages/models/streak_celebration_page.dart';
 import '../pages/home/home.dart';
