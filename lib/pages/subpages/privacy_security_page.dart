@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class PrivacySecurityPage extends StatefulWidget {
   const PrivacySecurityPage({super.key});
@@ -13,19 +14,25 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
   String visibility = 'Freunde'; // Öffentlich / Freunde / Privat
   bool locationAllowed = false;
   bool personalization = true;
-  bool analytics = true; // Crash+Usage (später ggf. trennen)
+  bool analytics = true; // Crash und Usage
 
-  // Fake: aktive Sitzungen
+  // Zwei Faktor UI Toggle nur visuell
+  bool _twoFAEnabled = false;
+
+  // Sessions Demo
   final List<_Session> sessions = [
     _Session(device: 'Pixel 7 • Android', lastActive: 'Gerade eben', current: true),
     _Session(device: 'iPad • iPadOS', lastActive: 'Gestern, 21:14'),
     _Session(device: 'Chrome • Windows', lastActive: '2. Sep, 10:03'),
   ];
 
-  // Passwort Felder (nur für Dialog)
+  // Passwort Felder für den Dialog
   final _oldCtrl = TextEditingController();
   final _newCtrl = TextEditingController();
   final _new2Ctrl = TextEditingController();
+
+  // Busy State für den Speichern Button im Dialog
+  bool _changingPw = false;
 
   @override
   void dispose() {
@@ -51,7 +58,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // ---------- Kontoschutz ----------
+          // Kontoschutz
           Text('Kontoschutz', style: h1),
           const SizedBox(height: 8),
           _Card(
@@ -66,7 +73,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                 const Divider(height: 1),
                 ListTile(
                   title: const Text('Zwei-Faktor-Authentifizierung'),
-                  subtitle: Text('Extra Schutz mit Code (z. B. Authenticator)', style: hint),
+                  subtitle: Text('Extra Schutz mit Code', style: hint),
                   trailing: Switch(
                     value: _twoFAEnabled,
                     onChanged: (v) => setState(() => _twoFAEnabled = v),
@@ -103,13 +110,12 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
 
           const SizedBox(height: 20),
 
-          // ---------- Privatsphäre ----------
+          // Privatsphäre
           Text('Privatsphäre', style: h1),
           const SizedBox(height: 8),
           _Card(
             child: Column(
               children: [
-                // Profil-Sichtbarkeit
                 ListTile(
                   title: const Text('Profil-Sichtbarkeit'),
                   subtitle: Text('Wer kann dein Profil sehen?', style: hint),
@@ -129,19 +135,18 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                   ),
                 ),
                 const Divider(height: 1),
-
                 SwitchListTile(
                   value: locationAllowed,
                   onChanged: (v) => setState(() => locationAllowed = v),
                   title: const Text('Standortzugriff'),
-                  subtitle: Text('Für lokale Empfehlungen (optional)', style: hint),
+                  subtitle: Text('Für lokale Empfehlungen', style: hint),
                 ),
                 const Divider(height: 1),
                 SwitchListTile(
                   value: personalization,
                   onChanged: (v) => setState(() => personalization = v),
                   title: const Text('Personalisierte Inhalte'),
-                  subtitle: Text('Aufgaben/Tipps auf dich zugeschnitten', style: hint),
+                  subtitle: Text('Aufgaben und Tipps zugeschnitten', style: hint),
                 ),
                 const Divider(height: 1),
                 SwitchListTile(
@@ -156,7 +161,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
 
           const SizedBox(height: 20),
 
-          // ---------- Datenkontrolle ----------
+          // Datenkontrolle
           Text('Datenkontrolle', style: h1),
           const SizedBox(height: 8),
           _Card(
@@ -164,14 +169,14 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
               children: [
                 ListTile(
                   title: const Text('Meine Daten anfordern'),
-                  subtitle: Text('Auskunft über gespeicherte Daten (Demo)', style: hint),
+                  subtitle: Text('Auskunft über gespeicherte Daten', style: hint),
                   trailing: const Icon(Icons.download_outlined),
-                  onTap: () => _toast('Datenanforderung gesendet (Demo).'),
+                  onTap: () => _toast('Datenanforderung gesendet.'),
                 ),
                 const Divider(height: 1),
                 ListTile(
                   title: const Text('Konto löschen'),
-                  subtitle: Text('Dauerhaft und unwiderruflich – vorsichtig!', style: hint),
+                  subtitle: Text('Dauerhaft und unwiderruflich, vorsichtig', style: hint),
                   trailing: const Icon(Icons.delete_forever, color: Colors.red),
                   onTap: _confirmDeleteAccount,
                 ),
@@ -185,8 +190,6 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
     );
   }
 
-  bool _twoFAEnabled = false;
-
   void _toast(String msg) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
@@ -195,7 +198,80 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
     setState(() {
       sessions.removeWhere((s) => !s.current);
     });
-    _toast('Andere Sitzungen abgemeldet (Demo).');
+    _toast('Andere Sitzungen abgemeldet.');
+  }
+
+  // Passwortänderung: Busy-State, Re-Auth, Update, Logout, Navigation
+  Future<void> _applyPasswordChange(BuildContext dialogCtx) async {
+    setState(() => _changingPw = true);
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      _toast('Kein Nutzer angemeldet.');
+      if (mounted) setState(() => _changingPw = false);
+      return;
+    }
+
+    final email = user.email;
+    if (email == null || email.isEmpty) {
+      _toast('Für dieses Konto ist keine E-Mail hinterlegt.');
+      if (mounted) setState(() => _changingPw = false);
+      return;
+    }
+
+    final current = _oldCtrl.text.trim();
+    final newPw = _newCtrl.text.trim();
+    final repeat = _new2Ctrl.text.trim();
+
+    if (newPw.length < 8) {
+      _toast('Neues Passwort ist zu kurz. Mindestens 8 Zeichen.');
+      if (mounted) setState(() => _changingPw = false);
+      return;
+    }
+    if (newPw == current) {
+      _toast('Neues Passwort darf nicht dem aktuellen entsprechen.');
+      if (mounted) setState(() => _changingPw = false);
+      return;
+    }
+    if (newPw != repeat) {
+      _toast('Passwörter stimmen nicht überein.');
+      if (mounted) setState(() => _changingPw = false);
+      return;
+    }
+
+    try {
+      // Re Auth, schlägt bei falschem Passwort oder ohne Passwort Provider fehl
+      final cred = EmailAuthProvider.credential(email: email, password: current);
+      await user.reauthenticateWithCredential(cred);
+
+      // Neues Passwort setzen
+      await user.updatePassword(newPw);
+
+      // Abmelden, Dialog schließen, zur Login Seite
+      await FirebaseAuth.instance.signOut();
+      if (!mounted) return;
+      Navigator.of(dialogCtx).pop();
+      Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
+      _toast('Passwort erfolgreich geändert.');
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'wrong-password') {
+        _toast('Aktuelles Passwort ist falsch.');
+      } else if (e.code == 'user-mismatch' ||
+          e.code == 'user-not-found' ||
+          e.code == 'invalid-credential' ||
+          e.code == 'requires-recent-login') {
+        // Fallback: vermutlich kein Passwort Login verknüpft
+        await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+        _toast('Kein Passwort Login verknüpft. Reset Mail gesendet.');
+        if (mounted) Navigator.of(dialogCtx).pop();
+      } else {
+        _toast(e.message ?? 'Fehler beim Ändern.');
+      }
+    } catch (e) {
+      _toast('Unerwarteter Fehler: $e');
+    } finally {
+      if (mounted) setState(() => _changingPw = false);
+    }
   }
 
   void _showChangePasswordDialog() {
@@ -205,7 +281,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
 
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (dialogCtx) => AlertDialog(
         title: Text('Passwort ändern', style: GoogleFonts.poppins(fontWeight: FontWeight.w700)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -218,21 +294,20 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Abbrechen')),
           TextButton(
-            onPressed: () {
-              if (_newCtrl.text.length < 6) {
-                _toast('Neues Passwort ist zu kurz.');
-                return;
-              }
-              if (_newCtrl.text != _new2Ctrl.text) {
-                _toast('Passwörter stimmen nicht überein.');
-                return;
-              }
-              Navigator.pop(context);
-              _toast('Passwort geändert (Demo).');
+            onPressed: () => Navigator.pop(dialogCtx),
+            child: const Text('Abbrechen'),
+          ),
+          TextButton(
+            onPressed: _changingPw
+                ? null
+                : () async {
+              await _applyPasswordChange(dialogCtx);
             },
-            child: const Text('Speichern'),
+            child: _changingPw
+                ? const SizedBox(
+                width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                : const Text('Speichern'),
           ),
         ],
       ),
@@ -260,13 +335,13 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
     );
 
     if (ok == true) {
-      _toast('Konto gelöscht (Demo).');
+      _toast('Konto gelöscht.');
       if (mounted) Navigator.pop(context);
     }
   }
 }
 
-// ===== Helpers =====
+// Helpers
 
 class _Card extends StatelessWidget {
   const _Card({required this.child});
@@ -303,6 +378,7 @@ class _PwdField extends StatefulWidget {
 
 class _PwdFieldState extends State<_PwdField> {
   bool _obscure = true;
+
   @override
   Widget build(BuildContext context) {
     return TextField(

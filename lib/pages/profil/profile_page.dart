@@ -21,11 +21,12 @@ import 'package:studyproject/pages/widgets/profile/expandable_section.dart';
 import 'package:studyproject/pages/widgets/profile/list_tile_stub.dart';
 import 'package:studyproject/pages/widgets/profile/section_group.dart';
 import 'package:studyproject/pages/widgets/profile/logout_button.dart';
+import 'package:studyproject/pages/widgets/profile/about_text_field.dart';
+import 'package:studyproject/pages/widgets/profile/editable_avatar.dart';
 
 import 'package:studyproject/pages/utils/friend_code.dart';
 import 'package:studyproject/pages/utils/profile_level.dart';
 
-import 'package:studyproject/pages/widgets/profile/editable_avatar.dart';
 
 
 class ProfilePage extends StatefulWidget {
@@ -191,30 +192,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700)),
             ),
             const SizedBox(height: 10),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: TextField(
-                controller: _aboutCtrl,
-                maxLines: null,
-                minLines: 2,
-                maxLength: _aboutMaxLen,
-                decoration: InputDecoration(
-                  isDense: true,
-                  counterText: '${_aboutCtrl.text.characters.length}/$_aboutMaxLen',
-                  border: InputBorder.none,
-                  hintText: 'Schreib etwas über dich…',
-                  hintStyle: GoogleFonts.poppins(
-                    fontSize: 14,
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-                style: GoogleFonts.poppins(fontSize: 14),
-              ),
+            AboutTextField(
+              controller: _aboutCtrl,
+              maxLength: _aboutMaxLen,
             ),
 
             const SizedBox(height: 24),
