@@ -25,6 +25,7 @@ import 'package:studyproject/pages/widgets/profile/logout_button.dart';
 import 'package:studyproject/pages/utils/friend_code.dart';
 import 'package:studyproject/pages/utils/profile_level.dart';
 
+import 'package:studyproject/pages/widgets/profile/editable_avatar.dart';
 
 
 class ProfilePage extends StatefulWidget {
@@ -145,51 +146,14 @@ class _ProfilePageState extends State<ProfilePage> {
 
                 return Column(
                   children: [
-                    Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        CircleAvatar(
-                          radius: 55,
-                          backgroundColor: Colors.grey.shade400,
-                          backgroundImage:
-                          photoUrl != null ? NetworkImage(photoUrl) : null,
-                          child: photoUrl == null
-                              ? Text(
-                            initial,
-                            style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 28,
-                            ),
-                          )
-                              : null,
-                        ),
-                        Positioned(
-                          right: -2,
-                          bottom: -2,
-                          child: Material(
-                            color: Colors.black,
-                            shape: const CircleBorder(),
-                            child: InkWell(
-                              customBorder: const CircleBorder(),
-                              onTap: _uploadingAvatar ? null : _changeAvatar,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: _uploadingAvatar
-                                    ? const SizedBox(
-                                  height: 18,
-                                  width: 18,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation(Colors.white),
-                                  ),
-                                )
-                                    : const Icon(Icons.edit, color: Colors.white, size: 18),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                    EditableAvatar(
+                      radius: 55,
+                      initials: initial,
+                      photoUrl: photoUrl,
+                      uploading: _uploadingAvatar,
+                      onTap: _changeAvatar,
                     ),
+
                     const SizedBox(height: 12),
                     Text(displayName, style: title),
                     const SizedBox(height: 4),
