@@ -68,7 +68,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                   title: const Text('Passwort ändern'),
                   subtitle: Text('Empfohlen alle 6–12 Monate', style: hint),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: _showChangePasswordDialog,
+                  onTap:  () => Navigator.pushNamed(context, '/password_change'),
                 ),
                 const Divider(height: 1),
                 ListTile(
