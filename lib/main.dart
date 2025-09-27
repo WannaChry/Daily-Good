@@ -23,7 +23,7 @@ import 'pages/intro/anmeldung/account_details_summary.dart'; // SignUpPage
 
 import 'pages/profil/profile_view.dart'; // Profilanzeige
 import 'package:studyproject/pages/subpages/deine_daten_page.dart';
-
+import 'package:studyproject/pages/subpages/password_change_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -82,6 +82,7 @@ class _MyAppState extends State<MyApp> {
         '/questionnaire': (_) => const QuestionnairePage(),
         '/intro/review': (_) => const SignUpPage(),
         '/deine_daten': (_) => const DeineDatenPage(),
+        '/password_change': (_) => const PasswordChangePage(),
         '/streak': (ctx) {
           final args = ModalRoute.of(ctx)?.settings.arguments as Map? ?? {};
           final current = (args['currentStreak'] ?? 1) as int;

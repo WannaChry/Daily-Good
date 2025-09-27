@@ -5,6 +5,34 @@ class AuthMethod {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  Future<String> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) return "Kein User angemeldet.";
+      final email = user.email;
+      if (email == null) return "E-Mail des Users fehlt.";
+
+      final cred = EmailAuthProvider.credential(email: email, password: currentPassword);
+      await user.reauthenticateWithCredential(cred);
+
+      await user.updatePassword(newPassword);
+
+      await _firestore.collection('users').doc(user.uid).update({
+        'password': newPassword,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      return "success";
+    } on FirebaseAuthException catch (e) {
+      return e.message ?? "Fehler beim Passwort ändern";
+    } catch (e) {
+      return e.toString();
+    }
+  }
+
   Future<String> signUpUser({
     required Map<String, Object> extraData,
     required String email,
