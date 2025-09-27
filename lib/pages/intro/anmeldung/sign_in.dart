@@ -41,8 +41,7 @@ class _LoginPageState extends State<LoginPage> {
     if (answer != _a + _b) {
       print('Sicherheitsfrage falsch: $_a + $_b != $answer');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Falsche Antwort auf die Sicherheitsfrage.')),
+        const SnackBar(content: Text('Falsche Antwort auf die Sicherheitsfrage.')),
       );
       return;
     }
@@ -50,7 +49,7 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _loading = true);
 
     try {
-      // 1️⃣ Firebase Auth Login
+      // 1) Firebase Auth Login
       final res = await AuthMethod().loginUser(
         email: email,
         password: password,
@@ -61,7 +60,10 @@ class _LoginPageState extends State<LoginPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Login erfolgreich!")),
         );
-        Navigator.pushReplacementNamed(context, '/home');
+
+        // 2) Profil unter users/{uid} sicherstellen und korrekt routen
+        await _ensureUserProfileAndRoute();
+
       } else {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -76,6 +78,63 @@ class _LoginPageState extends State<LoginPage> {
     } finally {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  // Profil sicherstellen und abhängig vom Onboarding-Status navigieren
+  Future<void> _ensureUserProfileAndRoute() async {
+    final u = FirebaseAuth.instance.currentUser;
+    if (u == null) return;
+
+    final users = FirebaseFirestore.instance.collection('users');
+    final uidRef = users.doc(u.uid);
+    final uidSnap = await uidRef.get();
+
+    if (!uidSnap.exists) {
+      // Optional: altes Profil per E-Mail übernehmen
+      final q = await users.where('email', isEqualTo: u.email ?? '').limit(1).get();
+
+      Map<String, dynamic> base = {
+        'uid': u.uid,
+        'email': u.email ?? '',
+        'name': u.displayName ?? '',
+        'username': '',
+        'photoUrl': u.photoURL ?? '',
+        'about': '',
+        'ageRange': '',
+        'occupation': '',
+        'gender': '',
+        'birthday': '',
+        'friendCode': _generateFriendCode(),
+        'createdAt': FieldValue.serverTimestamp(),
+        'onboardingCompleted': false,
+      };
+
+      if (q.docs.isNotEmpty) {
+        final old = q.docs.first.data();
+        base = {
+          ...old,
+          'uid': u.uid,
+          'email': u.email ?? old['email'] ?? '',
+        };
+      }
+
+      await uidRef.set(base, SetOptions(merge: true));
+    }
+
+    // updatedAt pflegen
+    await uidRef.set({'updatedAt': FieldValue.serverTimestamp()}, SetOptions(merge: true));
+
+    final data = (await uidRef.get()).data();
+    final completed = data?['onboardingCompleted'] == true;
+
+    if (!mounted) return;
+    Navigator.pushReplacementNamed(context, completed ? '/home' : '/onboarding');
+  }
+
+  String _generateFriendCode() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    final r = Random();
+    return List.generate(9, (_) => chars[r.nextInt(chars.length)]).join();
   }
 
   @override
@@ -122,8 +181,7 @@ class _LoginPageState extends State<LoginPage> {
                 TextField(
                   controller: _answerController,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                      hintText: 'Antwort eingeben'),
+                  decoration: const InputDecoration(hintText: 'Antwort eingeben'),
                 ),
                 const SizedBox(height: 30),
                 ElevatedButton(
