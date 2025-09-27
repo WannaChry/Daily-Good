@@ -1,15 +1,17 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
-/// Kleines, stilisiertes Schaf, das leicht hopst und horizontal „rumtollt“.
-/// baseX/baseY sind relative Koordinaten (0..1). width bestimmt die Größe.
+/// Stilisiertes Schaf, das hopst und mit kontinuierlicher Zeitbasis weit über die Wiese meandert.
+/// Fix: eigener Zeitakkumulator → keine Resets mehr; echtes "Rumlaufen" statt Kreis.
 class SheepSprite extends StatefulWidget {
   final double baseX;         // 0..1
   final double baseY;         // 0..1
   final double width;         // Pixelbreite des Schafs
   final double hopSeconds;    // Dauer für eine Hop-Periode
-  final double wanderPixels;  // horizontales „Tollen“ ±pixels
-  final bool flip;            // nach links schauen
+  final double wanderPixels;  // kleines „Tollen“ ±px (lokal)
+  final bool flip;            // initiale Blickrichtung
+  final double roamX;         // großer Horizontal-Drift (px)
+  final double roamY;         // kleiner Vertikal-Drift (px)
 
   const SheepSprite({
     super.key,
@@ -19,6 +21,8 @@ class SheepSprite extends StatefulWidget {
     this.hopSeconds = 3.2,
     this.wanderPixels = 16,
     this.flip = false,
+    this.roamX = 160,
+    this.roamY = 12,
   });
 
   @override
@@ -27,6 +31,16 @@ class SheepSprite extends StatefulWidget {
 
 class _SheepSpriteState extends State<SheepSprite> with SingleTickerProviderStateMixin {
   late final AnimationController _ctrl;
+  final _rand = Random();
+
+  // kontinuierliche Zeit
+  late int _lastMs;
+  double _elapsed = 0.0; // Sekunden
+
+  // zufällige Startphasen
+  late double _pHop;
+  late double _pRoamX;
+  late double _pRoamY;
 
   @override
   void initState() {
@@ -34,7 +48,22 @@ class _SheepSpriteState extends State<SheepSprite> with SingleTickerProviderStat
     _ctrl = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: (widget.hopSeconds * 1000).round()),
-    )..repeat();
+    )..addListener(_tick)
+      ..repeat();
+
+    _lastMs = DateTime.now().millisecondsSinceEpoch;
+
+    _pHop   = _rand.nextDouble() * 2 * pi;
+    _pRoamX = _rand.nextDouble() * 2 * pi;
+    _pRoamY = _rand.nextDouble() * 2 * pi;
+  }
+
+  void _tick() {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final dt = (now - _lastMs) / 1000.0;
+    _lastMs = now;
+    _elapsed += dt; // → kontinuierlich, kein Reset mehr
+    setState(() {});
   }
 
   @override
@@ -45,27 +74,32 @@ class _SheepSpriteState extends State<SheepSprite> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _ctrl,
-      builder: (context, _) {
-        final v = _ctrl.value; // 0..1
-        // Hop (parabolisch/ sinus)
-        final hopY = (sin(v * 2 * pi) * 8).clamp(-8, 8).toDouble();
-        // Wanderung links/rechts
-        final wanderX = sin(v * 2 * pi * 0.5) * widget.wanderPixels;
+    final v = (_ctrl.value + _pHop / (2 * pi)) % 1.0;
 
-        // Alignment berechnen (0..1 → -1..1)
-        final alignX = (widget.baseX - 0.5) * 2;
-        final alignY = (widget.baseY - 0.5) * 2;
+    // Hop (klein) + lokales Wackeln
+    final hopY = (sin(v * 2 * pi) * 8).clamp(-8, 8).toDouble();
+    final jitterX = sin(v * 2 * pi * 0.8) * widget.wanderPixels;
 
-        return Align(
-          alignment: Alignment(alignX, alignY),
-          child: Transform.translate(
-            offset: Offset(wanderX, hopY),
-            child: _Sheep(width: widget.width, flip: widget.flip, legPhase: v),
-          ),
-        );
-      },
+    // Weit-Drift (verschiedene Frequenzen → keine Kreisbahn)
+    final roamX = sin(_pRoamX + _elapsed * 0.18) * widget.roamX;
+    final roamY = sin(_pRoamY + _elapsed * 0.13) * widget.roamY;
+
+    // Blickrichtung aus der X-Ableitung
+    final dx = 0.18 * cos(_pRoamX + _elapsed * 0.18) * widget.roamX
+        + 0.8  * cos(v * 2 * pi * 0.8) * widget.wanderPixels;
+    final dynamicFlip = dx < 0;
+    final flipNow = widget.flip ^ dynamicFlip;
+
+    // Alignment (0..1 → -1..1)
+    final alignX = (widget.baseX - 0.5) * 2;
+    final alignY = (widget.baseY - 0.5) * 2;
+
+    return Align(
+      alignment: Alignment(alignX, alignY),
+      child: Transform.translate(
+        offset: Offset(jitterX + roamX, hopY + roamY),
+        child: _Sheep(width: widget.width, flip: flipNow, legPhase: v),
+      ),
     );
   }
 }
@@ -73,7 +107,7 @@ class _SheepSpriteState extends State<SheepSprite> with SingleTickerProviderStat
 class _Sheep extends StatelessWidget {
   final double width;
   final bool flip;
-  final double legPhase; // 0..1 → für Beinwackeln
+  final double legPhase; // 0..1
 
   const _Sheep({required this.width, this.flip = false, required this.legPhase});
 
@@ -112,9 +146,7 @@ class _Sheep extends StatelessWidget {
               decoration: BoxDecoration(
                 color: bodyColor,
                 borderRadius: BorderRadius.circular(width * 0.32),
-                boxShadow: [
-                  BoxShadow(color: woolShadow, blurRadius: 10, offset: const Offset(0, 6)),
-                ],
+                boxShadow: [BoxShadow(color: woolShadow, blurRadius: 10, offset: const Offset(0, 6))],
               ),
             ),
 
@@ -156,22 +188,18 @@ class _Sheep extends StatelessWidget {
               child: Container(
                 width: width * 0.05,
                 height: width * 0.05,
-                decoration: const BoxDecoration(
-                  color: Colors.white, shape: BoxShape.circle,
-                ),
+                decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
                 child: Center(
                   child: Container(
                     width: width * 0.02,
                     height: width * 0.02,
-                    decoration: const BoxDecoration(
-                      color: Colors.black, shape: BoxShape.circle,
-                    ),
+                    decoration: const BoxDecoration(color: Colors.black, shape: BoxShape.circle),
                   ),
                 ),
               ),
             ),
 
-            // Beine (leicht wackelnd)
+            // Zwei Beine (asynchron)
             Positioned(
               left: width * 0.20,
               bottom: -width * 0.06,
@@ -190,7 +218,7 @@ class _Sheep extends StatelessWidget {
 
   Widget _leg(double w, {required double phase, required double offsetPhase}) {
     final p = (phase + offsetPhase) % 1.0;
-    final angle = sin(p * 2 * pi) * 0.25; // -0.25..0.25 rad
+    final angle = sin(p * 2 * pi) * 0.25;
 
     return Transform.rotate(
       angle: angle,

@@ -1,8 +1,10 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:studyproject/pages/intro/auth/auth_service.dart';
+
+// UI-Widgets
+import 'package:studyproject/pages/intro/widgets/fancy_login_background.dart';
+import 'package:studyproject/pages/intro/widgets/party_sheep_captcha.dart';
+import 'package:studyproject/pages/intro/widgets/brand_button.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -14,58 +16,33 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _answerController = TextEditingController();
+  final _captchaController = TextEditingController();
 
-  late int _a, _b; // Zahlen für Matheaufgabe
   bool _loading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _generateQuestion();
-  }
-
-  void _generateQuestion() {
-    final rnd = Random();
-    _a = rnd.nextInt(10) + 1;
-    _b = rnd.nextInt(10) + 1;
-  }
+  int _captchaAnswer = 0; // richtige Anzahl 🐑
 
   Future<void> _login() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
-    final answer = int.tryParse(_answerController.text.trim());
+    final answer = int.tryParse(_captchaController.text.trim());
 
-    print('Versuche Login für: $email');
-
-    if (answer != _a + _b) {
-      print('Sicherheitsfrage falsch: $_a + $_b != $answer');
+    if (answer != _captchaAnswer) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Falsche Antwort auf die Sicherheitsfrage.')),
+        const SnackBar(content: Text('Captcha falsch – bitte Schafe neu zählen 🐑')),
       );
       return;
     }
 
     setState(() => _loading = true);
-
     try {
-      // 1) Firebase Auth Login
-      final res = await AuthMethod().loginUser(
-        email: email,
-        password: password,
-      );
-
+      final res = await AuthMethod().loginUser(email: email, password: password);
+      if (!mounted) return;
       if (res == "success") {
-        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Login erfolgreich!")),
         );
-
-        // 2) Profil unter users/{uid} sicherstellen und korrekt routen
-        await _ensureUserProfileAndRoute();
-
+        Navigator.pushReplacementNamed(context, '/home');
       } else {
-        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Login fehlgeschlagen: $res')),
         );
@@ -80,120 +57,186 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  // Profil sicherstellen und abhängig vom Onboarding-Status navigieren
-  Future<void> _ensureUserProfileAndRoute() async {
-    final u = FirebaseAuth.instance.currentUser;
-    if (u == null) return;
-
-    final users = FirebaseFirestore.instance.collection('users');
-    final uidRef = users.doc(u.uid);
-    final uidSnap = await uidRef.get();
-
-    if (!uidSnap.exists) {
-      // Optional: altes Profil per E-Mail übernehmen
-      final q = await users.where('email', isEqualTo: u.email ?? '').limit(1).get();
-
-      Map<String, dynamic> base = {
-        'uid': u.uid,
-        'email': u.email ?? '',
-        'name': u.displayName ?? '',
-        'username': '',
-        'photoUrl': u.photoURL ?? '',
-        'about': '',
-        'ageRange': '',
-        'occupation': '',
-        'gender': '',
-        'birthday': '',
-        'friendCode': _generateFriendCode(),
-        'createdAt': FieldValue.serverTimestamp(),
-        'onboardingCompleted': false,
-      };
-
-      if (q.docs.isNotEmpty) {
-        final old = q.docs.first.data();
-        base = {
-          ...old,
-          'uid': u.uid,
-          'email': u.email ?? old['email'] ?? '',
-        };
-      }
-
-      await uidRef.set(base, SetOptions(merge: true));
-    }
-
-    // updatedAt pflegen
-    await uidRef.set({'updatedAt': FieldValue.serverTimestamp()}, SetOptions(merge: true));
-
-    final data = (await uidRef.get()).data();
-    final completed = data?['onboardingCompleted'] == true;
-
-    if (!mounted) return;
-    Navigator.pushReplacementNamed(context, completed ? '/home' : '/onboarding');
-  }
-
-  String _generateFriendCode() {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    final r = Random();
-    return List.generate(9, (_) => chars[r.nextInt(chars.length)]).join();
-  }
-
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
-    _answerController.dispose();
+    _captchaController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final border = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(14),
+      borderSide: BorderSide(color: theme.colorScheme.outline.withOpacity(0.4)),
+    );
+
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
         title: const Text('Login'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pushReplacementNamed(context, '/auth_choice');
-          },
+          tooltip: 'Zurück',
+          onPressed: () => Navigator.pushReplacementNamed(context, '/auth_choice'),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                TextField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(labelText: 'E-Mail'),
+      body: Stack(
+        children: [
+          // 🌿 Jetzt konsequent grün (Bubbles + Verlauf)
+          const Positioned.fill(
+            child: FancyLoginBackground(tint: Color(0xFF60BFA0)),
+          ),
+
+          SafeArea(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 520),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  child: Card(
+                    elevation: 12,
+                    color: theme.colorScheme.surface,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 26),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // 🔒 scharfes Icon
+                          Container(
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: (isDark ? Colors.white : Colors.black).withOpacity(0.06),
+                            ),
+                            child: const Icon(Icons.lock, size: 28, color: Colors.black87),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Willkommen zurück 👋',
+                            style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Melde dich mit deinem Konto an.',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.textTheme.bodyMedium?.color?.withOpacity(0.80),
+                            ),
+                          ),
+
+                          const SizedBox(height: 22),
+
+                          // E-Mail
+                          TextField(
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            decoration: InputDecoration(
+                              labelText: 'E-Mail',
+                              prefixIcon: const Icon(Icons.email_outlined),
+                              border: border,
+                              enabledBorder: border,
+                              focusedBorder: border.copyWith(
+                                borderSide: BorderSide(
+                                  color: theme.colorScheme.primary,
+                                  width: 1.6,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+
+                          // Passwort
+                          TextField(
+                            controller: _passwordController,
+                            obscureText: true,
+                            decoration: InputDecoration(
+                              labelText: 'Passwort',
+                              prefixIcon: const Icon(Icons.lock_outline),
+                              border: border,
+                              enabledBorder: border,
+                              focusedBorder: border.copyWith(
+                                borderSide: BorderSide(
+                                  color: theme.colorScheme.primary,
+                                  width: 1.6,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 8),
+
+                          // 🐑 Captcha jetzt 1–8 Schafe
+                          PartySheepCaptcha(
+                            minCount: 1,
+                            maxCount: 8,
+                            onNewAnswer: (ans) => _captchaAnswer = ans,
+                          ),
+                          const SizedBox(height: 10),
+
+                          // Antwortfeld – Schaf-Emoji mit Abstand nach rechts verschoben
+                          TextField(
+                            controller: _captchaController,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              labelText: 'Anzahl eingeben',
+                              hintText: 'z. B. 5',
+                              prefixIcon: const Padding(
+                                padding: EdgeInsets.only(left: 10, right: 6),
+                                child: Text('🐑', style: TextStyle(fontSize: 18)),
+                              ),
+                              prefixIconConstraints: const BoxConstraints(minWidth: 56),
+                              border: border,
+                              enabledBorder: border,
+                              focusedBorder: border.copyWith(
+                                borderSide: const BorderSide(color: Colors.black, width: 1.6),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          // 🖤 schwarzer Einloggen-Button
+                          BrandButton(
+                            label: 'Einloggen',
+                            loading: _loading,
+                            backgroundColor: Colors.black,
+                            foregroundColor: Colors.white,
+                            onPressed: _loading ? null : _login,
+                          ),
+
+                          const SizedBox(height: 10),
+                          Opacity(
+                            opacity: 0.7,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.https_outlined, size: 16, color: theme.colorScheme.outline),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'Deine Daten bleiben geschützt.',
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: theme.colorScheme.outline,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: _passwordController,
-                  decoration: const InputDecoration(labelText: 'Passwort'),
-                  obscureText: true,
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  'Was ist $_a + $_b ?',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                TextField(
-                  controller: _answerController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(hintText: 'Antwort eingeben'),
-                ),
-                const SizedBox(height: 30),
-                ElevatedButton(
-                  onPressed: _loading ? null : _login,
-                  child: _loading
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text('Einloggen'),
-                ),
-              ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

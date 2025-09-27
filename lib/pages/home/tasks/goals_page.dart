@@ -1,14 +1,18 @@
 // lib/profil/profil/home/goals_page.dart
 import 'package:flutter/material.dart';
-
 import 'package:studyproject/pages/home/badge_dex_page.dart';
 import 'package:studyproject/pages/home/tasks/TreeGrowth.dart';
 import 'package:studyproject/pages/home/tasks/SectionHeaderCard.dart';
 import 'package:studyproject/pages/home/tasks/progress_card.dart';
 import 'package:studyproject/pages/home/tasks/confetti_burst.dart' show showConfettiBurst;
+import 'package:studyproject/pages/models/submodels/categoryTheme.dart';
 import 'package:studyproject/pages/widgets/task_title.dart' show TaskTile;
+
 //models
 import 'package:studyproject/pages/models/task.dart';
+
+//services
+import 'package:studyproject/pages/home/services/task_service.dart';
 
 class GoalsPage extends StatefulWidget {
   const GoalsPage({
@@ -27,6 +31,7 @@ class GoalsPage extends StatefulWidget {
 class GoalsPageState extends State<GoalsPage>
     with AutomaticKeepAliveClientMixin<GoalsPage>, SingleTickerProviderStateMixin {
 
+  final TaskService _doTask = TaskService();
   final Set<int> _completed = {};
   static const int _dailyTarget = 25;
 
@@ -69,21 +74,37 @@ class GoalsPageState extends State<GoalsPage>
       ..forward();
   }
 
-  void _toggleTask(int i) {
+  void _toggleTask(int i) async {
     final before = _displayPoints;
+    final task = widget.tasks[i];
+
+    bool justCompleted = false;
+
     setState(() {
       if (_completed.contains(i)) {
         _completed.remove(i);
+        task.isCompleted = false;
       } else {
         _completed.add(i);
+        task.isCompleted = true;
+        justCompleted = true;
       }
     });
+
     final after = _truePoints;
     _animatePoints(before, after);
 
-    if (_tapPos != null && !_completed.contains(i)) {
-      showConfettiBurst(context, _tapPos!);
-      _tapPos = null;
+    if (justCompleted) {
+      try {
+        await _doTask.completeTask(task);
+
+        if (_tapPos != null) {
+          showConfettiBurst(context, _tapPos!);
+          _tapPos = null;
+        }
+      } catch (e) {
+        print('Fehler beim Speichern des Tasks: $e');
+      }
     }
   }
 
@@ -94,7 +115,7 @@ class GoalsPageState extends State<GoalsPage>
   Widget build(BuildContext context) {
     super.build(context);
 
-    final tasksToShow = widget.tasks.take(6).toList(); // nur die ersten 6 Tasks
+    final tasksToShow = widget.tasks.take(6).toList();
 
     return Padding(
       padding: const EdgeInsets.all(12),
@@ -119,36 +140,56 @@ class GoalsPageState extends State<GoalsPage>
               itemBuilder: (context, i) {
                 final task = tasksToShow[i];
                 final isDone = _completed.contains(i);
+                final categoryTheme = CategoryTheme.themes[task.category]!;
 
                 return GestureDetector(
                   onTapDown: (details) => _tapPos = details.globalPosition,
                   onTap: () => _toggleTask(i),
                   child: Card(
-                    color: isDone ? Colors.green[100] : Colors.white,
+                    color: isDone ? Colors.green[300] : categoryTheme.color,
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(color: categoryTheme.border, width: 1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                     child: Padding(
                       padding: const EdgeInsets.all(12),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // Task info
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          Row(
                             children: [
-                              Text(
-                                '${task.emoji} ${task.title}',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  decoration: isDone ? TextDecoration.lineThrough : null,
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: categoryTheme.border.withOpacity(0.2),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  categoryTheme.icon,
+                                  size: 20,
+                                  color: isDone ? Colors.green : categoryTheme.border,
                                 ),
                               ),
-                              if (task.co2kg > 0)
-                                Text(
-                                  '${task.co2kg} kg CO₂',
-                                  style: const TextStyle(fontSize: 12, color: Colors.grey),
-                                ),
+                              const SizedBox(width: 8),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '${task.emoji} ${task.title}',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      decoration: isDone ? TextDecoration.lineThrough : null,
+                                    ),
+                                  ),
+                                  if (task.co2kg > 0)
+                                    Text(
+                                      '${task.co2kg} kg CO₂',
+                                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                    ),
+                                ],
+                              ),
                             ],
                           ),
-                          // Points
                           Text(
                             '+${task.points} P',
                             style: TextStyle(

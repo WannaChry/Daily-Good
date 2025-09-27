@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'package:studyproject/pages/models/task.dart';
 import 'package:studyproject/pages/models/task_category.dart';
-import 'package:studyproject/pages/widgets/task_row.dart';
+import 'package:studyproject/pages/second_page/subpages/task_row.dart';
 import 'package:studyproject/pages/models/submodels/categoryTheme.dart';
 
 class CategorySection extends StatelessWidget {
@@ -40,11 +40,14 @@ class CategorySection extends StatelessWidget {
             name,
             style: GoogleFonts.poppins(fontWeight: FontWeight.w800, fontSize: 16),
           ),
-          children: [
-            Column(
-              children: tasks.map((t) => TaskRow(task: t, onToggle: onToggle)).toList(),
-            ),
-          ],
+          children: tasks.isEmpty
+              ? [Padding(
+            padding: const EdgeInsets.all(8),
+            child: Text('Keine erledigten Tasks', style: TextStyle(color: Colors.grey)),
+          )]
+              : tasks.map((t) => TaskRow(task: t, onToggle: onToggle)).toList(),
+
+
         ),
       ),
     );

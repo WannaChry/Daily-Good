@@ -46,7 +46,7 @@ class Task {
       emoji: json['emoji'],
       isCompleted: json['isCompleted'] ?? false,
         category: Task_category.values.firstWhere(
-              (e) => e.toString() == 'TaskCategory.${json['category']}',
+              (e) => e.toString() == 'Task_category.${json['category']}',
           orElse: () => Task_category.DefaultCategory,
     ));
   }

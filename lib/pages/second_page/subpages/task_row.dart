@@ -16,8 +16,8 @@ class TaskRow extends StatelessWidget {
       borderRadius: BorderRadius.circular(12),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        margin: const EdgeInsets.only(top: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        margin: const EdgeInsets.only(top: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
         decoration: BoxDecoration(
           color: isDone ? Colors.white : Colors.white.withOpacity(0.6),
           borderRadius: BorderRadius.circular(12),
@@ -33,7 +33,7 @@ class TaskRow extends StatelessWidget {
             Expanded(
               child: Text(
                 task.title,
-                style: GoogleFonts.poppins(fontSize: 15.5, fontWeight: FontWeight.w700),
+                style: GoogleFonts.poppins(fontSize: 13.5, fontWeight: FontWeight.w700),
               ),
             ),
             if (task.co2kg > 0)
@@ -41,24 +41,24 @@ class TaskRow extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 10),
                 child: Row(
                   children: [
-                    const Icon(Icons.co2_rounded, size: 18),
+                    const Icon(Icons.co2_rounded, size: 14),
                     const SizedBox(width: 2),
                     Text(
                       '-${task.co2kg.toStringAsFixed(1)}kg',
-                      style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w800),
+                      style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w800),
                     ),
                   ],
                 ),
               ),
             Row(
               children: [
-                Text('${task.points}', style: GoogleFonts.poppins(fontSize: 15.5, fontWeight: FontWeight.w800)),
+                Text('${task.points}', style: GoogleFonts.poppins(fontSize: 13.5, fontWeight: FontWeight.w800)),
                 const SizedBox(width: 2),
-                const Icon(Icons.bolt_rounded, size: 20),
+                const Icon(Icons.bolt_rounded, size: 16),
               ],
             ),
             const SizedBox(width: 8),
-            Icon(isDone ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded, size: 26),
+            Icon(isDone ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded, size: 20),
           ],
         ),
       ),
