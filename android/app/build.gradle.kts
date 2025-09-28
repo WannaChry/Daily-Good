@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.studyproject"
-        minSdk = flutter.minSdkVersion
+        minSdk = 23 // <<< Wichtig: wegen cloud_firestore von 21 auf 23 erhöht
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
