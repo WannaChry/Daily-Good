@@ -26,6 +26,8 @@ import 'package:studyproject/pages/widgets/profile/editable_avatar.dart';
 
 import 'package:studyproject/pages/utils/friend_code.dart';
 import 'package:studyproject/pages/utils/profile_level.dart';
+import 'dart:async';
+
 
 
 
@@ -36,10 +38,27 @@ class ProfilePage extends StatefulWidget {
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
+class _Debouncer {
+  _Debouncer({required this.ms});
+  final int ms;
+  Timer? _t;
+
+  void call(VoidCallback action) {
+    _t?.cancel();
+    _t = Timer(Duration(milliseconds: ms), action);
+  }
+
+  void dispose() => _t?.cancel();
+}
 
 class _ProfilePageState extends State<ProfilePage> {
   late final String _friendCode;
   final _aboutCtrl = TextEditingController();
+  final _aboutFocus = FocusNode();
+  final _debounce   = _Debouncer(ms: 400);
+
+  late final DocumentReference<Map<String, dynamic>> _userDoc;
+  bool _prefilled = false;
   static const _aboutMaxLen = 200;
 
   bool _uploadingAvatar = false;
@@ -47,16 +66,24 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
+
     _friendCode = generateFriendCode(9);
-    _aboutCtrl.text = "";
+
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+    _userDoc = FirebaseFirestore.instance.collection('users').doc(uid);
+
     _aboutCtrl.addListener(() => setState(() {}));
   }
+
 
   @override
   void dispose() {
     _aboutCtrl.dispose();
+    _aboutFocus.dispose();   // NEU
+    _debounce.dispose();     // NEU
     super.dispose();
   }
+
 
   Future<void> _changeAvatar() async {
     final auth = AuthState.of(context);
@@ -137,11 +164,15 @@ class _ProfilePageState extends State<ProfilePage> {
                   : FirebaseFirestore.instance.collection('users').doc(uid).snapshots(),
               builder: (context, snap) {
                 final data = snap.data?.data();
+                final String remoteBio = (snap.data?.data()?['bio'] as String?) ?? '';
+                if (!_aboutFocus.hasFocus && _aboutCtrl.text != remoteBio) {
+                  _aboutCtrl.text = remoteBio;
+                }
+
                 final displayName =
                     (data?['name'] as String?) ?? auth.user?.displayName ?? 'You';
                 final photoUrl =
                     (data?['photoUrl'] as String?) ?? auth.user?.photoURL;
-
                 final initial =
                 (displayName.isNotEmpty ? displayName.trim()[0] : '?').toUpperCase();
 
@@ -192,10 +223,21 @@ class _ProfilePageState extends State<ProfilePage> {
                   style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700)),
             ),
             const SizedBox(height: 10),
-            AboutTextField(
+            TextField(
               controller: _aboutCtrl,
+              focusNode: _aboutFocus,
+              minLines: 3,
+              maxLines: 5,
               maxLength: _aboutMaxLen,
+              decoration: const InputDecoration(
+                hintText: 'Erzähl etwas über dich…',
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (v) => _debounce(() {
+                _userDoc.set({'bio': v.trim()}, SetOptions(merge: true));
+              }),
             ),
+
 
             const SizedBox(height: 24),
 
