@@ -1,3 +1,4 @@
+// Flutter & Firebase
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -7,17 +8,22 @@ import 'pages/state/social_state.dart';
 import 'pages/state/task_state.dart';
 import 'pages/state/tipp_state.dart';
 
-// Pages / Models
+// Intro Pages
 import 'pages/intro/start/splash_page.dart';
 import 'pages/intro/start/onboarding_page.dart';
 import 'pages/intro/start/questionnaire_page.dart';
 import 'pages/intro/auth/auth_choice.dart';
 import 'pages/intro/anmeldung/sign_in.dart';
 import 'pages/intro/anmeldung/account_details_summary.dart';
+
+// Profil Pages
 import 'pages/profil/profile_view.dart';
 import 'package:studyproject/pages/subpages/deine_daten_page.dart';
+
+// Home / Main Pages
 import 'pages/home/home.dart';
 import 'package:studyproject/pages/models/streak_celebration_page.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

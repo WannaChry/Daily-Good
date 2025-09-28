@@ -1,28 +1,34 @@
-// lib/profil/profil/home.dart
-//import 'package:firebase_auth/firebase_auth.dart';
+// Flutter & Dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+// Fonts
 import 'package:google_fonts/google_fonts.dart';
 
-// Achte auf snake_case-Dateinamen:
+// Widgets / UI-Komponenten
 import 'package:studyproject/pages/ButtonsReaktion.dart';
 import 'package:studyproject/pages/bottom_nav_only.dart';
+import 'package:studyproject/pages/home/tasks/progress_card.dart';
+
+// Pages
 import 'package:studyproject/pages/second_page/activity_page.dart';
 import 'package:studyproject/pages/profil/community_page.dart';
 import 'package:studyproject/pages/profil/profile_page.dart';
 import 'package:studyproject/pages/profil/options.dart';
 import 'package:studyproject/pages/home/tasks/eco_facts.dart';
 import 'package:studyproject/pages/home/mood/mood_dialog.dart';
-import 'package:studyproject/pages/models/tipp.dart';
-import 'package:studyproject/pages/models/task.dart';
 import 'package:studyproject/pages/home/tasks/goals_page.dart';
 
+// Models
+import 'package:studyproject/pages/models/tipp.dart';
+import 'package:studyproject/pages/models/task.dart';
 import 'package:studyproject/pages/models/AppBadge.dart';
-import 'package:studyproject/pages/state/social_state.dart';
-import 'package:studyproject/pages/home/tasks/progress_card.dart';
-
 import '../models/user.dart';
+
+// States
+import 'package:studyproject/pages/state/social_state.dart';
 import '../state/auth_state.dart';
+
 
 class HomePage extends StatefulWidget {
   final List<Tipp> tips;
