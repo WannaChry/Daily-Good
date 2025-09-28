@@ -1,4 +1,3 @@
-// lib/profil/profil/options.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:studyproject/pages/state/auth_state.dart';
@@ -112,6 +111,23 @@ class _SignInPageState extends State<SignInPage> {
                               ],
                             ),
                             const SizedBox(height: 24),
+                            SizedBox(
+                              width: double.infinity,
+                              child: OutlinedButton.icon(
+                                onPressed: () => Navigator.pushNamed(context, '/deine_daten'),
+                                icon: const Icon(Icons.person_outline),
+                                label: Text(
+                                  'Deine Daten',
+                                  style: GoogleFonts.poppins(fontWeight: FontWeight.w800),
+                                ),
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                  side: const BorderSide(width: 1.4),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton(

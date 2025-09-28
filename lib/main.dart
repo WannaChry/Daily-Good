@@ -1,29 +1,29 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+
+// Services
 import 'package:studyproject/pages/home/services/task_service.dart';
 import 'package:studyproject/pages/home/services/tip_service.dart';
-import 'package:studyproject/pages/intro/auth/auth_choice.dart';
-import 'package:studyproject/pages/intro/anmeldung/sign_in.dart';
 
-//models
+// Models/Pages
 import 'package:studyproject/pages/models/tipp.dart';
 import 'package:studyproject/pages/models/task.dart';
 import 'package:studyproject/pages/models/streak_celebration_page.dart';
 
 import 'pages/state/social_state.dart';
-import 'pages/state/auth_state.dart'; // Auth-State
+import 'pages/state/auth_state.dart';
 import 'pages/home/home.dart';
 
-// Intro-Seiten
 import 'pages/intro/start/splash_page.dart';
 import 'pages/intro/start/onboarding_page.dart';
 import 'pages/intro/start/questionnaire_page.dart';
-import 'pages/intro/anmeldung/account_details_summary.dart';
+import 'pages/intro/auth/auth_choice.dart';
+import 'pages/intro/anmeldung/sign_in.dart';                // LoginPage
+import 'pages/intro/anmeldung/account_details_summary.dart'; // SignUpPage
 
-// Auth-Seiten
-import 'pages/profil/options.dart';
-//import 'profil/profil/sign_up_page.dart';
+import 'pages/profil/profile_view.dart'; // Profilanzeige
+import 'package:studyproject/pages/subpages/deine_daten_page.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -62,9 +62,8 @@ class _MyAppState extends State<MyApp> {
     TippService.fetchTips().then((loadedTips) {
       setState(() => tips = loadedTips);
     });
-
     TaskService().fetchAllTasks().then((loadedTasks) {
-      setState(() => tasks = loadedTasks);
+      if (mounted) setState(() => tasks = loadedTasks);
     });
   }
 
@@ -82,8 +81,7 @@ class _MyAppState extends State<MyApp> {
         '/login': (_) => const LoginPage(),
         '/questionnaire': (_) => const QuestionnairePage(),
         '/intro/review': (_) => const SignUpPage(),
-
-        // NEU: Streak-Celebration (liest Arguments)
+        '/deine_daten': (_) => const DeineDatenPage(),
         '/streak': (ctx) {
           final args = ModalRoute.of(ctx)?.settings.arguments as Map? ?? {};
           final current = (args['currentStreak'] ?? 1) as int;
@@ -96,24 +94,16 @@ class _MyAppState extends State<MyApp> {
           );
         },
 
-        // Auth
-        '/sign-in': (_) => const SignInPage(),
-        '/sign-up': (_) => const SignUpPage(),
-        '/verify': (_) => const _VerifyPlaceholderPage(), // Platzhalter
-        // Home
+        // Profil und Home
+        '/profile': (_) => const ProfileView(),
         '/home': (_) => HomePage(tips: tips, tasks: tasks),
       },
-
       onUnknownRoute: (_) =>
           MaterialPageRoute(builder: (_) => const SplashPage()),
     );
   }
 }
 
-// ---------------------------------------------------------
-// Kleiner Stub, damit "2-Faktor aktivieren" / Verifizierung
-// nicht crasht. Später durch echte Seite ersetzen.
-// ---------------------------------------------------------
 class _VerifyPlaceholderPage extends StatelessWidget {
   const _VerifyPlaceholderPage();
 
