@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:async';
 
 class DeineDatenPage extends StatefulWidget {
   const DeineDatenPage({super.key});
@@ -21,6 +22,8 @@ class _DeineDatenPageState extends State<DeineDatenPage> {
   final _jobCtrl = TextEditingController();
   final _aboutCtrl = TextEditingController();
   final _birthdayCtrl = TextEditingController();
+  final _aboutFocus = FocusNode();
+  final _bioDebounce = _Debouncer(ms: 400);
 
   late final DocumentReference<Map<String, dynamic>> _userDoc;
   bool _prefilled = false;
@@ -48,6 +51,8 @@ class _DeineDatenPageState extends State<DeineDatenPage> {
     _jobCtrl.dispose();
     _aboutCtrl.dispose();
     _birthdayCtrl.dispose();
+    _aboutFocus.dispose();
+    _bioDebounce.dispose();
     super.dispose();
   }
 
@@ -379,6 +384,11 @@ class _DeineDatenPageState extends State<DeineDatenPage> {
               _ageCtrl.text = (_calcAge(_birthdayCtrl.text) ?? '').toString();
               _jobCtrl.text = (d['occupation'] ?? '') as String;
               _aboutCtrl.text = (d['bio'] ?? '') as String;
+              final remoteBio = (d['bio'] ?? '') as String;
+              if (!_aboutFocus.hasFocus && _aboutCtrl.text != remoteBio) {
+                _aboutCtrl.text = remoteBio;
+              }
+
 
 
               final code = (d['friendCode'] ?? '') as String;
@@ -429,14 +439,18 @@ class _DeineDatenPageState extends State<DeineDatenPage> {
                   const SizedBox(height: 6),
                   TextField(
                     controller: _aboutCtrl,
+                    focusNode: _aboutFocus,
                     minLines: 2,
                     maxLines: 4,
+                    onChanged: (v) =>
+                        _bioDebounce.run(() => _userDoc.update({'bio': v.trim()})), // <— live in Firestore speichern
                     decoration: const InputDecoration(
                       isDense: true,
                       border: OutlineInputBorder(),
                       hintText: 'Kurzbeschreibung…',
                     ),
                   ),
+
                   const SizedBox(height: 10),
                   SizedBox(
                     width: double.infinity,
@@ -583,6 +597,16 @@ class _Card extends StatelessWidget {
       child: child,
     );
   }
+}
+class _Debouncer {
+  _Debouncer({this.ms = 300});
+  final int ms;
+  Timer? _t;
+  void run(void Function() f) {
+    _t?.cancel();
+    _t = Timer(Duration(milliseconds: ms), f);
+  }
+  void dispose() => _t?.cancel();
 }
 
 class _TextRow extends StatelessWidget {

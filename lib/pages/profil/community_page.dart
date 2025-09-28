@@ -1,7 +1,13 @@
-// lib/profil/profil/community_page.dart
+// lib/pages/profil/community_page.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:studyproject/pages/state/social_state.dart';
+
+// NGOs-Subpage
+import 'package:studyproject/pages/profil/subpages/ngos.dart';
+
+// Nachthimmel + Ballons (ausgelagert)
+import 'package:studyproject/pages/profil/widgets/night_sky_background.dart';
 
 class CommunityPage extends StatefulWidget {
   const CommunityPage({super.key});
@@ -11,12 +17,16 @@ class CommunityPage extends StatefulWidget {
 }
 
 class _CommunityPageState extends State<CommunityPage> {
-  // ---- Pastell-Design Tokens ----
-  static const _bg = Color(0xFFF8F3FA); // Seite-Hintergrund
-  static const _pastelGreen = Color(0xFFB5E48C); // Basisgrün
-  static const _cardBorder = Color(0x14000000); // schwarz 8%
-  static const _shadow = Color(0x0A000000); // schwarz 4%
-  static const _softGrey = Color(0x0D000000); // schwarz 5%
+  // ---- Night UI Tokens (nur für Vordergrund-UI) ----
+  static const _pastelBlue = Color(0xFF97C4FF); // statt grün
+  static const _cardBorder = Color(0x14000000);
+  static const _shadow = Color(0x0A000000);
+  static const _softGrey = Color(0x26FFFFFF); // transparentes Weiß für Avatar-Box
+
+  // Scroll-Infos → steuern die Ballon-Phasen im Hintergrund
+  double _scrollOffset = 0.0;
+  double _viewportExtent = 0.0;
+  double _maxScrollExtent = 0.0;
 
   void _toast(String msg) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
@@ -24,148 +34,189 @@ class _CommunityPageState extends State<CommunityPage> {
 
   @override
   Widget build(BuildContext context) {
-    final social = SocialState.of(context); // gemeinsamer State
-    final h1 = GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w800);
+    final social = SocialState.of(context);
+    final h1White = GoogleFonts.poppins(
+      fontSize: 18,
+      fontWeight: FontWeight.w800,
+      color: Colors.white,
+    );
     final hint = GoogleFonts.poppins(fontSize: 12.5, color: Colors.grey.shade700);
-
     final topFriends = social.friends.take(4).toList();
 
     return Scaffold(
-      backgroundColor: _bg,
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            // --- Freunde-Avatare oben (max 4) ---
-            if (topFriends.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: topFriends
-                      .map((f) => GestureDetector(
-                    onLongPress: () => _confirmRemoveFriend(f),
-                    child: _AvatarWithName(name: f.name),
-                  ))
-                      .toList(),
-                ),
-              ),
-
-            // --- Freunde: Aktionen ---
-            Text('Freunde', style: h1),
-            const SizedBox(height: 8),
-            _Card(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  children: [
-                    _ActionButton(
-                      label: 'Freund hinzufügen',
-                      onTap: _openAddFriendSheet,
+      // Der komplette Inhalt liegt auf unserem animierten Hintergrund
+      body: NightSkyBackground(
+        scrollOffset: _scrollOffset,
+        viewportExtent: _viewportExtent,
+        maxScrollExtent: _maxScrollExtent,
+        parallax: false, // explizit
+        child: SafeArea(
+        child: SafeArea(
+          child: NotificationListener<ScrollNotification>(
+            onNotification: (n) {
+              final m = n.metrics;
+              // Diese Werte treiben die Ballon-Animation über die volle Scrollhöhe
+              setState(() {
+                _scrollOffset = m.pixels;
+                _viewportExtent = m.viewportDimension;
+                _maxScrollExtent = m.maxScrollExtent;
+              });
+              return false;
+            },
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                // --- Freunde-Avatare oben (max 4) ---
+                if (topFriends.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: topFriends
+                          .map((f) => GestureDetector(
+                        onLongPress: () => _confirmRemoveFriend(f),
+                        child: _AvatarWithName(name: f.name),
+                      ))
+                          .toList(),
                     ),
-                    const SizedBox(height: 10),
-                    _ActionButton(
-                      label: 'Freundschaftsanfragen',
-                      onTap: _openRequestsSheet,
+                  ),
+
+                // --- Freunde: Aktionen ---
+                Text('Freunde', style: h1White),
+                const SizedBox(height: 8),
+                _Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      children: [
+                        _ActionButton(
+                          label: 'Freund hinzufügen',
+                          onTap: _openAddFriendSheet,
+                        ),
+                        const SizedBox(height: 10),
+                        _ActionButton(
+                          label: 'Freundschaftsanfragen',
+                          onTap: _openRequestsSheet,
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
 
-            const SizedBox(height: 14),
+                const SizedBox(height: 14),
 
-            // --- Alle Freunde (Liste + Entfernen) ---
-            if (social.friends.isNotEmpty) ...[
-              _Card(
-                child: Column(
-                  children: social.friends
-                      .map((f) => Column(
-                    children: [
-                      ListTile(
-                        title: Text(
-                          f.name,
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.w700,
+                // --- Alle Freunde (Liste + Entfernen) ---
+                if (social.friends.isNotEmpty) ...[
+                  _Card(
+                    child: Column(
+                      children: social.friends
+                          .map((f) => Column(
+                        children: [
+                          ListTile(
+                            title: Text(
+                              f.name,
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            subtitle: Text('Code: ${f.code}', style: hint),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.delete_outline),
+                              onPressed: () => _confirmRemoveFriend(f),
+                            ),
+                          ),
+                          if (f != social.friends.last) const Divider(height: 1),
+                        ],
+                      ))
+                          .toList(),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                ],
+
+                // --- Communities: Aktionen ---
+                Text('Communities', style: h1White),
+                const SizedBox(height: 8),
+                _Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      children: [
+                        _ActionButton(
+                          label: 'Community beitreten',
+                          onTap: _openJoinCommunitySheet,
+                        ),
+                        const SizedBox(height: 10),
+                        _ActionButton(
+                          label: 'Community erstellen',
+                          onTap: _openCreateCommunitySheet,
+                        ),
+                        const SizedBox(height: 10),
+                        _ActionButton(
+                          label: 'Community-Einladungen',
+                          onTap: _openInvitesSheet,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 14),
+
+                // --- Meine Communities ---
+                if (social.communities.isNotEmpty) ...[
+                  _Card(
+                    child: Column(
+                      children: social.communities
+                          .map((c) => Column(
+                        children: [
+                          ListTile(
+                            title: Text(
+                              c.name,
+                              style: GoogleFonts.poppins(fontWeight: FontWeight.w700),
+                            ),
+                            subtitle: Text('Code: ${c.code}', style: hint),
+                            trailing: const Icon(Icons.chevron_right),
+                            onTap: () => _toast('Community "${c.name}" (Demo).'),
+                          ),
+                          if (c != social.communities.last) const Divider(height: 1),
+                        ],
+                      ))
+                          .toList(),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+
+                // --- NGOs & Vereine (führt in Subpage) ---
+                Text('NGOs & Vereine', style: h1White),
+                const SizedBox(height: 8),
+                _Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      children: [
+                        _ActionButton(
+                          label: 'NGOs anzeigen',
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => const NGOsPage()),
                           ),
                         ),
-                        subtitle: Text('Code: ${f.code}', style: hint),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete_outline),
-                          onPressed: () => _confirmRemoveFriend(f),
-                        ),
-                      ),
-                      if (f != social.friends.last) const Divider(height: 1),
-                    ],
-                  ))
-                      .toList(),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
-            ],
-
-            // --- Communities: Aktionen ---
-            Text('Communities', style: h1),
-            const SizedBox(height: 8),
-            _Card(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  children: [
-                    _ActionButton(
-                      label: 'Community beitreten',
-                      onTap: _openJoinCommunitySheet,
-                    ),
-                    const SizedBox(height: 10),
-                    _ActionButton(
-                      label: 'Community erstellen',
-                      onTap: _openCreateCommunitySheet,
-                    ),
-                    const SizedBox(height: 10),
-                    _ActionButton(
-                      label: 'Community-Einladungen',
-                      onTap: _openInvitesSheet,
-                    ),
-                  ],
-                ),
-              ),
+                const SizedBox(height: 12),
+              ],
             ),
-
-            const SizedBox(height: 14),
-
-            // --- Meine Communities ---
-            if (social.communities.isNotEmpty) ...[
-              _Card(
-                child: Column(
-                  children: social.communities
-                      .map((c) => Column(
-                    children: [
-                      ListTile(
-                        title: Text(
-                          c.name,
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        subtitle: Text('Code: ${c.code}', style: hint),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () => _toast('Community "${c.name}" (Demo).'),
-                      ),
-                      if (c != social.communities.last) const Divider(height: 1),
-                    ],
-                  ))
-                      .toList(),
-                ),
-              ),
-              const SizedBox(height: 12),
-            ],
-          ],
+          ),
         ),
+      ),
       ),
     );
   }
 
-  // ===== Bottom Sheets / Logik =====
+  // ===== Bottom Sheets / Logik (dein Originalcode unverändert) =====
 
   void _openAddFriendSheet() {
     final social = SocialState.of(context, listen: false);
@@ -480,8 +531,7 @@ class _CommunityPageState extends State<CommunityPage> {
       context: context,
       builder: (_) => AlertDialog(
         title: Text('Freund entfernen?', style: GoogleFonts.poppins(fontWeight: FontWeight.w700)),
-        content: Text('„${f.name}“ wird aus deiner Liste entfernt.',
-            style: GoogleFonts.poppins()),
+        content: Text('„${f.name}“ wird aus deiner Liste entfernt.', style: GoogleFonts.poppins()),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Abbrechen')),
           TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Entfernen')),
@@ -509,13 +559,20 @@ class _AvatarWithName extends StatelessWidget {
           width: 64,
           height: 64,
           decoration: BoxDecoration(
-            color: _CommunityPageState._softGrey, // zartes Grau
+            color: _CommunityPageState._softGrey,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: _CommunityPageState._cardBorder),
           ),
         ),
         const SizedBox(height: 6),
-        Text(name, style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600)),
+        Text(
+          name,
+          style: GoogleFonts.poppins(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: Colors.white, // weiße Namen für Kontrast
+          ),
+        ),
       ],
     );
   }
@@ -529,7 +586,7 @@ class _ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // pastelliger, halbtransparenter Button
+    // pastelliger, halbtransparenter Button (blau)
     return Material(
       color: Colors.transparent,
       borderRadius: BorderRadius.circular(14),
@@ -541,7 +598,7 @@ class _ActionButton extends StatelessWidget {
           alignment: Alignment.centerLeft,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            color: _CommunityPageState._pastelGreen.withValues(alpha: 0.35),
+            color: _CommunityPageState._pastelBlue.withOpacity(0.35),
             borderRadius: BorderRadius.circular(14),
             border: Border.all(color: _CommunityPageState._cardBorder),
             boxShadow: const [
@@ -604,7 +661,7 @@ class _TextField extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
         ),
         filled: true,
-        fillColor: Colors.black.withValues(alpha: 0.03),
+        fillColor: Colors.black.withOpacity(0.03),
       ),
     );
   }
@@ -628,7 +685,7 @@ class _PrimaryButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 14),
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: _CommunityPageState._pastelGreen.withValues(alpha: 0.35),
+            color: _CommunityPageState._pastelBlue.withOpacity(0.35),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: _CommunityPageState._cardBorder),
             boxShadow: const [
@@ -669,7 +726,7 @@ class _RequestRow extends StatelessWidget {
           ElevatedButton(
             onPressed: onAccept,
             style: ElevatedButton.styleFrom(
-              backgroundColor: _CommunityPageState._pastelGreen.withValues(alpha: 0.35),
+              backgroundColor: _CommunityPageState._pastelBlue.withOpacity(0.35),
               foregroundColor: Colors.black,
               elevation: 0,
               shape: RoundedRectangleBorder(
@@ -694,7 +751,7 @@ class _SheetHandle extends StatelessWidget {
         height: 5,
         margin: const EdgeInsets.only(bottom: 8),
         decoration: BoxDecoration(
-          color: Colors.black12,
+          color: Colors.white24,
           borderRadius: BorderRadius.circular(999),
         ),
       ),
