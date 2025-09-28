@@ -4,7 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:studyproject/pages/state/social_state.dart';
 
 class CommunityPage extends StatefulWidget {
-  const CommunityPage({super.key});
+  final SocialState socialState;
+  const CommunityPage({super.key, required this.socialState});
 
   @override
   State<CommunityPage> createState() => _CommunityPageState();
@@ -24,7 +25,7 @@ class _CommunityPageState extends State<CommunityPage> {
 
   @override
   Widget build(BuildContext context) {
-    final social = SocialState.of(context); // gemeinsamer State
+    final social = widget.socialState; // gemeinsamer State
     final h1 = GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w800);
     final hint = GoogleFonts.poppins(fontSize: 12.5, color: Colors.grey.shade700);
 

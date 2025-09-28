@@ -3,7 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:studyproject/pages/state/auth_state.dart';
 
 class LogoutButton extends StatelessWidget {
-  const LogoutButton({super.key});
+  final AuthState authState;
+  const LogoutButton({super.key, required this.authState});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +29,7 @@ class LogoutButton extends StatelessWidget {
           if (!confirm) return;
 
           try {
-            await AuthState.of(context).signOut();
+            await authState.signOut();
             if (!context.mounted) return;
 
             Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);

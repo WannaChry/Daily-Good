@@ -4,7 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:studyproject/pages/state/auth_state.dart';
 
 class SignUpPage extends StatefulWidget {
-  const SignUpPage({super.key});
+  final AuthState authState;
+  const SignUpPage({super.key, required this.authState});
 
   @override
   State<SignUpPage> createState() => _SignUpPageState();
@@ -72,7 +73,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = AuthState.of(context);
+    final auth = widget.authState;
 
     if (auth.isLoggedIn) {
       final title = GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.w800);

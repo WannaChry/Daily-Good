@@ -1,78 +1,65 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 
-// Services
-import 'package:studyproject/pages/home/services/task_service.dart';
-import 'package:studyproject/pages/home/services/tip_service.dart';
-
-// Models/Pages
-import 'package:studyproject/pages/models/tipp.dart';
-import 'package:studyproject/pages/models/task.dart';
-import 'package:studyproject/pages/models/streak_celebration_page.dart';
-
-import 'pages/state/social_state.dart';
+// States
 import 'pages/state/auth_state.dart';
-import 'pages/home/home.dart';
+import 'pages/state/social_state.dart';
+import 'pages/state/task_state.dart';
+import 'pages/state/tipp_state.dart';
 
+// Pages / Models
 import 'pages/intro/start/splash_page.dart';
 import 'pages/intro/start/onboarding_page.dart';
 import 'pages/intro/start/questionnaire_page.dart';
 import 'pages/intro/auth/auth_choice.dart';
-import 'pages/intro/anmeldung/sign_in.dart';                // LoginPage
-import 'pages/intro/anmeldung/account_details_summary.dart'; // SignUpPage
-
-import 'pages/profil/profile_view.dart'; // Profilanzeige
+import 'pages/intro/anmeldung/sign_in.dart';
+import 'pages/intro/anmeldung/account_details_summary.dart';
+import 'pages/profil/profile_view.dart';
 import 'package:studyproject/pages/subpages/deine_daten_page.dart';
-
+import 'pages/home/home.dart';
+import 'package:studyproject/pages/models/streak_celebration_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
-  final social = SocialState.demo();
-  final auth = AuthState(); // globaler Auth-State
+  // States initialisieren
+  final authState = AuthState();
+  final tipState = TipState();
+  final taskState = TaskState();
+  final socialState = SocialState.demo();
 
-  runApp(
-    SocialScope.provide(
-      state: social,
-      child: AuthState.provide(
-        // globaler Auth-Provider
-        state: auth,
-        child: const MyApp(),
-      ),
-    ),
-  );
+  // Tipps und Tasks laden
+  await tipState.loadTips();
+  await taskState.loadTasks();
+
+  runApp(MyApp(
+    authState: authState,
+    tipState: tipState,
+    taskState: taskState,
+    socialState: socialState,
+  ));
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+class MyApp extends StatelessWidget {
+  final AuthState authState;
+  final TipState tipState;
+  final TaskState taskState;
+  final SocialState socialState;
 
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  List<Tipp> tips = []; // dynamisch
-  List<Task> tasks = [];
-
-  @override
-  void initState() {
-    super.initState();
-    // Tipps und Tasks beim Start laden
-    TippService.fetchTips().then((loadedTips) {
-      setState(() => tips = loadedTips);
-    });
-    TaskService().fetchAllTasks().then((loadedTasks) {
-      if (mounted) setState(() => tasks = loadedTasks);
-    });
-  }
+  const MyApp({
+    super.key,
+    required this.authState,
+    required this.tipState,
+    required this.taskState,
+    required this.socialState,
+  });
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/splash',
-
+      initialRoute: authState.isLoggedIn ? '/home' : '/onboarding',
       routes: {
         // Intro
         '/splash': (_) => const SplashPage(),
@@ -94,9 +81,15 @@ class _MyAppState extends State<MyApp> {
           );
         },
 
-        // Profil und Home
+        // Profil & Home
         '/profile': (_) => const ProfileView(),
-        '/home': (_) => HomePage(tips: tips, tasks: tasks),
+        '/home': (_) => HomePage(
+          tips: tipState.tips,
+          tasks: taskState.tasks,
+          authState: authState,
+          socialState: socialState,
+
+        ),
       },
       onUnknownRoute: (_) =>
           MaterialPageRoute(builder: (_) => const SplashPage()),

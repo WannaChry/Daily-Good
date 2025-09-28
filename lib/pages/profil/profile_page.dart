@@ -27,11 +27,15 @@ import 'package:studyproject/pages/widgets/profile/editable_avatar.dart';
 import 'package:studyproject/pages/utils/friend_code.dart';
 import 'package:studyproject/pages/utils/profile_level.dart';
 
-
-
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key, required this.totalPoints});
   final int totalPoints;
+  final AuthState authState;
+  final SocialState socialState;
+  const ProfilePage({super.key,
+    required this.totalPoints,
+    required this.authState,
+    required this.socialState});
+
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -59,7 +63,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _changeAvatar() async {
-    final auth = AuthState.of(context);
+    final auth = widget.authState;
     final uid = auth.user?.uid;
     if (uid == null) return;
 
@@ -112,8 +116,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final social = SocialState.of(context);
-    final auth = AuthState.of(context);
+    final social = widget.socialState;
+    final auth = widget.authState;          // <-- HIER ÄNDERN
+    final uid = auth.user?.uid;
 
     final title = GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w700);
     final subtitle = GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade700);
@@ -122,7 +127,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final level = lp.level;
     final progress = lp.needed == 0 ? 0.0 : (lp.current / lp.needed).clamp(0.0, 1.0);
 
-    final uid = auth.user?.uid;
+
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -280,7 +285,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
             // ---------- Login/Logout ----------
             if (auth.isLoggedIn) ...[
-              LogoutButton(),
+              LogoutButton(authState: widget.authState,),
             ] else ...[
               const SizedBox.shrink(),
             ],

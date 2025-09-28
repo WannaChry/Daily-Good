@@ -18,17 +18,24 @@ import 'package:studyproject/pages/models/task.dart';
 import 'package:studyproject/pages/home/tasks/goals_page.dart';
 
 import 'package:studyproject/pages/models/AppBadge.dart';
+import 'package:studyproject/pages/state/social_state.dart';
 
 import '../models/user.dart';
+import '../state/auth_state.dart';
 
 class HomePage extends StatefulWidget {
   final List<Tipp> tips;
   final List<Task> tasks;
+  final AuthState authState;
+  final SocialState socialState;
+
 
   const HomePage({
     super.key,
     required this.tips,
     required this.tasks,
+    required this.authState,
+    required this.socialState,
     });
 
   @override
@@ -38,8 +45,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   int _totalPoints = 0; // Summe aus Seite 1
-
   late final GoalsPage _goalsPage;
+
 
   @override
   void initState() {
@@ -48,10 +55,21 @@ class _HomePageState extends State<HomePage> {
       onPointsChanged: (p) => setState(() => _totalPoints = p),
       tasks: widget.tasks,
     );
+    _loadUserData(); //optional
+  }
+
+  Future<void> _loadUserData() async {
+    final user = widget.authState.user;
+    if (user != null) {
+      // Hier könntest du zusätzliche Firestore-Daten laden, falls nötig
+      print("Angemeldeter User: ${user.email}");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final currentUser = widget.authState.user;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8F3FA),
 
@@ -70,7 +88,7 @@ class _HomePageState extends State<HomePage> {
           color: Colors.black,
           onTap: () {
             Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const SignInPage()),
+              MaterialPageRoute(builder: (_) => SignInPage(authState: widget.authState)),
             );
           },
         ),
@@ -111,9 +129,11 @@ class _HomePageState extends State<HomePage> {
           _goalsPage,                               // Tab 1
           ActivityPage(
               totalPoints: _totalPoints,
-            tasks: widget.tasks,),  // Tab 2
-          const CommunityPage(),                    // Tab 3
-          ProfilePage(totalPoints: _totalPoints),   // Tab 4
+            tasks: widget.tasks,),
+          CommunityPage(socialState: widget.socialState), // Tab 2
+          ProfilePage(totalPoints: _totalPoints,
+            authState: widget.authState,
+            socialState: widget.socialState,),   // Tab 4
         ],
       ),
 
