@@ -37,6 +37,7 @@ class AuthMethod {
       };
 
       await _firestore.collection('users').doc(uid).set(userData);
+      print("User angemeldet: $userData");
 
       return "success";
     } on FirebaseAuthException catch (e) {
@@ -53,9 +54,20 @@ class AuthMethod {
   }) async {
     try {
       if (email.isEmpty || password.isEmpty) {
-        return "Bitte E Mail und Passwort eingeben";
+        return "Bitte E-Mail und Passwort eingeben";
       }
-      await _auth.signInWithEmailAndPassword(email: email, password: password);
+
+      final cred = await _auth.signInWithEmailAndPassword(email: email, password: password);
+      final uid = cred.user!.uid;
+
+      // --- LOG FIRESTORE-DATEN ---
+      final doc = await _firestore.collection('users').doc(uid).get();
+      if (doc.exists) {
+        print("Angemeldeter User-Daten: ${doc.data()}");
+      } else {
+        print("User-Daten nicht gefunden in Firestore.");
+      }
+
       return "success";
     } on FirebaseAuthException catch (e) {
       return e.message ?? "Login fehlgeschlagen";
@@ -63,6 +75,7 @@ class AuthMethod {
       return e.toString();
     }
   }
+
 
   // Logout
   Future<void> signOut() async {
