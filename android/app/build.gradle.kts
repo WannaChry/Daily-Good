@@ -11,10 +11,11 @@ android {
 
     defaultConfig {
         applicationId = "com.example.studyproject"
-        minSdk = flutter.minSdkVersion // <<< Wichtig: wegen cloud_firestore von 21 auf 23 erhöht
+        minSdk = 23                              // <<< Fix: Firestore braucht mind. 23
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        multiDexEnabled = true                   // optional, schadet nicht
     }
 
     // Java/Kotlin 17 (nutzt die JVM aus gradle.properties)
@@ -39,4 +40,5 @@ flutter {
 
 dependencies {
     implementation("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.multidex:multidex:2.0.1") // nur aktiv, wenn multiDexEnabled=true
 }

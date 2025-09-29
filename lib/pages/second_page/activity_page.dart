@@ -19,6 +19,9 @@ import 'package:studyproject/pages/home/tree/level_progress_card.dart';
 
 import 'package:studyproject/pages/constants/goals.dart';
 
+// ✅ Hintergrund wie im Profil
+import 'package:studyproject/pages/intro/widgets/dailygood_profile_background.dart';
+
 class ActivityPage extends StatefulWidget {
   const ActivityPage({
     super.key,
@@ -34,21 +37,15 @@ class ActivityPage extends StatefulWidget {
 }
 
 class _ActivityPageState extends State<ActivityPage> {
-  final List<Task> _tasks =
-      []; // aktuell leer, später kannst du echte Daten laden
+  final List<Task> _tasks = []; // aktuell leer, später kannst du echte Daten laden
   final TaskService _taskService = TaskService();
 
   // ---------- Helpers ----------
-  List<Task> get _completedTasks =>
-      widget.tasks.where((t) => t.isCompleted).toList();
+  List<Task> get _completedTasks => widget.tasks.where((t) => t.isCompleted).toList();
 
-  int get _impactPoints =>
-      _completedTasks.fold<int>(0, (sum, t) => sum + t.points);
+  int get _impactPoints => _completedTasks.fold<int>(0, (sum, t) => sum + t.points);
 
-  double get _savedCo2Kg =>
-      _completedTasks.fold<double>(0.0, (sum, t) => sum + t.co2kg);
-
-  // Innerhalb von _ActivityPageState
+  double get _savedCo2Kg => _completedTasks.fold<double>(0.0, (sum, t) => sum + t.co2kg);
 
   Map<Task_category, List<Task>> get _byCategory {
     final map = <Task_category, List<Task>>{};
@@ -63,9 +60,7 @@ class _ActivityPageState extends State<ActivityPage> {
 
   // aktuell simple Zählung (später per Datum)
   int get _dailyProgress => _completedTasks.length;
-
   int get _weeklyProgress => _completedTasks.length;
-
   int get _monthlyProgress => _completedTasks.length;
 
   void _toggleTask(Task t) {
@@ -115,71 +110,74 @@ class _ActivityPageState extends State<ActivityPage> {
       color: Colors.black87,
     );
 
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: ListView(
-        children: [
-          // ---------- KPI-Karten ----------
-          Column(
+    return DailyGoodProfileBackground(
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: ListView(
             children: [
-              LevelProgressCard(
-                totalPoints: _impactPoints,
-                //level: getLevel(_impactPoints),
-                //progress: getLevelProgress(_impactPoints),
+              // ---------- KPI-Karten ----------
+              Column(
+                children: [
+                  LevelProgressCard(
+                    totalPoints: _impactPoints,
+                    //level: getLevel(_impactPoints),
+                    //progress: getLevelProgress(_impactPoints),
+                  ),
+                  const SizedBox(height: 14),
+                  Co2ImpactCard(
+                    savedKg: _savedCo2Kg,
+                    monthlyGoalKg: Goals.co2MonthlyGoalKg,
+                  ),
+                ],
               ),
               const SizedBox(height: 14),
-              Co2ImpactCard(
-                savedKg: _savedCo2Kg,
-                monthlyGoalKg: Goals.co2MonthlyGoalKg,
+
+              // ---------- Challenges ----------
+              Text('Challenges', style: textTitle),
+              const SizedBox(height: 8),
+              ChallengeRow(
+                dailyProgress: _dailyProgress,
+                weeklyProgress: _weeklyProgress,
+                monthlyProgress: _monthlyProgress,
+                dailyTarget: Goals.dailyTarget,
+                weeklyTarget: Goals.weeklyTarget,
+                monthlyTarget: Goals.monthlyTarget,
               ),
+              const SizedBox(height: 16),
+
+              // ---------- Kategorien ----------
+              Text('Aufgaben nach Kategorien', style: textTitle),
+              const SizedBox(height: 8),
+              ...Task_category.values.map((category) {
+                final theme = CategoryTheme.themes[category] ??
+                    const CategoryTheme(
+                      color: Colors.white,
+                      border: Colors.black12,
+                      icon: Icons.category_rounded,
+                    );
+
+                final tasksInCategory = _byCategory[category] ?? [];
+
+                return CategorySection(
+                  name: category.name,
+                  tasks: tasksInCategory,
+                  onToggle: _toggleTask,
+                  theme: theme,
+                );
+              }),
+
+              const SizedBox(height: 18),
+
+              // ---------- Eigene Aufgaben vorschlagen ----------
+              Text('Eigene Aufgaben vorschlagen', style: textTitle),
+              const SizedBox(height: 8),
+              SuggestCard(controller: _suggestCtrl, onSubmit: _submitSuggestion),
+
+              const SizedBox(height: 80),
             ],
           ),
-          const SizedBox(height: 14),
-
-          // ---------- Challenges ----------
-          Text('Challenges', style: textTitle),
-          const SizedBox(height: 8),
-          ChallengeRow(
-            dailyProgress: _dailyProgress,
-            weeklyProgress: _weeklyProgress,
-            monthlyProgress: _monthlyProgress,
-            dailyTarget: Goals.dailyTarget,
-            weeklyTarget: Goals.weeklyTarget,
-            monthlyTarget: Goals.monthlyTarget,
-          ),
-          const SizedBox(height: 16),
-
-          // ---------- Kategorien ----------
-          Text('Aufgaben nach Kategorien', style: textTitle),
-          const SizedBox(height: 8),
-          ...Task_category.values.map((category) {
-            final theme =
-                CategoryTheme.themes[category] ??
-                const CategoryTheme(
-                  color: Colors.white,
-                  border: Colors.black12,
-                  icon: Icons.category_rounded,
-                );
-
-            final tasksInCategory = _byCategory[category] ?? [];
-
-            return CategorySection(
-              name: category.name,
-              tasks: tasksInCategory,
-              onToggle: _toggleTask,
-              theme: theme,
-            );
-          }),
-
-          const SizedBox(height: 18),
-
-          // ---------- Eigene Aufgaben vorschlagen ----------
-          Text('Eigene Aufgaben vorschlagen', style: textTitle),
-          const SizedBox(height: 8),
-          SuggestCard(controller: _suggestCtrl, onSubmit: _submitSuggestion),
-
-          const SizedBox(height: 80),
-        ],
+        ),
       ),
     );
   }

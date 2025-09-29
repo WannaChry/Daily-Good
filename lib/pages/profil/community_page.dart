@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:studyproject/pages/state/social_state.dart';
+import 'package:studyproject/pages/intro/widgets/dailygood_profile_background.dart';
 
 // NGOs-Subpage
 import 'package:studyproject/pages/profil/subpages/ngos.dart';

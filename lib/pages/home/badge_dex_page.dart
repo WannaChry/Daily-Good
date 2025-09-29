@@ -1,11 +1,12 @@
+// lib/pages/home/badge_dex_page.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:studyproject/pages/models/AppBadge.dart' show AppBadge, BadgeRarity, BadgeProgress;
-// 👆 Dein Model in badge.dart bitte auf AppBadge umbenennen
 
-// ---------- Badge-Entry-Tile ----------
+// ---------- Badge-Entry-Tile (weiß wie die anderen Cards) ----------
 class BadgeEntryTile extends StatelessWidget {
-  const BadgeEntryTile({super.key,
+  const BadgeEntryTile({
+    super.key,
     required this.unlockedCount,
     required this.totalCount,
     required this.onTap,
@@ -18,7 +19,7 @@ class BadgeEntryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: const Color(0xFFE0D4FF),
+      color: Colors.transparent,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
@@ -26,23 +27,48 @@ class BadgeEntryTile extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
+            color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFD7C7FF)),
+            border: Border.all(color: Colors.black12.withOpacity(0.08)),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x14000000),
+                blurRadius: 12,
+                offset: Offset(0, 6),
+              ),
+            ],
           ),
           child: Row(
             children: [
-              const Icon(Icons.workspace_premium_rounded, size: 28),
+              // Icon in umrandetem Kreis
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFFF7F3FF), // sehr zartes Lila
+                  border: Border.all(color: const Color(0xFFD7C7FF), width: 1.4),
+                ),
+                alignment: Alignment.center,
+                child: const Icon(
+                  Icons.workspace_premium_rounded,
+                  size: 20,
+                  color: Color(0xFF6E49CF),
+                ),
+              ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   'Abzeichen',
                   style: GoogleFonts.poppins(
-                      fontSize: 16, fontWeight: FontWeight.w800),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF111827),
+                  ),
                 ),
               ),
               Container(
-                padding:
-                const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(999),
@@ -51,11 +77,14 @@ class BadgeEntryTile extends StatelessWidget {
                 child: Text(
                   '$unlockedCount / $totalCount',
                   style: GoogleFonts.poppins(
-                      fontSize: 13, fontWeight: FontWeight.w800),
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF111827),
+                  ),
                 ),
               ),
               const SizedBox(width: 6),
-              const Icon(Icons.chevron_right, size: 22),
+              const Icon(Icons.chevron_right, size: 22, color: Color(0xFF6B7280)),
             ],
           ),
         ),
@@ -78,8 +107,7 @@ class BadgeDexPage extends StatelessWidget {
         foregroundColor: Colors.black87,
         title: Text(
           'Abzeichen  •  $unlockedCount / ${demoBadges.length}',
-          style:
-          GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w800),
+          style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w800),
         ),
         centerTitle: true,
         elevation: 0,
@@ -245,8 +273,7 @@ class BadgeDetailSheet extends StatelessWidget {
           ),
           Text(
             badge.title,
-            style:
-            GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w800),
+            style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 12),
           Row(
@@ -260,13 +287,13 @@ class BadgeDetailSheet extends StatelessWidget {
               Text(
                 _rarityText(badge.rarity),
                 style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.w700,
-                    color: Colors.black.withOpacity(0.7)),
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black.withOpacity(0.7),
+                ),
               ),
               const Spacer(),
               Container(
-                padding:
-                const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
                   color: locked ? Colors.black.withOpacity(0.06) : Colors.green.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(999),
@@ -274,9 +301,10 @@ class BadgeDetailSheet extends StatelessWidget {
                 child: Text(
                   locked ? 'Gesperrt' : 'Freigeschaltet',
                   style: GoogleFonts.poppins(
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w800,
-                      color: locked ? Colors.black54 : Colors.green.shade700),
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w800,
+                    color: locked ? Colors.black54 : Colors.green.shade700,
+                  ),
                 ),
               ),
             ],
@@ -312,7 +340,7 @@ class BadgeDetailSheet extends StatelessWidget {
   }
 }
 
-// Demo-Badges – später aus State/Firebase
+// Demo-Badges – später dann mit Firebase verknüpfen
 final List<AppBadge> demoBadges = [
   AppBadge(
     title: 'Erster Schritt',

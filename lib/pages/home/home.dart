@@ -126,19 +126,6 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-  String rarityText(BadgeRarity r) {
-    switch (r) {
-      case BadgeRarity.common:
-        return 'Gewöhnlich';
-      case BadgeRarity.rare:
-        return 'Selten';
-      case BadgeRarity.epic:
-        return 'Episch';
-      case BadgeRarity.legendary:
-        return 'Legendär';
-    }
-  }
-
 class ProgressCard extends StatelessWidget {
   const ProgressCard({super.key, required this.current, required this.target});
   final int current;

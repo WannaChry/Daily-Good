@@ -1,3 +1,4 @@
+// lib/pages/home/tree/level_progress_card.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -17,8 +18,8 @@ class _LevelProgressCardState extends State<LevelProgressCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _progressAnimation;
+  late Animation<Color?> _colorAnimation;
 
-  // Level-Schwellen
   final List<int> _levelThresholds = [0, 5, 25, 50, 100, 200];
 
   int _getLevel(int points) {
@@ -52,9 +53,10 @@ class _LevelProgressCardState extends State<LevelProgressCard>
   @override
   void initState() {
     super.initState();
+
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 1200),
     );
 
     _progressAnimation = Tween<double>(
@@ -62,17 +64,30 @@ class _LevelProgressCardState extends State<LevelProgressCard>
       end: _getProgress(widget.totalPoints),
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
 
+    _colorAnimation = ColorTween(
+      begin: Colors.green.shade300,
+      end: Colors.green.shade600,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+
     _controller.forward();
   }
 
   @override
   void didUpdateWidget(covariant LevelProgressCard oldWidget) {
     super.didUpdateWidget(oldWidget);
+
     final newProgress = _getProgress(widget.totalPoints);
+
     _progressAnimation = Tween<double>(
       begin: _progressAnimation.value,
       end: newProgress,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+
+    _colorAnimation = ColorTween(
+      begin: Colors.green.shade300,
+      end: Colors.green.shade600,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+
     _controller
       ..reset()
       ..forward();
@@ -107,14 +122,17 @@ class _LevelProgressCardState extends State<LevelProgressCard>
               fit: StackFit.expand,
               children: [
                 AnimatedBuilder(
-                  animation: _progressAnimation,
+                  animation: _controller,
                   builder: (context, child) => CircularProgressIndicator(
                     value: _progressAnimation.value,
                     strokeWidth: 10,
                     backgroundColor: Colors.grey.shade200,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.green.shade400),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      _colorAnimation.value ?? Colors.green,
+                    ),
                   ),
                 ),
+                // Das Icon bleibt in der Mitte
                 Center(
                   child: Icon(Icons.eco, size: 32, color: Colors.green.shade700),
                 ),

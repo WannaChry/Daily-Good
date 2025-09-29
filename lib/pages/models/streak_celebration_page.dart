@@ -71,7 +71,7 @@ class StreakCelebrationPage extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(horizontal: 14),
                             child: Text(
                               bestStreak <= 1
-                                  ? 'Dein vorheriger 1-Tages-Streak ist abgerissen – schön, dass du wieder da bist! Bereit, den Rekord zu schlagen?'
+                                  ? 'Willkommen zurück! Schön, dass du heute dabei bist – jeder Tag zählt!'
                                   : 'Dein bisheriger Bestwert: $bestStreak Tage. Weiter so – heute zählst du wieder!',
                               textAlign: TextAlign.center,
                               style: TextStyle(

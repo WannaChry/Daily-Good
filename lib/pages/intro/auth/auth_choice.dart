@@ -17,12 +17,13 @@ class AuthChoicePage extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    // Button Styles
+    // Button Styles (Text + Icons schwarz)
     final primaryBtnStyle = ElevatedButton.styleFrom(
       minimumSize: const Size.fromHeight(56),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
       elevation: 2,
+      foregroundColor: Colors.black, // <-- Text & Icon schwarz
     );
 
     final secondaryBtnStyle = OutlinedButton.styleFrom(
@@ -30,6 +31,7 @@ class AuthChoicePage extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       side: BorderSide(color: theme.colorScheme.outline.withOpacity(0.5), width: 1.2),
       textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+      foregroundColor: Colors.black, // <-- Text & Icon schwarz
     );
 
     return Scaffold(
@@ -84,7 +86,7 @@ class AuthChoicePage extends StatelessWidget {
                                 child: Icon(
                                   Icons.favorite_outline_rounded,
                                   size: 32,
-                                  color: theme.colorScheme.primary,
+                                  color: Colors.black,
                                 ),
                               ),
                               const SizedBox(height: 16),
@@ -107,25 +109,25 @@ class AuthChoicePage extends StatelessWidget {
                               ),
                               const SizedBox(height: 24),
 
-                              // Primär: Login
+                              // Primär: Login (Text + Icon schwarz)
                               SizedBox(
                                 width: double.infinity,
                                 child: ElevatedButton.icon(
                                   style: primaryBtnStyle,
                                   onPressed: () => _goToLogin(context),
-                                  icon: const Icon(Icons.login_rounded),
+                                  icon: const Icon(Icons.login_rounded, color: Colors.black),
                                   label: const Text('Bei Konto anmelden'),
                                 ),
                               ),
                               const SizedBox(height: 14),
 
-                              // Sekundär: Sign Up → Questionnaire
+                              // Sekundär: Sign Up → Questionnaire (Text + Icon schwarz)
                               SizedBox(
                                 width: double.infinity,
                                 child: OutlinedButton.icon(
                                   style: secondaryBtnStyle,
                                   onPressed: () => _goToRegister(context),
-                                  icon: const Icon(Icons.person_add_alt_1_rounded),
+                                  icon: const Icon(Icons.person_add_alt_1_rounded, color: Colors.black),
                                   label: const Text('Neues Konto erstellen'),
                                 ),
                               ),
