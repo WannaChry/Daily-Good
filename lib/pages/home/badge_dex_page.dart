@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:studyproject/pages/models/AppBadge.dart' show AppBadge, BadgeRarity, BadgeProgress;
 
-// ---------- Badge-Entry-Tile (weiß wie die anderen Cards) ----------
+// ---------- Badge-Entry-Tile (weiß, mit Rand & Schatten, Icon schwarz) ----------
 class BadgeEntryTile extends StatelessWidget {
   const BadgeEntryTile({
     super.key,
@@ -29,31 +29,33 @@ class BadgeEntryTile extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.black12.withOpacity(0.08)),
+            // ► dezenter Rand wie bei deinen anderen Cards
+            border: Border.all(color: Colors.black12.withOpacity(0.12)),
+            // ► weicher Schatten
             boxShadow: const [
               BoxShadow(
-                color: Color(0x14000000),
-                blurRadius: 12,
+                color: Color(0x1A000000), // ~10% Schwarz
+                blurRadius: 14,
                 offset: Offset(0, 6),
               ),
             ],
           ),
           child: Row(
             children: [
-              // Icon in umrandetem Kreis
+              // Icon in umrandetem Kreis – Icon jetzt schwarz
               Container(
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: const Color(0xFFF7F3FF), // sehr zartes Lila
-                  border: Border.all(color: const Color(0xFFD7C7FF), width: 1.4),
+                  color: const Color(0xFFF7F7FA), // sehr zartes hell
+                  border: Border.all(color: Colors.black12, width: 1.4),
                 ),
                 alignment: Alignment.center,
                 child: const Icon(
                   Icons.workspace_premium_rounded,
                   size: 20,
-                  color: Color(0xFF6E49CF),
+                  color: Colors.black87, // ◄ schwarz
                 ),
               ),
               const SizedBox(width: 10),
