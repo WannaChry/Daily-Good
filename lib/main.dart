@@ -1,26 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-
-// Services
 import 'package:studyproject/pages/home/services/task_service.dart';
 import 'package:studyproject/pages/home/services/tip_service.dart';
-
-// Models/Pages
 import 'package:studyproject/pages/models/tipp.dart';
 import 'package:studyproject/pages/models/task.dart';
 import 'package:studyproject/pages/models/streak_celebration_page.dart';
-
 import 'pages/state/social_state.dart';
 import 'pages/state/auth_state.dart';
 import 'pages/home/home.dart';
-
 import 'pages/intro/start/splash_page.dart';
 import 'pages/intro/start/onboarding_page.dart';
 import 'pages/intro/start/questionnaire_page.dart';
 import 'pages/intro/auth/auth_choice.dart';
 import 'pages/intro/anmeldung/sign_in.dart';                // LoginPage
 import 'pages/intro/anmeldung/account_details_summary.dart'; // SignUpPage
-
 import 'pages/profil/profile_view.dart'; // Profilanzeige
 import 'package:studyproject/pages/subpages/deine_daten_page.dart';
 import 'package:studyproject/pages/subpages/password_change_page.dart';
@@ -52,7 +45,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  List<Tipp> tips = []; // dynamisch
+  List<Tipp> tips = [];
   List<Task> tasks = [];
 
   @override

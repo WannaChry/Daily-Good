@@ -11,7 +11,7 @@ class NavBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
 
-  // Zielgrößen je Icon (links -> rechts)
+  // Zielgrößen je Icon
   double _sizeFor(int i) {
     if (i == 0) return 30; // Haus
     if (i == 1) return 36; // Buch
@@ -41,7 +41,6 @@ class NavBar extends StatelessWidget {
             curve: Curves.easeOut,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              // dezenter „Pill“-Hintergrund nur aktiv
               color: isActive ? Colors.black.withOpacity(0.06) : Colors.transparent,
               borderRadius: BorderRadius.circular(999),
             ),
@@ -50,7 +49,7 @@ class NavBar extends StatelessWidget {
               duration: const Duration(milliseconds: 160),
               curve: Curves.easeOut,
               child: AnimatedOpacity(
-                opacity: isActive ? 1.0 : 0.9,        // minimal heller aktiv
+                opacity: isActive ? 1.0 : 0.9,
                 duration: const Duration(milliseconds: 160),
                 child: SvgPicture.asset(
                   path,
@@ -74,7 +73,7 @@ class NavBar extends StatelessWidget {
 
     return BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
-      backgroundColor: Colors.white,    // Navbar-Hintergrund
+      backgroundColor: Colors.white,
       currentIndex: currentIndex,
       showSelectedLabels: false,
       showUnselectedLabels: false,
