@@ -93,7 +93,7 @@ class BadgeEntryTile extends StatelessWidget {
   }
 }
 
-// ==================== „BadgeDex“-Seite (Vollbild) ====================
+// ==================== „BadgeDex“-Seite (Vollbild) ===================
 class BadgeDexPage extends StatelessWidget {
   const BadgeDexPage({super.key});
 
