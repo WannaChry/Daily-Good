@@ -1,8 +1,6 @@
-// lib/profil/intro/widgets/wind_lines.dart
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
-/// Zarte Windlinien, die im Hintergrund von links nach rechts ziehen.
 class WindLines extends StatefulWidget {
   const WindLines({
     super.key,
@@ -66,7 +64,6 @@ class _WindPainter extends CustomPainter {
       final speed = 1.0 + l * .5;
       final x = ((t * speed) % 1.0) * size.width;
 
-      // drei kurze Segmente pro „Böe“
       for (var i = 0; i < 3; i++) {
         final dx = x - i * 70;
         final path = Path()

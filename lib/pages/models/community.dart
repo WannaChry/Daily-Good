@@ -16,19 +16,16 @@ class Community{
   })  : members = members ?? [],
         posts = posts ?? [];
 
-  /// User tritt Community bei
   void joinCommunity(String userId) {
     if (!members.contains(userId)) {
       members.add(userId);
     }
   }
 
-  /// Post hinzufügen
   void addPost(Post post) {
     posts.add(post);
   }
 
-  /// JSON: von Firebase laden
   factory Community.fromJson(Map<String, dynamic> json) {
     return Community(
       id: json['id'],
@@ -42,7 +39,6 @@ class Community{
     );
   }
 
-  /// JSON: für Firebase speichern
   Map<String, dynamic> toJson() {
     return {
       'id': id,

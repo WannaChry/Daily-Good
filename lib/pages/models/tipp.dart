@@ -11,7 +11,6 @@ class Tipp {
     );
   }
 
-  /// JSON Methoden
   factory Tipp.fromJson(Map<String, dynamic> json) {
     return Tipp(
       id: json['id'],

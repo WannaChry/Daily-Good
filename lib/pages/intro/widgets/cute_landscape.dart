@@ -1,13 +1,11 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
-/// Süße, performante Mini-Landschaft (Wolken, Hügel, wippende Bäume,
-/// kleine Fireflies). Keine Assets – nur CustomPaint.
 class CuteLandscape extends StatefulWidget {
   const CuteLandscape({
     super.key,
     this.height = 200,
-    this.variant = 0, // 0..n – wechselt Farbstimmung
+    this.variant = 0,
   });
 
   final double height;
@@ -50,7 +48,7 @@ class _CuteLandscapeState extends State<CuteLandscape>
 
 class _LandscapePainter extends CustomPainter {
   _LandscapePainter({required this.t, required this.variant});
-  final double t; // 0..1
+  final double t;
   final int variant;
 
   List<Color> get _sky => switch (variant % 4) {
@@ -78,7 +76,6 @@ class _LandscapePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final w = size.width, h = size.height;
 
-    // Himmel
     final rect = Rect.fromLTWH(0, 0, w, h);
     final sky = Paint()
       ..shader = LinearGradient(

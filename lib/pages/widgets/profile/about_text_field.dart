@@ -28,7 +28,7 @@ class AboutTextField extends StatelessWidget {
         keyboardType: TextInputType.multiline,
         textInputAction: TextInputAction.newline,
         minLines: 1,
-        maxLines: null, // <-- Autowachsen
+        maxLines: null,
         maxLength: maxLength,
         decoration: InputDecoration(
           border: InputBorder.none,

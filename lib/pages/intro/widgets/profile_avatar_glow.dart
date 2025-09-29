@@ -18,7 +18,6 @@ class ProfileAvatarGlow extends StatelessWidget {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        // Glow
         Container(
           width: 84, height: 84,
           decoration: const BoxDecoration(
@@ -32,7 +31,6 @@ class ProfileAvatarGlow extends StatelessWidget {
             ],
           ),
         ),
-        // Avatar
         Positioned.fill(
           child: GestureDetector(
             onTap: onTap,
@@ -46,14 +44,13 @@ class ProfileAvatarGlow extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w800,
-                  color: Colors.black, // ← Initiale schwarz
+                  color: Colors.black,
                 ),
               )
                   : null,
             ),
           ),
         ),
-        // Edit-Badge (weißes Badge, schwarzes Icon)
         Positioned(
           right: -2, bottom: -2,
           child: Material(

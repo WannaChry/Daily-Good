@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:studyproject/pages/intro/auth/auth_service.dart';
-
-// UI-Widgets
 import 'package:studyproject/pages/intro/widgets/fancy_login_background.dart';
 import 'package:studyproject/pages/intro/widgets/party_sheep_captcha.dart';
 import 'package:studyproject/pages/intro/widgets/brand_button.dart';
@@ -89,7 +87,6 @@ class _LoginPageState extends State<LoginPage> {
       ),
       body: Stack(
         children: [
-          // 🌿 Jetzt konsequent grün (Bubbles + Verlauf)
           const Positioned.fill(
             child: FancyLoginBackground(tint: Color(0xFF60BFA0)),
           ),
@@ -109,7 +106,6 @@ class _LoginPageState extends State<LoginPage> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          // 🔒 scharfes Icon
                           Container(
                             padding: const EdgeInsets.all(14),
                             decoration: BoxDecoration(
@@ -133,7 +129,6 @@ class _LoginPageState extends State<LoginPage> {
 
                           const SizedBox(height: 22),
 
-                          // E-Mail
                           TextField(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
@@ -152,7 +147,6 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           const SizedBox(height: 14),
 
-                          // Passwort
                           TextField(
                             controller: _passwordController,
                             obscureText: true,
@@ -172,7 +166,6 @@ class _LoginPageState extends State<LoginPage> {
 
                           const SizedBox(height: 8),
 
-                          // 🐑 Captcha jetzt 1–8 Schafe
                           PartySheepCaptcha(
                             minCount: 1,
                             maxCount: 8,
@@ -180,7 +173,6 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           const SizedBox(height: 10),
 
-                          // Antwortfeld – Schaf-Emoji mit Abstand nach rechts verschoben
                           TextField(
                             controller: _captchaController,
                             keyboardType: TextInputType.number,
@@ -202,7 +194,6 @@ class _LoginPageState extends State<LoginPage> {
 
                           const SizedBox(height: 20),
 
-                          // 🖤 schwarzer Einloggen-Button
                           BrandButton(
                             label: 'Einloggen',
                             loading: _loading,

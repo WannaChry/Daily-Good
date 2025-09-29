@@ -108,7 +108,7 @@ class AuthEntryPage extends StatelessWidget {
 
               const SizedBox(height: 24),
 
-              // Vorteile / Info-Kacheln (nur Formen & Text)
+              // Vorteile / Info-Kacheln
               _BenefitTile(
                 title: "Fortschritt sichern",
                 text: "Deine Punkte und Levels bleiben erhalten – auch bei Gerätewechsel.",

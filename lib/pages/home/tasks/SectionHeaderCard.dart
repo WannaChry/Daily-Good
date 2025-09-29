@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// ---------- Section-Header-Card ----------
 class SectionHeaderCard extends StatelessWidget {
   const SectionHeaderCard({
     required this.icon,

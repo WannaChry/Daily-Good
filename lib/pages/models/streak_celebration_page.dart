@@ -36,7 +36,6 @@ class StreakCelebrationPage extends StatelessWidget {
                         children: [
                           const SizedBox(height: 44),
 
-                          // Neues, scharfes Medal-Badge (kein Schatten-Blob)
                           const _LeafBadge(size: 146),
 
                           const SizedBox(height: 30),
@@ -126,7 +125,6 @@ class StreakCelebrationPage extends StatelessWidget {
   }
 }
 
-/// Sanftes grünes Color-Grading
 class _GreenBackdrop extends StatelessWidget {
   const _GreenBackdrop();
 
@@ -150,7 +148,6 @@ class _GreenBackdrop extends StatelessWidget {
   }
 }
 
-/// Sehr dezente Rays
 class _SoftRays extends StatelessWidget {
   const _SoftRays({this.opacity = .06});
   final double opacity;
@@ -198,7 +195,6 @@ class _RaysPainter extends CustomPainter {
   bool shouldRepaint(covariant _RaysPainter old) => old.opacity != opacity;
 }
 
-/// Medal-Badge via CustomPaint (ohne zusätzlichen Overlay-Kreis)
 class _LeafBadge extends StatelessWidget {
   const _LeafBadge({required this.size});
   final double size;
@@ -228,7 +224,6 @@ class _MedalPainter extends CustomPainter {
       ).createShader(Rect.fromCircle(center: c, radius: r));
     canvas.drawCircle(c, r, base);
 
-    // Außenring
     final ring = Paint()
       ..isAntiAlias = true
       ..style = PaintingStyle.stroke
@@ -236,7 +231,6 @@ class _MedalPainter extends CustomPainter {
       ..color = const Color(0xFFCFEBDD);
     canvas.drawCircle(c, r * .82, ring);
 
-    // Metallic-Sweep
     final sweep = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = r * .13
@@ -253,7 +247,6 @@ class _MedalPainter extends CustomPainter {
       ).createShader(Rect.fromCircle(center: c, radius: r * .82));
     canvas.drawCircle(c, r * .82, sweep);
 
-    // Innere Platte
     final plate = Paint()
       ..isAntiAlias = true
       ..shader = const LinearGradient(
@@ -263,7 +256,6 @@ class _MedalPainter extends CustomPainter {
       ).createShader(Rect.fromCircle(center: c, radius: r * .62));
     canvas.drawCircle(c, r * .62, plate);
 
-    // Innerer, feiner Ring
     final innerRing = Paint()
       ..isAntiAlias = true
       ..style = PaintingStyle.stroke
@@ -271,7 +263,6 @@ class _MedalPainter extends CustomPainter {
       ..color = Colors.white.withOpacity(.9);
     canvas.drawCircle(c, r * .62, innerRing);
 
-    // Blatt
     final leafSize = Size(r * 0.88, r * 0.88);
     final leafOffset = Offset(c.dx - leafSize.width / 2, c.dy - leafSize.height / 2 + r * .03);
 
@@ -289,7 +280,6 @@ class _MedalPainter extends CustomPainter {
       )
       ..close();
 
-    // ganz dezenter Schatten
     final shadow = Paint()
       ..isAntiAlias = true
       ..color = Colors.black.withOpacity(.12)
@@ -299,7 +289,6 @@ class _MedalPainter extends CustomPainter {
     canvas.drawPath(leafPath, shadow);
     canvas.restore();
 
-    // Füllung
     final leafFill = Paint()
       ..isAntiAlias = true
       ..shader = const LinearGradient(
@@ -309,7 +298,6 @@ class _MedalPainter extends CustomPainter {
       ).createShader(Rect.fromLTWH(leafOffset.dx, leafOffset.dy, leafSize.width, leafSize.height));
     canvas.drawPath(leafPath, leafFill);
 
-    // Weißes Outline
     final leafOutline = Paint()
       ..isAntiAlias = true
       ..style = PaintingStyle.stroke
@@ -317,7 +305,6 @@ class _MedalPainter extends CustomPainter {
       ..color = Colors.white.withOpacity(.95);
     canvas.drawPath(leafPath, leafOutline);
 
-    // Mittelrippe
     final vein = Paint()
       ..isAntiAlias = true
       ..color = Colors.white
@@ -334,7 +321,6 @@ class _MedalPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-/// Wochentags-Pill mit Checks / Dots
 class _WeekStrip extends StatelessWidget {
   const _WeekStrip({
     required this.currentStreak,
@@ -347,7 +333,7 @@ class _WeekStrip extends StatelessWidget {
   static const _labels = ['M', 'D', 'M', 'D', 'F', 'S', 'S']; // Mo→So
 
   bool _markedFor(int indexMon0) {
-    final today = lastCheckIn.weekday - 1; // 0..6
+    final today = lastCheckIn.weekday - 1;
     int left = currentStreak;
     for (int k = 0; k < left; k++) {
       var idx = (today - k) % 7;

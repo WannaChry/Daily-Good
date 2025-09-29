@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:studyproject/pages/models/tipp.dart';
 
 class TippService {
-  // Firebase-Tipps laden und als List<Tipp> zurückgeben
   static Future<List<Tipp>> fetchTips() async {
     try {
       final snapshot = await FirebaseFirestore.instance.collection('tipps').get();
@@ -12,7 +11,6 @@ class TippService {
         return [];
       }
 
-      // Typ-sicheres Mapping
       final tips = snapshot.docs
           .map((doc) => Tipp.fromJson(doc.data() as Map<String, dynamic>))
           .toList();

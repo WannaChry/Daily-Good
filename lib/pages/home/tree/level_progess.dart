@@ -1,4 +1,3 @@
-// lib/utils/level_utils.dart
 int getLevel(int points) {
   const levelThresholds = [0, 5, 10, 25, 100, 200]; // Punkte für Level 1,2,3...
 

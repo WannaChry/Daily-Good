@@ -1,15 +1,13 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
-/// Einfaches Flugzeug, das LANGSAM von links nach rechts fliegt
-/// und kleine Kondensstreifen hinter sich herzieht.
 class PlaneContrail extends StatefulWidget {
-  final double startX;   // relativ: -0.3..1.3
-  final double endX;     // relativ: -0.3..1.3
-  final double y;        // 0..1 (Höhe)
-  final int seconds;     // Dauer eines Flugs
-  final int segments;    // Anzahl Trail-Elemente
-  final double spacing;  // Abstand zwischen Elementen (px)
+  final double startX;
+  final double endX;
+  final double y;
+  final int seconds;
+  final int segments;
+  final double spacing;
 
   const PlaneContrail({
     super.key,
@@ -47,17 +45,15 @@ class _PlaneContrailState extends State<PlaneContrail> with SingleTickerProvider
     return AnimatedBuilder(
       animation: _ctrl,
       builder: (context, _) {
-        final v = _ctrl.value;                       // 0..1
-        final eased = 0.5 - 0.5 * cos(v * pi);       // smooth in/out
+        final v = _ctrl.value;
+        final eased = 0.5 - 0.5 * cos(v * pi);
         final x = widget.startX + (widget.endX - widget.startX) * eased;
 
-        // sanftes Schweben
         final bob = sin(v * 2 * pi * 1.1) * 2.4;
 
         final alignX = (x - 0.5) * 2;
         final alignY = (widget.y - 0.5) * 2;
 
-        // Trail wächst beim Reinfliegen
         final visible = (widget.segments * (eased * 1.4).clamp(0.0, 1.0)).floor();
 
         return Align(
@@ -69,7 +65,7 @@ class _PlaneContrailState extends State<PlaneContrail> with SingleTickerProvider
               children: [
                 _ContrailBar(count: visible, spacing: widget.spacing, dark: isDark),
                 const SizedBox(width: 10),
-                const _PlaneIconRight(), // <-- Nase rechts, Leitwerk links (korrekt)
+                const _PlaneIconRight(),
               ],
             ),
           ),
@@ -114,7 +110,6 @@ class _ContrailBar extends StatelessWidget {
   }
 }
 
-/// Flugzeug (Nase eindeutig NACH RECHTS, Leitwerk links)
 class _PlaneIconRight extends StatelessWidget {
   const _PlaneIconRight();
 
@@ -131,7 +126,6 @@ class _PlaneIconRight extends StatelessWidget {
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          // Rumpf
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
@@ -142,7 +136,6 @@ class _PlaneIconRight extends StatelessWidget {
             ),
           ),
 
-          // Leitwerk LINKS (hinten)
           Positioned(
             left: -2, top: -2,
             child: Container(
@@ -151,19 +144,16 @@ class _PlaneIconRight extends StatelessWidget {
             ),
           ),
 
-          // Hauptflügel mittig
           Positioned(
             left: 20, bottom: -3,
             child: Container(width: 20, height: 8, decoration: BoxDecoration(color: wing, borderRadius: BorderRadius.circular(6))),
           ),
 
-          // Nase RECHTS (vorne)
           Positioned(
             right: -8, top: 5, bottom: 5,
             child: CustomPaint(size: const Size(10, 16), painter: _NosePainter(fuselage)),
           ),
 
-          // Cockpit-Fenster NAHE der Nase
           Positioned(right: 12, top: 6, child: _dot(window, 10)),
         ],
       ),

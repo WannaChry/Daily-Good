@@ -2,10 +2,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'moving_cloud.dart';
 import 'sheep_widget.dart';
-import 'landscape_nature.dart'; // PineTree / BerryBush / Pond
-import 'plane_contrail.dart';  // <-- korrigiertes Flugzeug mit Kondensstreifen
+import 'landscape_nature.dart';
+import 'plane_contrail.dart';
 
-/// Himmel + Sonne + Hügel + Rays + Wolken + Natur (Tannen/Büsche/Teich) + Schafe + Flugzeug (Contrail)
 class CuteSunnyLandscape extends StatefulWidget {
   const CuteSunnyLandscape({super.key});
 
@@ -103,7 +102,7 @@ class _CuteSunnyLandscapeState extends State<CuteSunnyLandscape> with TickerProv
             const MovingCloud(startX: -0.35, endX: 1.15, y: 0.28, scale: 0.85, seconds: 70),
             const MovingCloud(startX: -0.20, endX: 1.30, y: 0.12, scale: 0.7, seconds: 55),
 
-            // ✈️ Flugzeug mit Kondensstreifen (langsam, von links rein)
+            // Flugzeug mit Kondensstreifen
             const PlaneContrail(
               y: 0.16,
               seconds: 50,
@@ -121,7 +120,7 @@ class _CuteSunnyLandscapeState extends State<CuteSunnyLandscape> with TickerProv
             const Positioned(left: 56, bottom: 96, child: BerryBush(scale: 1.0)),
             const Positioned(right: 86, bottom: 92, child: BerryBush(scale: 1.1)),
 
-            // Schafe – mit Weit-Drift (achte auf aktualisierte sheep_widget.dart)
+            // Schafe – mit Weit-Drift
             const SheepSprite(baseX: 0.22, baseY: 0.90, width: 76, hopSeconds: 3.2, wanderPixels: 18, roamX: 160, roamY: 12),
             const SheepSprite(baseX: 0.52, baseY: 0.89, width: 66, hopSeconds: 3.0, wanderPixels: 22, roamX: 140, roamY: 10, flip: true),
             const SheepSprite(baseX: 0.78, baseY: 0.91, width: 84, hopSeconds: 3.6, wanderPixels: 20, roamX: 180, roamY: 14),

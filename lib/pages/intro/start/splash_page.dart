@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-/// Splash: Logo zoomt ein, Screen färbt sich per Left→Right-Wipe von schwarz zu grün.
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
 
@@ -15,7 +14,7 @@ class _SplashPageState extends State<SplashPage>
   late final AnimationController _ac;
   late final Animation<double> _logoScale;
   late final Animation<double> _logoYOffset;
-  late final Animation<double> _wipe; // 0..1 (Breite des grünen Wipes)
+  late final Animation<double> _wipe;
 
   @override
   void initState() {
@@ -40,16 +39,13 @@ class _SplashPageState extends State<SplashPage>
 
     _ac.forward();
 
-    // Nach Animation: Auth-Status prüfen
     Timer(const Duration(milliseconds: 1850), () async {
       if (!mounted) return;
 
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        // ✅ Schon eingeloggt → Home
         Navigator.of(context).pushReplacementNamed('/home');
       } else {
-        // ❌ Nicht eingeloggt
         Navigator.of(context).pushReplacementNamed('/onboarding');
       }
     });
@@ -70,7 +66,7 @@ class _SplashPageState extends State<SplashPage>
           body: Stack(
             fit: StackFit.expand,
             children: [
-              Container(color: Colors.black), // Basis
+              Container(color: Colors.black),
               Align(
                 alignment: Alignment.centerLeft,
                 child: FractionallySizedBox(

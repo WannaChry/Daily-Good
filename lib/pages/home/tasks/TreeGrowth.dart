@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// ==================== Vorhandene Widgets: Baum + Progress ====================
 class TreeGrowth extends StatelessWidget {
   const TreeGrowth({required this.points, required this.target});
 

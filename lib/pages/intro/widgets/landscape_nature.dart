@@ -1,9 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
-/// ======================
-///   PINE TREE (Tanne)
-/// ======================
 class PineTree extends StatelessWidget {
   final double scale;
   const PineTree({super.key, this.scale = 1.0});
@@ -18,7 +15,6 @@ class PineTree extends StatelessWidget {
         child: Stack(
           clipBehavior: Clip.none,
           children: [
-            // Stamm
             Positioned(
               left: 40, bottom: 0,
               child: Container(
@@ -30,16 +26,13 @@ class PineTree extends StatelessWidget {
                 ),
               ),
             ),
-            // Etagen
             _pineLayer(w: 90, h: 44, y: 24, color: const Color(0xFF2D6B3C)),
             _pineLayer(w: 74, h: 38, y: 48, color: const Color(0xFF36824A)),
             _pineLayer(w: 58, h: 32, y: 70, color: const Color(0xFF3E9A57)),
-            // Spitze
             Positioned(
               left: 45 - 4, bottom: 104,
               child: Container(width: 8, height: 18, decoration: BoxDecoration(color: const Color(0xFF3E9A57), borderRadius: BorderRadius.circular(4))),
             ),
-            // Zapfen
             _cone(x: 54, yBot: 56, scale: 1.0),
             _cone(x: 30, yBot: 42, scale: 0.9),
             _cone(x: 62, yBot: 80, scale: 0.85),
@@ -88,7 +81,6 @@ class _TrianglePainter extends CustomPainter {
     final paint = Paint()..color = color;
     canvas.drawPath(path, paint);
 
-    // zartes Highlight
     final hl = Paint()
       ..shader = LinearGradient(
         begin: Alignment.topCenter, end: Alignment.bottomCenter,
@@ -101,9 +93,6 @@ class _TrianglePainter extends CustomPainter {
   bool shouldRepaint(covariant _TrianglePainter old) => old.color != color;
 }
 
-/// ======================
-///   BERRY BUSH (Beeren)
-/// ======================
 class BerryBush extends StatelessWidget {
   final double scale;
   const BerryBush({super.key, this.scale = 1.0});
@@ -147,9 +136,6 @@ class BerryBush extends StatelessWidget {
   }
 }
 
-/// ======================
-///   POND (kleiner Teich)
-/// ======================
 class Pond extends StatelessWidget {
   final double width;
   final double height;
@@ -178,7 +164,6 @@ class _PondPainter extends CustomPainter {
     canvas.drawRRect(r, fill);
     canvas.drawRRect(r, stroke);
 
-    // Glanz
     final glare = Paint()..color = Colors.white.withOpacity(0.35);
     canvas.drawOval(Rect.fromLTWH(size.width * 0.15, size.height * 0.18, size.width * 0.45, size.height * 0.28), glare);
   }
@@ -187,13 +172,9 @@ class _PondPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-/// ======================
-///   SWAYING GRASS (Feld)
-///   - breites, sanft schwingendes Gras am Vordergrund
-/// ======================
 class SwayingGrass extends StatefulWidget {
-  final int layers;       // Dichte / Ebenen
-  final double height;    // Gesamthöhe des Grasbereichs
+  final int layers;
+  final double height;
   const SwayingGrass({super.key, this.layers = 3, this.height = 80});
 
   @override
@@ -236,11 +217,10 @@ class _GrassFieldPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final rnd = Random(42);
-    final baseY = size.height;            // unten
-    final wind = sin(t * 2 * pi) * 0.35;  // -0.35..0.35
+    final baseY = size.height;
+    final wind = sin(t * 2 * pi) * 0.35;
 
     for (int layer = 0; layer < layers; layer++) {
-      // Jede Ebene hat andere Farbe/Amplitude
       final color = [
         const Color(0xFF4DAE57),
         const Color(0xFF3F984A),
@@ -248,8 +228,8 @@ class _GrassFieldPainter extends CustomPainter {
       ][layer % 3];
 
       final blades = 24 + layer * 10;
-      final hMul = 0.6 + 0.25 * layer;           // vorn höher
-      final amp = (0.6 + layer * 0.2) * wind;    // vorn stärkerer Schwung
+      final hMul = 0.6 + 0.25 * layer;
+      final amp = (0.6 + layer * 0.2) * wind;
 
       for (int i = 0; i < blades; i++) {
         final x = (i / (blades - 1)) * size.width + rnd.nextDouble() * 6 - 3;
@@ -271,10 +251,6 @@ class _GrassFieldPainter extends CustomPainter {
   bool shouldRepaint(covariant _GrassFieldPainter old) => old.t != t || old.height != height || old.layers != layers;
 }
 
-/// ======================
-///  GRASS TUFT (lokale Wellen)
-///  - kleine Büschel, die stärker wippen (z.B. bei Schafen)
-/// ======================
 class GrassTuftWave extends StatefulWidget {
   final double width;
   final double height;
@@ -314,7 +290,7 @@ class _GrassTuftWaveState extends State<GrassTuftWave> with SingleTickerProvider
 }
 
 class _TuftPainter extends CustomPainter {
-  final double s; // 0..1 – beeinflusst Ausschlag
+  final double s;
   _TuftPainter(this.s);
 
   @override

@@ -1,4 +1,3 @@
-// lib/pages/profil/subpages/widgets/night_sky_background.dart
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -10,7 +9,7 @@ class NightSkyBackground extends StatefulWidget {
     this.scrollOffset = 0.0,
     this.viewportExtent = 0.0,
     this.maxScrollExtent = 0.0,
-    this.parallax = false, // explizit aus lassen, damit Scroll nichts „beschleunigt“
+    this.parallax = false,
   });
 
   final Widget child;
@@ -26,15 +25,13 @@ class NightSkyBackground extends StatefulWidget {
 class _NightSkyBackgroundState extends State<NightSkyBackground> {
   static const _accentBlue = Color(0xFF97C4FF);
 
-  // Kontinuierliche Zeit, kein Reset:
   late final Ticker _ticker;
-  double _time = 0.0; // Sekunden seit Start
+  double _time = 0.0;
 
   @override
   void initState() {
     super.initState();
     _ticker = Ticker((elapsed) {
-      // elapsed ist seit Start kontinuierlich => kein gemeinsamer Reset mehr
       setState(() {
         _time = elapsed.inMicroseconds / 1e6;
       });
@@ -61,9 +58,7 @@ class _NightSkyBackgroundState extends State<NightSkyBackground> {
     return Stack(
       fit: StackFit.expand,
       children: [
-        // Sterne: reine Zeit + optional minimale Parallax-Phase
         CustomPaint(painter: _NightSkyPainter(time: _time, extraPhase: phase)),
-        // Ballons: reine Zeit; Scroll nur für Welt→Viewport
         IgnorePointer(
           child: CustomPaint(
             painter: _BalloonFieldPainter(
@@ -85,8 +80,8 @@ class _NightSkyBackgroundState extends State<NightSkyBackground> {
 
 class _NightSkyPainter extends CustomPainter {
   _NightSkyPainter({required this.time, required this.extraPhase});
-  final double time;       // Sekunden (kontinuierlich)
-  final double extraPhase; // kleiner Zusatz für optionalen Parallax-Effekt
+  final double time;
+  final double extraPhase;
 
   static const _bgTop = Color(0xFF0B1023);
   static const _bgBottom = Color(0xFF111B3B);
@@ -108,7 +103,6 @@ class _NightSkyPainter extends CustomPainter {
       final dx = (i * 127.3 + extraPhase * 12.0) % size.width;
       final dy = (i * 61.7) % size.height;
       final phase = (i * 0.37) % math.pi;
-      // Twinkle-Frequenz (Hz):
       final twinkle =
           0.55 + 0.45 * math.sin(2 * math.pi * (0.12 * time) + phase);
       final radius = 0.6 + (i % 5) * 0.28;
@@ -126,11 +120,11 @@ class _NightSkyPainter extends CustomPainter {
 
 class _BalloonFieldPainter extends CustomPainter {
   _BalloonFieldPainter({
-    required this.time,            // Sekunden (kontinuierlich)
+    required this.time,
     required this.accent,
-    required this.scrollOffset,    // nur Welt→Viewport
-    this.contentExtent,            // Welt-Höhe (viewport + maxScrollExtent)
-    this.parallaxPhase = 0.0,      // optional mini-Drift
+    required this.scrollOffset,
+    this.contentExtent,
+    this.parallaxPhase = 0.0,
   });
 
   final double time;
@@ -155,9 +149,9 @@ class _BalloonFieldPainter extends CustomPainter {
     final travel = worldH + 2 * extra;
 
     // Jede Kugel hat eigene Geschwindigkeit (Zyklen/Sekunde) + Phase:
-    final cps = 0.015 + r.nextDouble() * 0.035; // 0.015..0.050 Zyklen/Sek.
-    final seed = r.nextDouble();                // individueller Startversatz
-    final phase = (time * cps + seed) % 1.0;    // 0..1, ohne gemeinsame Resets
+    final cps = 0.015 + r.nextDouble() * 0.035;
+    final seed = r.nextDouble();
+    final phase = (time * cps + seed) % 1.0;
 
     // Von unten (-extra) bis oben (worldH+extra)
     final yWorld = -extra + (1.0 - phase) * travel;
@@ -165,7 +159,6 @@ class _BalloonFieldPainter extends CustomPainter {
 
     if (yVisible < -extra || yVisible > size.height + extra) return;
 
-    // sanfter Fade an Rändern
     const fadeEdge = 90.0;
     double fade = 1.0;
     if (yVisible < fadeEdge) {
@@ -174,7 +167,7 @@ class _BalloonFieldPainter extends CustomPainter {
       fade = ((size.height - yVisible) / fadeEdge).clamp(0.0, 1.0);
     }
 
-    // seitlicher Drift (leicht parallax)
+    // seitlicher Drift
     final baseX = r.nextDouble() * size.width;
     final driftAmp = 18 + r.nextDouble() * 28;
     final x = baseX +

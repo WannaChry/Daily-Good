@@ -41,21 +41,18 @@ class User {
   })  : completedTasks = completedTasks ?? [],
         friends = friends ?? [];
 
-  /// Punkte hinzufügen und Level prüfen
   void addPoints(int newPoints) {
     points += newPoints;
     checkLevelUp();
   }
 
-  /// Level-Up Logik
   void checkLevelUp() {
     while (points >= level * 100) {
-      points -= level * 100; // Punkte werden für Level-Up abgezogen
+      points -= level * 100;
       level++;
     }
   }
 
-  /// Task als erledigt markieren
   void completeTask(Task task) {
     if (!task.isCompleted) {
       task.markCompleted();
@@ -64,19 +61,16 @@ class User {
     }
   }
 
-  /// Freund hinzufügen
   void addFriend(User friend) {
     if (!friends.contains(friend)) {
       friends.add(friend);
     }
   }
 
-  /// Freund entfernen
   void removeFriend(User friend) {
     friends.remove(friend);
   }
 
-  /// CopyWith für Immutable Updates
   User copyWith({
     String? username,
     String? email,
@@ -116,7 +110,6 @@ class User {
     );
   }
 
-  /// JSON-Methoden für Firebase
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'],
@@ -138,7 +131,7 @@ class User {
           ?.map((t) => Task.fromJson(t))
           .toList() ??
           [],
-      friends: [], // Freunde separat laden (z.B. über IDs)
+      friends: [],
     );
   }
 
@@ -160,7 +153,6 @@ class User {
       'birthday': birthday,
       'role': role,
       'completedTasks': completedTasks.map((t) => t.toJson()).toList(),
-      // Freunde am besten über deren IDs speichern
     };
   }
 }

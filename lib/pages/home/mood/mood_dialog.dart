@@ -14,7 +14,6 @@ Future<int?> showMoodPicker(BuildContext context) {
 
       return Stack(
         children: [
-          // Hintergrund klickbar zum Schließen
           Positioned.fill(
             child: GestureDetector(
               onTap: () => Navigator.of(context).pop(null),

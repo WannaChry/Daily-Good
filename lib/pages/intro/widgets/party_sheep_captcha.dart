@@ -1,9 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
-/// USP-Captcha: kleine Schafe spazieren.
-/// Aufgabe: "Wie viele Schafe spazieren?"
-/// Jetzt mit dynamischer Anzahl 1..10 (per Refresh neu).
 class PartySheepCaptcha extends StatefulWidget {
   final ValueChanged<int> onNewAnswer;
   final VoidCallback? onRefreshed;
@@ -37,12 +34,12 @@ class _PartySheepCaptchaState extends State<PartySheepCaptcha> with TickerProvid
   void _generate() {
     final total = widget.minCount + _rnd.nextInt(widget.maxCount - widget.minCount + 1);
     _sheep = List.generate(total, (i) {
-      final speed = 0.7 + _rnd.nextDouble() * 0.9;       // 0.7..1.6
-      final amp = 8.0 + _rnd.nextDouble() * 16.0;        // 8..24 px
+      final speed = 0.7 + _rnd.nextDouble() * 0.9;
+      final amp = 8.0 + _rnd.nextDouble() * 16.0;
       final phase = _rnd.nextDouble() * 2 * pi;
-      final bobAmp = 1.5 + _rnd.nextDouble() * 1.8;      // 1.5..3.3 px
-      final seedX = _rnd.nextDouble();                   // 0..1
-      final lane  = _rnd.nextInt(3);                     // 3 Spuren
+      final bobAmp = 1.5 + _rnd.nextDouble() * 1.8;
+      final seedX = _rnd.nextDouble();
+      final lane  = _rnd.nextInt(3);
       final laneJitter = (_rnd.nextDouble() - 0.5) * 6.0;
       return _SheepAnim(
         speed: speed, amp: amp, phase: phase, bobAmp: bobAmp,
@@ -61,7 +58,6 @@ class _PartySheepCaptchaState extends State<PartySheepCaptcha> with TickerProvid
     final border = theme.colorScheme.outlineVariant.withOpacity(0.6);
 
     return Container(
-      // ⬇️ oben weniger Padding
       padding: const EdgeInsets.fromLTRB(14, 8, 14, 14),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
@@ -82,7 +78,6 @@ class _PartySheepCaptchaState extends State<PartySheepCaptcha> with TickerProvid
               constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
             ),
           ]),
-          // ⬇️ kleinere Abstände
           const SizedBox(height: 2),
           Text('Wie viele Schafe spazieren?', style: theme.textTheme.bodyMedium),
           const SizedBox(height: 6),
@@ -93,7 +88,6 @@ class _PartySheepCaptchaState extends State<PartySheepCaptcha> with TickerProvid
               borderRadius: BorderRadius.circular(12),
               child: Stack(
                 children: [
-                  // Wiese
                   Positioned.fill(
                     child: DecoratedBox(
                       decoration: BoxDecoration(

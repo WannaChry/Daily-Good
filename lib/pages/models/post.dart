@@ -2,7 +2,7 @@ class Post {
   final String id;
   String title;
   String content;
-  String authorId; // User-ID des Autors
+  String authorId;
   DateTime date;
 
   Post({
@@ -13,7 +13,6 @@ class Post {
     required this.date,
   });
 
-  /// Post bearbeiten
   void editPost({String? newTitle, String? newContent}) {
     if (newTitle != null) {
       title = newTitle;
@@ -23,7 +22,6 @@ class Post {
     }
   }
 
-  /// JSON: von Firebase laden
   factory Post.fromJson(Map<String, dynamic> json) {
     return Post(
         id: json['id'],

@@ -1,13 +1,7 @@
-// lib/pages/profil/community_page.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:studyproject/pages/state/social_state.dart';
-import 'package:studyproject/pages/intro/widgets/dailygood_profile_background.dart';
-
-// NGOs-Subpage
 import 'package:studyproject/pages/profil/subpages/ngos.dart';
-
-// Nachthimmel + Ballons (ausgelagert)
 import 'package:studyproject/pages/profil/widgets/night_sky_background.dart';
 
 class CommunityPage extends StatefulWidget {
@@ -18,13 +12,12 @@ class CommunityPage extends StatefulWidget {
 }
 
 class _CommunityPageState extends State<CommunityPage> {
-  // ---- Night UI Tokens (nur für Vordergrund-UI) ----
-  static const _pastelBlue = Color(0xFF97C4FF); // statt grün
+  // ---- Night UI Tokens  ----
+  static const _pastelBlue = Color(0xFF97C4FF);
   static const _cardBorder = Color(0x14000000);
   static const _shadow = Color(0x0A000000);
-  static const _softGrey = Color(0x26FFFFFF); // transparentes Weiß für Avatar-Box
+  static const _softGrey = Color(0x26FFFFFF);
 
-  // Scroll-Infos → steuern die Ballon-Phasen im Hintergrund
   double _scrollOffset = 0.0;
   double _viewportExtent = 0.0;
   double _maxScrollExtent = 0.0;
@@ -45,12 +38,11 @@ class _CommunityPageState extends State<CommunityPage> {
     final topFriends = social.friends.take(4).toList();
 
     return Scaffold(
-      // Der komplette Inhalt liegt auf unserem animierten Hintergrund
       body: NightSkyBackground(
         scrollOffset: _scrollOffset,
         viewportExtent: _viewportExtent,
         maxScrollExtent: _maxScrollExtent,
-        parallax: false, // explizit
+        parallax: false,
         child: SafeArea(
         child: SafeArea(
           child: NotificationListener<ScrollNotification>(

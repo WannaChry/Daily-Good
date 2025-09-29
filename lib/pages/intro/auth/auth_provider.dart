@@ -1,1 +1,0 @@
-//Die klasse soll alle Validierungen für Login definieren

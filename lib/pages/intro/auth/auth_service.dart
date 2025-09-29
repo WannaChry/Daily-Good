@@ -50,18 +50,17 @@ class AuthMethod {
       );
       final uid = cred.user!.uid;
 
-      // Profildaten vorbereiten
       final Map<String, Object?> userData = {
         'uid': uid,
         'name': name,
         'email': email,
-        'password': password, // nur für Testzwecke
+        'password': password,
         'createdAt': FieldValue.serverTimestamp(),
         'level': 1,
         'totalPoints': 0,
         'role': 'user',
         'streak': 0,
-        ...extraData, // Alter, Geschlecht, Geburtstag, Beruf usw.
+        ...extraData,
       };
 
       await _firestore.collection('users').doc(uid).set(userData);
@@ -74,7 +73,6 @@ class AuthMethod {
     }
   }
 
-  // Login
   Future<String> loginUser({
     required String email,
     required String password,
@@ -92,12 +90,10 @@ class AuthMethod {
     }
   }
 
-  // Logout
   Future<void> signOut() async {
     await _auth.signOut();
   }
 
-  // Getter
   String? get currentUid => _auth.currentUser?.uid;
   User? get currentUser => _auth.currentUser;
 }

@@ -7,8 +7,8 @@ class BrandButton extends StatelessWidget {
 
   final Color? backgroundColor;
   final Color? foregroundColor;
-  final TextStyle? textStyle;     // NEW: individuelle Schrift
-  final BorderSide? borderSide;   // NEW: optionaler Rahmen
+  final TextStyle? textStyle;
+  final BorderSide? borderSide;
   final double height;
 
   const BrandButton({
@@ -39,7 +39,7 @@ class BrandButton extends StatelessWidget {
           foregroundColor: fg,
           elevation: 2,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          side: borderSide, // Rahmen, falls gesetzt
+          side: borderSide,
         ),
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 220),

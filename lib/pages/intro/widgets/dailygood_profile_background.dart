@@ -1,9 +1,5 @@
-// lib/pages/widgets/dailygood_profile_background.dart
 import 'package:flutter/material.dart';
 
-/// Ruhiger Pastell-Hintergrund für Profil/Account.
-/// - Kein Scroll-/Animations-Coupling
-/// - Heller Verlauf + 3 weiche Farbblobs (Pastell)
 class DailyGoodProfileBackground extends StatelessWidget {
   const DailyGoodProfileBackground({
     super.key,
@@ -35,7 +31,6 @@ class _PastelPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
 
-    // Grundverlauf (oben sehr helles Blau -> unten Weiß)
     final bg = Paint()
       ..shader = LinearGradient(
         begin: Alignment.topCenter,
@@ -44,7 +39,6 @@ class _PastelPainter extends CustomPainter {
       ).createShader(rect);
     canvas.drawRect(rect, bg);
 
-    // Zarte Farbblobs (weiche Radialverläufe)
     void blob(Offset center, double radius, Color color, double alpha) {
       final p = Paint()
         ..shader = RadialGradient(
@@ -56,7 +50,6 @@ class _PastelPainter extends CustomPainter {
       canvas.drawCircle(center, radius, p);
     }
 
-    // Positionierung dezent über die Seite verteilt
     final L = size.longestSide;
     blob(Offset(size.width * .18, size.height * .22), L * .38, a, 0.22);
     blob(Offset(size.width * .84, size.height * .30), L * .32, b, 0.18);

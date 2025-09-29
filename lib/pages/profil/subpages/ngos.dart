@@ -1,4 +1,3 @@
-// lib/profil/subpages/ngos.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -13,14 +12,12 @@ class _NGOsPageState extends State<NGOsPage>
     with SingleTickerProviderStateMixin {
   late final TabController _tabCtrl;
 
-  // ---- Pastell-Design Tokens (wie CommunityPage) ----
-  static const _bg = Color(0xFFF8F3FA);          // heller Seitenhintergrund
-  static const _pastelBlue = Color(0xFF97C4FF);   // hellblauer Akzent
-  static const _cardBorder = Color(0x14000000);   // schwarz 8%
-  static const _shadow = Color(0x0A000000);       // schwarz 4%
+  static const _bg = Color(0xFFF8F3FA);
+  static const _pastelBlue = Color(0xFF97C4FF);
+  static const _cardBorder = Color(0x14000000);
+  static const _shadow = Color(0x0A000000);
   static const _textDark = Colors.black;
 
-  // Tabs (jetzt 8 Kategorien)
   static const _tabs = [
     _NGOTab(keyId: 'engagement', label: 'Engagement'),
     _NGOTab(keyId: 'studium', label: 'Studium & Bildung'),
@@ -48,7 +45,7 @@ class _NGOsPageState extends State<NGOsPage>
   Widget build(BuildContext context) {
     final titleStyle = GoogleFonts.poppins(
       fontWeight: FontWeight.w700,
-      fontSize: 22, // Überschrift größer
+      fontSize: 22,
       color: _textDark,
     );
 
@@ -91,14 +88,13 @@ class _NGOTab {
   const _NGOTab({required this.keyId, required this.label});
 }
 
-/// Datenmodell (später per Firestore befüllen)
 class NGOItem {
   final String name;
   final String description;
-  final String contact;          // Mail/URL/Telefon als Text
-  final List<String> tasks;      // Stichpunkte
-  final String? logoUrl;         // optionales Netzwerk-Logo
-  final IconData? fallbackIcon;  // Platzhalter, wenn kein Logo
+  final String contact;
+  final List<String> tasks;
+  final String? logoUrl;
+  final IconData? fallbackIcon;
 
   NGOItem({
     required this.name,
@@ -116,7 +112,7 @@ class _NGOCategoryView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final items = _loadDummy(categoryId); // später: Firestore-Query
+    final items = _loadDummy(categoryId);
 
     return ListView.builder(
       padding: const EdgeInsets.all(16),
@@ -125,7 +121,6 @@ class _NGOCategoryView extends StatelessWidget {
     );
   }
 
-  // ---- Dummy-Daten pro Kategorie (ersetzbar durch Firestore) ----
   static List<NGOItem> _loadDummy(String categoryId) {
     switch (categoryId) {
       case 'engagement':
@@ -358,7 +353,6 @@ class _NGOCategoryView extends StatelessWidget {
   }
 }
 
-// ---------- Zwei-Box-Steckbrief im Pastell-Blau-Stil ----------
 class _NGOCard extends StatelessWidget {
   const _NGOCard({required this.item});
   final NGOItem item;
@@ -374,7 +368,6 @@ class _NGOCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // 1) Obere weiße Titel-Box (wie „Community“-Stil, aber weiß)
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
@@ -415,7 +408,6 @@ class _NGOCard extends StatelessWidget {
             ),
           ),
 
-          // 2) Untere Content-Box (Beschreibung, Tasks, Kontakt, Button)
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
@@ -432,7 +424,6 @@ class _NGOCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Beschreibung
                 Text(
                   item.description,
                   style:
@@ -440,7 +431,6 @@ class _NGOCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 14),
 
-                // Stichpunkte
                 if (item.tasks.isNotEmpty) ...[
                   Text(
                     'Was kann man hier tun?',
@@ -456,7 +446,6 @@ class _NGOCard extends StatelessWidget {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // kleiner blauer Punkt
                             Container(
                               width: 8,
                               height: 8,
@@ -482,7 +471,6 @@ class _NGOCard extends StatelessWidget {
                   const SizedBox(height: 12),
                 ],
 
-                // Kontakt + Button
                 Row(
                   children: [
                     Expanded(
@@ -516,7 +504,6 @@ class _NGOCard extends StatelessWidget {
   }
 }
 
-// Avatar/Logo – hellblauer Look, Platzhalter wenn kein Logo
 class _LogoOrIcon extends StatelessWidget {
   const _LogoOrIcon({this.logoUrl, this.fallbackIcon});
   final String? logoUrl;
@@ -557,13 +544,12 @@ class _LogoOrIcon extends StatelessWidget {
       child: Icon(
         fallbackIcon ?? Icons.groups,
         size: 28,
-        color: const Color(0xFF2F4C7A), // blaues Icon
+        color: const Color(0xFF2F4C7A),
       ),
     );
   }
 }
 
-// Pastell-Button wie auf der Community-Page
 class _PastelButton extends StatelessWidget {
   const _PastelButton({required this.label, required this.onTap});
   final String label;

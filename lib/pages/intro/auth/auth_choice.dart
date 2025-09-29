@@ -5,11 +5,11 @@ class AuthChoicePage extends StatelessWidget {
   const AuthChoicePage({super.key});
 
   void _goToRegister(BuildContext context) {
-    Navigator.pushNamed(context, '/questionnaire'); // Registrierung → Questionnaire
+    Navigator.pushNamed(context, '/questionnaire');
   }
 
   void _goToLogin(BuildContext context) {
-    Navigator.pushNamed(context, '/login'); // Anmeldung → LoginPage
+    Navigator.pushNamed(context, '/login');
   }
 
   @override
@@ -17,13 +17,12 @@ class AuthChoicePage extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    // Button Styles (Text + Icons schwarz)
     final primaryBtnStyle = ElevatedButton.styleFrom(
       minimumSize: const Size.fromHeight(56),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
       elevation: 2,
-      foregroundColor: Colors.black, // <-- Text & Icon schwarz
+      foregroundColor: Colors.black,
     );
 
     final secondaryBtnStyle = OutlinedButton.styleFrom(
@@ -31,7 +30,7 @@ class AuthChoicePage extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       side: BorderSide(color: theme.colorScheme.outline.withOpacity(0.5), width: 1.2),
       textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-      foregroundColor: Colors.black, // <-- Text & Icon schwarz
+      foregroundColor: Colors.black,
     );
 
     return Scaffold(
@@ -48,9 +47,7 @@ class AuthChoicePage extends StatelessWidget {
       ),
       body: Stack(
         children: [
-          // 🌞+🌿 Hintergrund
           const Positioned.fill(child: CuteSunnyLandscape()),
-          // Vordergrund: Inhalt
           SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -66,7 +63,7 @@ class AuthChoicePage extends StatelessWidget {
                       ),
                       child: Card(
                         elevation: 12,
-                        color: theme.colorScheme.surface, // opak
+                        color: theme.colorScheme.surface,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                         child: Padding(
                           padding: EdgeInsets.symmetric(
@@ -76,7 +73,6 @@ class AuthChoicePage extends StatelessWidget {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              // Branding / Icon
                               Container(
                                 padding: const EdgeInsets.all(14),
                                 decoration: BoxDecoration(
@@ -109,7 +105,6 @@ class AuthChoicePage extends StatelessWidget {
                               ),
                               const SizedBox(height: 24),
 
-                              // Primär: Login (Text + Icon schwarz)
                               SizedBox(
                                 width: double.infinity,
                                 child: ElevatedButton.icon(
@@ -121,7 +116,6 @@ class AuthChoicePage extends StatelessWidget {
                               ),
                               const SizedBox(height: 14),
 
-                              // Sekundär: Sign Up → Questionnaire (Text + Icon schwarz)
                               SizedBox(
                                 width: double.infinity,
                                 child: OutlinedButton.icon(

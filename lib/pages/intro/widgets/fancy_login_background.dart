@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Monochrom-grüner Verlauf mit weichen Glow-Orbs.
-/// [tint] steuert den Grundton, Standard ist ein frisches Grün.
 class FancyLoginBackground extends StatelessWidget {
   final Color tint;
   const FancyLoginBackground({
@@ -14,13 +12,11 @@ class FancyLoginBackground extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     Color tone(double a) => Color.lerp(Colors.white, tint, a)!;
-    // etwas kräftigerer grüner Verlauf
     final top = isDark ? Color.lerp(Colors.black, tint, 0.20)! : tone(0.22);
     final bottom = isDark ? Color.lerp(Colors.black, tint, 0.10)! : tone(0.06);
 
     return Stack(
       children: [
-        // Hintergrund-Verlauf
         Positioned.fill(
           child: DecoratedBox(
             decoration: BoxDecoration(
@@ -32,7 +28,6 @@ class FancyLoginBackground extends StatelessWidget {
             ),
           ),
         ),
-        // Grüne Orbs (alle vom Tint abgeleitet → konsistentes Grading)
         Positioned(top: -60, left: -40, child: _orb(color: tone(0.55).withOpacity(0.40), size: 220)),
         Positioned(top: 120, right: -30, child: _orb(color: tone(0.45).withOpacity(0.32), size: 170)),
         Positioned(bottom: -50, left: 40, child: _orb(color: tone(0.65).withOpacity(0.36), size: 190)),

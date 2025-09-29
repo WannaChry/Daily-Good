@@ -1,4 +1,3 @@
-// lib/pages/home/tree/level_progress_card.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -132,7 +131,6 @@ class _LevelProgressCardState extends State<LevelProgressCard>
                     ),
                   ),
                 ),
-                // Das Icon bleibt in der Mitte
                 Center(
                   child: Icon(Icons.eco, size: 32, color: Colors.green.shade700),
                 ),

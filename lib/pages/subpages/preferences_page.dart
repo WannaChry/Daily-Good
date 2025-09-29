@@ -46,8 +46,8 @@ class _PreferencesPageState extends State<PreferencesPage> {
   final freqOptions = ['Sofort', 'Stündlich', 'Täglich'];
 
   // Einheiten & Format
-  String distanceUnit = 'km'; // km / mi
-  String dateFormat = 'dd.MM.yyyy'; // dd.MM.yyyy / MM/dd/yyyy / yyyy-MM-dd
+  String distanceUnit = 'km';
+  String dateFormat = 'dd.MM.yyyy';
 
   // Barrierefreiheit
   bool largerTapTargets = true;

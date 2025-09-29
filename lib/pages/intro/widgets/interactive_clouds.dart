@@ -1,11 +1,7 @@
-// lib/profil/intro/widgets/interactive_clouds.dart
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Step E: Haptik
 
-/// Drei schwebende Wolken, frei ziehbar.
-/// - Während Drag: leichtes Scaling + Rotation (kein Quetschen)
-/// - Nach Loslassen: träge Weiterbewegung und sanftes Auslaufen (kein Snap-Back)
 class InteractiveClouds extends StatefulWidget {
   const InteractiveClouds({
     super.key,
@@ -19,16 +15,12 @@ class InteractiveClouds extends StatefulWidget {
     this.floatPeriod = const Duration(seconds: 8),
   });
 
-  /// Startpositionen relativ zur Bildschirmgröße (0..1)
   final List<Offset> initial;
 
-  /// Grundgrößen der Wolken
   final List<double> sizes;
 
-  /// Amplitude der „Schwebe“-Bewegung (Pixel)
   final double floatAmplitude;
 
-  /// Dauer eines Float-Zyklus
   final Duration floatPeriod;
 
   @override
@@ -78,12 +70,11 @@ class _InteractiveCloudsState extends State<InteractiveClouds>
     return AnimatedBuilder(
       animation: _floatCtl,
       builder: (_, __) {
-        final t = _floatCtl.value * 2 * math.pi; // 0..2π
+        final t = _floatCtl.value * 2 * math.pi;
         return Stack(
           children: List.generate(_clouds.length, (i) {
             final c = _clouds[i];
 
-            // sanftes Floaten (während Drag reduziert)
             final floatY = widget.floatAmplitude *
                 math.sin(t + c.driftPhase) *
                 (_draggingIndex == i ? 0.15 : 1.0);
@@ -95,13 +86,13 @@ class _InteractiveCloudsState extends State<InteractiveClouds>
               left: left,
               top: top,
               width: c.baseSize,
-              height: c.baseSize * 0.72, // Wolken wirken etwas flacher
+              height: c.baseSize * 0.72,
               child: _CloudDraggable(
                 index: i,
                 onStart: () {
                   _draggingIndex = i;
-                  c.dragScale = 1.02;   // minimal größer beim Drag
-                  c.dragAngle = 0.06;   // dezenter „Lean“
+                  c.dragScale = 1.02;
+                  c.dragAngle = 0.06;
                   c.settleCtl.stop();
                 },
                 onUpdate: (deltaPx) {
@@ -109,10 +100,8 @@ class _InteractiveCloudsState extends State<InteractiveClouds>
                   setState(() => c.posRel = _clampRel(c.posRel + rel));
                 },
                 onEnd: (velocityPxPerSec) {
-                  // Step E: Haptik
                   HapticFeedback.selectionClick();
 
-                  // inertiales Weitergleiten: kleiner Boost in Velocity-Richtung
                   final boostRel = Offset(
                     (velocityPxPerSec.dx / screen.width) * 0.18,
                     (velocityPxPerSec.dy / screen.height) * 0.18,
@@ -158,7 +147,6 @@ class _InteractiveCloudsState extends State<InteractiveClouds>
   }
 }
 
-/// Daten je Wolke
 class _Cloud {
   _Cloud({
     required this.posRel,
@@ -171,15 +159,12 @@ class _Cloud {
   final double baseSize;
   final double driftPhase;
 
-  // Drag-Style
   double dragScale = 1.0;
   double dragAngle = 0.0;
 
-  // Animation für das Auslaufen nach dem Loslassen
   final AnimationController settleCtl;
 }
 
-/// Einfacher Wrapper, der Drag-Events liefert und Transform (Scale/Rotate) anwendet.
 class _CloudDraggable extends StatelessWidget {
   const _CloudDraggable({
     required this.index,
@@ -216,7 +201,6 @@ class _CloudDraggable extends StatelessWidget {
   }
 }
 
-/// Wolkenform ohne Gesicht (Gradient + sanfter Schatten)
 class _PlainCloud extends StatelessWidget {
   const _PlainCloud();
 
@@ -235,7 +219,6 @@ class _CloudPainter extends CustomPainter {
     final h = size.height;
     final w = size.width;
 
-    // Wolkenform: mehrere überlappende Kreise + weiche Basis
     final path = Path()
       ..addOval(Rect.fromCircle(center: Offset(w * .30, h * .45), radius: h * .34))
       ..addOval(Rect.fromCircle(center: Offset(w * .48, h * .35), radius: h * .38))
@@ -245,7 +228,6 @@ class _CloudPainter extends CustomPainter {
         Radius.circular(h * .22),
       ));
 
-    // Schatten
     final shadowPaint = Paint()
       ..color = Colors.black.withOpacity(.08)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 14);
@@ -254,7 +236,6 @@ class _CloudPainter extends CustomPainter {
     canvas.drawPath(path, shadowPaint);
     canvas.restore();
 
-    // Wolke (leichter Glanz)
     final cloudPaint = Paint()
       ..shader = const LinearGradient(
         begin: Alignment.topLeft,

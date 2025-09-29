@@ -3,7 +3,6 @@ class LevelCalc {
 
   LevelCalc(this.totalPoints);
 
-  // Punkte-Schwellen für die Level
   static const List<int> levelThresholds = [
     0,    // Level 1
     10,   // Level 2
@@ -56,7 +55,6 @@ class LevelCalc {
     return (currentLevelPoints / nextLevelPoints).clamp(0.0, 1.0);
   }
 
-  // Baum-Stufe: 0..5 (kannst du anpassen)
   int get treeStage {
     return (progressInLevel * 5).floor().clamp(0, 5);
   }

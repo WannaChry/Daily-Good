@@ -25,7 +25,6 @@ class Task {
     isCompleted = true;
   }
 
-  /// Optional: Task wieder auf "nicht erledigt" setzen
   void markUncompleted() {
     isCompleted = false;
   }
@@ -54,7 +53,6 @@ class Task {
     );
   }
 
-  /// JSON Methoden
   factory Task.fromJson(Map<String, dynamic> json) {
     return Task(
       id: json['id'],

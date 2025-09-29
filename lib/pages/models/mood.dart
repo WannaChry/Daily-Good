@@ -1,9 +1,9 @@
 import 'dart:ui';
 
 class MoodData {
-  final String label; // z. B. "Sehr gut"
-  final String emoji; // z. B. "😃"
-  final Color color;  // Hintergrundfarbe für die Mood-Option
+  final String label;
+  final String emoji;
+  final Color color;
 
   const MoodData({
     required this.label,

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:studyproject/pages/state/auth_state.dart';
-
-// Shared UI Widgets (wie bei der anderen Login-Page)
 import 'package:studyproject/pages/intro/widgets/fancy_login_background.dart';
 import 'package:studyproject/pages/intro/widgets/party_sheep_captcha.dart';
 import 'package:studyproject/pages/intro/widgets/brand_button.dart';
@@ -53,7 +51,7 @@ class _SignInPageState extends State<SignInPage> {
     final auth = AuthState.of(context);
     final theme = Theme.of(context);
 
-    // Bereits eingeloggt? -> Status-Screen (Logik wie gehabt)
+    // Bereits eingeloggt? -> Status-Screen
     if (auth.isLoggedIn) {
       final email = auth.user?.email ?? 'Anonymes Konto';
       final name = auth.user?.displayName ?? 'Anonymer Nutzer';
@@ -196,7 +194,6 @@ class _SignInPageState extends State<SignInPage> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 26),
-                        // -------------------- Overflow-FIX: scrollbarer Card-Inhalt --------------------
                         child: LayoutBuilder(
                           builder: (context, constraints) {
                             final kb = MediaQuery.of(context).viewInsets.bottom; // Tastaturhöhe
@@ -208,7 +205,7 @@ class _SignInPageState extends State<SignInPage> {
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    // Header-Icon (scharf)
+                                    // Header-Icon
                                     Container(
                                       padding: const EdgeInsets.all(14),
                                       decoration: BoxDecoration(
@@ -307,7 +304,6 @@ class _SignInPageState extends State<SignInPage> {
 
                                     const SizedBox(height: 20),
 
-                                    // 🖤 Einloggen – schwarz, größere graue Schrift
                                     BrandButton(
                                       label: 'Einloggen',
                                       loading: false,
@@ -316,7 +312,7 @@ class _SignInPageState extends State<SignInPage> {
                                       textStyle: const TextStyle(
                                         fontSize: 17,
                                         fontWeight: FontWeight.w800,
-                                        color: Color(0xFFEDEDED), // hell-grau
+                                        color: Color(0xFFEDEDED),
                                       ),
                                       onPressed: _submit,
                                     ),
@@ -363,7 +359,6 @@ class _SignInPageState extends State<SignInPage> {
                             );
                           },
                         ),
-                        // ------------------ Ende Overflow-FIX ------------------
                       ),
                     ),
                   ),

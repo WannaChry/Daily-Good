@@ -2,24 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:studyproject/pages/home/services/task_service.dart';
-
-//models
 import 'package:studyproject/pages/models/task.dart';
 import 'package:studyproject/pages/models/task_category.dart';
 import 'package:studyproject/pages/models/submodels/categoryTheme.dart';
 import 'package:studyproject/pages/second_page/subpages/suggest_Card.dart';
-
-import 'package:studyproject/pages/second_page/subpages/task_row.dart';
-import 'package:studyproject/pages/second_page/subpages/kpiCard.dart';
 import 'package:studyproject/pages/second_page/subpages/category_section.dart';
 import 'package:studyproject/pages/second_page/subpages/co2_impact_card.dart';
 import 'package:studyproject/pages/second_page/subpages/challenge_row.dart';
-import 'package:studyproject/pages/home/tree/level_progess.dart';
 import 'package:studyproject/pages/home/tree/level_progress_card.dart';
-
 import 'package:studyproject/pages/constants/goals.dart';
-
-// ✅ Hintergrund wie im Profil
 import 'package:studyproject/pages/intro/widgets/dailygood_profile_background.dart';
 
 class ActivityPage extends StatefulWidget {
@@ -37,7 +28,7 @@ class ActivityPage extends StatefulWidget {
 }
 
 class _ActivityPageState extends State<ActivityPage> {
-  final List<Task> _tasks = []; // aktuell leer, später kannst du echte Daten laden
+  final List<Task> _tasks = [];
   final TaskService _taskService = TaskService();
 
   // ---------- Helpers ----------
@@ -58,7 +49,6 @@ class _ActivityPageState extends State<ActivityPage> {
     return map;
   }
 
-  // aktuell simple Zählung (später per Datum)
   int get _dailyProgress => _completedTasks.length;
   int get _weeklyProgress => _completedTasks.length;
   int get _monthlyProgress => _completedTasks.length;
@@ -68,7 +58,6 @@ class _ActivityPageState extends State<ActivityPage> {
     setState(() => t.isCompleted = !t.isCompleted);
   }
 
-  // Vorschlagsfeld
   final TextEditingController _suggestCtrl = TextEditingController();
 
   void _submitSuggestion() {
@@ -96,7 +85,6 @@ class _ActivityPageState extends State<ActivityPage> {
   void initState() {
     super.initState();
 
-    // erledigte Tasks laden und UI aktualisieren
     _taskService.loadCompletedTasks(widget.tasks).then((_) {
       setState(() {}); // UI aktualisieren
     });
@@ -121,8 +109,6 @@ class _ActivityPageState extends State<ActivityPage> {
                 children: [
                   LevelProgressCard(
                     totalPoints: _impactPoints,
-                    //level: getLevel(_impactPoints),
-                    //progress: getLevelProgress(_impactPoints),
                   ),
                   const SizedBox(height: 14),
                   Co2ImpactCard(

@@ -1,4 +1,3 @@
-// lib/profil/intro/onboarding_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../widgets/cute_landscape.dart';
@@ -17,7 +16,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
   final _pc = PageController();
   int _index = 0;
 
-  // Easter Egg Schalter (für Prod ggf. auf false setzen)
   static const bool _devSkipEnabled = true;
 
   final _slides = const [
@@ -38,7 +36,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
     ),
   ];
 
-  // Pastell-Hintergründe (wie im Questionnaire)
   final List<List<Color>> _pastels = const [
     [Color(0xFFF7FBF5), Color(0xFFEFF7EA)],
     [Color(0xFFF7FAFF), Color(0xFFE8F0FF)],
@@ -57,7 +54,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   void _skipAllToHome() {
-    // Easter Egg: direkt zur Home, Onboarding & Questionnaire überspringen
     HapticFeedback.lightImpact();
     Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
   }
@@ -79,7 +75,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
       body: SafeArea(
         child: Stack(
           children: [
-            // Pastell-Gradient
             AnimatedContainer(
               duration: const Duration(milliseconds: 300),
               decoration: BoxDecoration(
@@ -92,7 +87,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
               child: const SizedBox.expand(),
             ),
 
-            // Landschaft unten (mit weicher Einblendung → keine sichtbare Kante)
             Positioned(
               left: 0,
               right: 0,
@@ -105,7 +99,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [Colors.transparent, Colors.black],
-                      stops: [0.0, 0.22], // Stärke der sanften Einblendung
+                      stops: [0.0, 0.22],
                     ).createShader(r),
                     blendMode: BlendMode.dstIn,
                     child: CuteLandscape(
@@ -117,7 +111,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
               ),
             ),
 
-            // Inhalt
             Padding(
               padding: EdgeInsets.fromLTRB(
                 16,
@@ -127,7 +120,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
               ),
               child: Column(
                 children: [
-                  // Fortschrittsbalken oben – nur EIN Balken
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: SizedBox(
@@ -140,7 +132,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   ),
                   const SizedBox(height: 16),
 
-                  // PageView mit Parallax + Long-Press Easter Egg auf dem Emoji
                   Expanded(
                     child: AnimatedBuilder(
                       animation: _pc,
@@ -168,10 +159,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
                   const SizedBox(height: 12),
 
-                  // Skip – Dots – Weiter
                   Row(
                     children: [
-                      // Skip links
                       Expanded(
                         child: Align(
                           alignment: Alignment.centerLeft,
@@ -189,7 +178,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         ),
                       ),
 
-                      // Dots mittig
                       Expanded(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -209,7 +197,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         ),
                       ),
 
-                      // Weiter rechts
                       Expanded(
                         child: Align(
                           alignment: Alignment.centerRight,
@@ -249,17 +236,16 @@ class _ParallaxSlide extends StatelessWidget {
   });
 
   final _SlideData data;
-  final double delta; // -1..1
+  final double delta;
   final VoidCallback? onEmojiLongPress;
 
   @override
   Widget build(BuildContext context) {
-    final fgShift = 18.0 * delta; // Titel/Text
-    final emojiShift = 34.0 * delta; // Emoji stärker
+    final fgShift = 18.0 * delta;
+    final emojiShift = 34.0 * delta;
 
     return Stack(
       children: [
-        // Emoji (mit Long-Press Easter Egg)
         Transform.translate(
           offset: Offset(emojiShift, 0),
           child: Align(
@@ -267,7 +253,7 @@ class _ParallaxSlide extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(top: 24),
               child: GestureDetector(
-                onLongPress: onEmojiLongPress, // <- Easter Egg
+                onLongPress: onEmojiLongPress,
                 behavior: HitTestBehavior.opaque,
                 child: Text(
                   data.emoji,
@@ -278,7 +264,6 @@ class _ParallaxSlide extends StatelessWidget {
           ),
         ),
 
-        // Titel + Text
         Transform.translate(
           offset: Offset(fgShift, 0),
           child: Align(

@@ -1,10 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:studyproject/pages/models/mood.dart';
-import 'package:studyproject/pages/home/mood/mood_option.dart';
-import 'package:studyproject/pages/home/mood/mood_data.dart'; // ausgelagerte Mood-Liste
+import 'package:studyproject/pages/home/mood/mood_data.dart';
 import '../services/mood_service.dart';
 
 class MoodCard extends StatefulWidget {
@@ -77,10 +74,9 @@ class _MoodCardState extends State<MoodCard> {
                     return Expanded(
                       child: GestureDetector(
                         onTap: () async {
-                          if (_selected == i) return; // Doppel-Click verhindern
+                          if (_selected == i) return;
                           setState(() => _selected = i);
 
-                          // Mood in Subcollection speichern
                           final user = FirebaseAuth.instance.currentUser;
                           if (user != null) {
                             final today = DateTime.now();

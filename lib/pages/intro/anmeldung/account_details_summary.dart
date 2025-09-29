@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:studyproject/pages/intro/auth/auth_service.dart';
 
-// UI-Widgets
 import 'package:studyproject/pages/intro/widgets/brand_button.dart';
 import 'package:studyproject/pages/intro/widgets/profile_avatar_glow.dart';
 import 'package:studyproject/pages/intro/widgets/summary_item.dart';
@@ -160,7 +159,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                         fontSize: 22,
                                         fontWeight: FontWeight.w900,
                                         letterSpacing: -0.2,
-                                        color: Colors.black, // mehr Kontrast
+                                        color: Colors.black,
                                       ),
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -183,7 +182,6 @@ class _SignUpPageState extends State<SignUpPage> {
 
                       const SizedBox(height: 12),
 
-                      // Scrollbarer Inhalt
                       Expanded(
                         child: LayoutBuilder(
                           builder: (context, c) {
@@ -262,7 +260,6 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
-  // ↑ Überschriften etwas größer & deutlicher
   Widget _sectionHeader(BuildContext context, String title) {
     return Align(
       alignment: Alignment.centerLeft,
@@ -271,17 +268,16 @@ class _SignUpPageState extends State<SignUpPage> {
         child: Text(
           title,
           style: const TextStyle(
-            fontSize: 16.5,           // größer
+            fontSize: 16.5,
             fontWeight: FontWeight.w900,
             letterSpacing: -0.1,
-            color: Colors.black,      // kontrastreich
+            color: Colors.black,
           ),
         ),
       ),
     );
   }
 
-  // Hinweis-Kachel: Text & Icon schwarz, besser lesbar
   Widget _hintCard(BuildContext context, {required IconData icon, required String text}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 6),
@@ -299,7 +295,7 @@ class _SignUpPageState extends State<SignUpPage> {
             child: Text(
               text,
               style: const TextStyle(
-                color: Colors.black,           // ← Text schwarz
+                color: Colors.black,
                 height: 1.25,
               ),
             ),

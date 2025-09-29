@@ -1,9 +1,7 @@
-// lib/pages/home/badge_dex_page.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:studyproject/pages/models/AppBadge.dart' show AppBadge, BadgeRarity, BadgeProgress;
 
-// ---------- Badge-Entry-Tile (weiß, mit Rand & Schatten, Icon schwarz) ----------
 class BadgeEntryTile extends StatelessWidget {
   const BadgeEntryTile({
     super.key,
@@ -29,12 +27,10 @@ class BadgeEntryTile extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            // ► dezenter Rand wie bei deinen anderen Cards
             border: Border.all(color: Colors.black12.withOpacity(0.12)),
-            // ► weicher Schatten
             boxShadow: const [
               BoxShadow(
-                color: Color(0x1A000000), // ~10% Schwarz
+                color: Color(0x1A000000),
                 blurRadius: 14,
                 offset: Offset(0, 6),
               ),
@@ -42,20 +38,19 @@ class BadgeEntryTile extends StatelessWidget {
           ),
           child: Row(
             children: [
-              // Icon in umrandetem Kreis – Icon jetzt schwarz
               Container(
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: const Color(0xFFF7F7FA), // sehr zartes hell
+                  color: const Color(0xFFF7F7FA),
                   border: Border.all(color: Colors.black12, width: 1.4),
                 ),
                 alignment: Alignment.center,
                 child: const Icon(
                   Icons.workspace_premium_rounded,
                   size: 20,
-                  color: Colors.black87, // ◄ schwarz
+                  color: Colors.black87,
                 ),
               ),
               const SizedBox(width: 10),
@@ -95,7 +90,6 @@ class BadgeEntryTile extends StatelessWidget {
   }
 }
 
-// ==================== „BadgeDex“-Seite (Vollbild) ===================
 class BadgeDexPage extends StatelessWidget {
   const BadgeDexPage({super.key});
 
@@ -178,7 +172,6 @@ class BadgeCell extends StatelessWidget {
         padding: const EdgeInsets.all(10),
         child: Column(
           children: [
-            // Icon-Kreis
             Container(
               height: 58,
               width: 58,
@@ -211,7 +204,6 @@ class BadgeCell extends StatelessWidget {
               ),
             ),
             const Spacer(),
-            // Lock / Unlocked Indicator
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -342,7 +334,6 @@ class BadgeDetailSheet extends StatelessWidget {
   }
 }
 
-// Demo-Badges – später dann mit Firebase verknüpfen
 final List<AppBadge> demoBadges = [
   AppBadge(
     title: 'Erster Schritt',

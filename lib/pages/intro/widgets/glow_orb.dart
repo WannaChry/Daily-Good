@@ -1,16 +1,13 @@
-// lib/profil/intro/widgets/background/glow_orb.dart
 import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 
-/// Ein weicher, glühender Kreis, der sanft driftet.
-/// Positionierung mit relativen x/y (0..1). Kein Positioned nötig.
 class GlowOrb extends StatefulWidget {
   final double size;
-  final double x;        // 0..1
-  final double y;        // 0..1
-  final double speedSec; // größer = langsamer Drift
-  final double blur;     // Weichzeichnung
+  final double x;
+  final double y;
+  final double speedSec;
+  final double blur;
   final double opacity;
 
   const GlowOrb({
@@ -49,20 +46,17 @@ class _GlowOrbState extends State<GlowOrb> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     final color = Theme.of(context).colorScheme.primary;
 
-    // Alignment aus relativen (0..1) Koordinaten ableiten: (-1..1)
     final baseAlignment = Alignment(widget.x * 2 - 1, widget.y * 2 - 1);
 
     return AnimatedBuilder(
       animation: _ctrl,
       builder: (context, _) {
         final t = _ctrl.value * 2 * pi;
-        // sanfter Drift in Alignment-Raum (Prozent, nicht Pixel)
-        final driftX = sin(t) * 0.015; // ~1.5% der Breite
+        final driftX = sin(t) * 0.015;
         final driftY = cos(t) * 0.015;
 
         return LayoutBuilder(
           builder: (context, c) {
-            // Pixel-Offset für den Drift (wirkt natürlicher als nur Alignment)
             final px = c.maxWidth * driftX;
             final py = c.maxHeight * driftY;
 

@@ -1,6 +1,4 @@
-// lib/pages/home/tree/home_tree_card.dart
 import 'package:flutter/material.dart';
-import 'package:studyproject/pages/home/tasks/TreeGrowth.dart';
 import 'package:studyproject/pages/home/tree/level_progress_card.dart';
 
 class HomeTreeCard extends StatelessWidget {
@@ -8,7 +6,6 @@ class HomeTreeCard extends StatelessWidget {
   final int totalPoints;
   final double progress;
 
-  /// Größe des Baum-Emojis (Standard: 60)
   final double emojiSize;
 
   const HomeTreeCard({
@@ -16,7 +13,7 @@ class HomeTreeCard extends StatelessWidget {
     required this.level,
     required this.totalPoints,
     required this.progress,
-    this.emojiSize = 60, // <- leicht größer
+    this.emojiSize = 60,
   });
 
   @override
@@ -42,7 +39,6 @@ class HomeTreeCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Baum-Emoji links (Größe über emojiSize steuerbar)
           Text(
             '🌳',
             style: TextStyle(
@@ -53,12 +49,9 @@ class HomeTreeCard extends StatelessWidget {
 
           const SizedBox(width: 16),
 
-          // LevelProgressCard rechts
           Expanded(
             child: LevelProgressCard(
               totalPoints: totalPoints,
-              // level: level,
-              // progress: progress,
             ),
           ),
         ],

@@ -1,23 +1,18 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
-/// Subtile Aurora-/Mesh-Optik: sanfte, animierte Farbflächen.
-/// Sehr leichtgewichtig (ein Canvas-Repaint, langsame 18s-Animation).
 class AuroraBackground extends StatefulWidget {
-  /// Primäre Farbtöne (werden weich gemischt). 3–5 Farben empfohlen.
   final List<Color> colors;
-  /// Sichtbarkeit der Aurora (0..1).
   final double intensity;
-  /// Optional: Kind-Widget oben drauf.
   final Widget? child;
 
   const AuroraBackground({
     super.key,
     this.colors = const [
-      Color(0xFFEFF7F2), // zarter Grund
-      Color(0xFFBEE3D3), // Mint
-      Color(0xFF9ED3C2), // Türkis
-      Color(0xFFF6FAF8), // Soft white
+      Color(0xFFEFF7F2),
+      Color(0xFFBEE3D3),
+      Color(0xFF9ED3C2),
+      Color(0xFFF6FAF8),
     ],
     this.intensity = 0.65,
     this.child,
@@ -79,7 +74,6 @@ class _AuroraPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    // Basis: dezenter vertikaler Verlauf
     final bg = Paint()
       ..shader = LinearGradient(
         begin: Alignment.topCenter,
@@ -91,12 +85,10 @@ class _AuroraPainter extends CustomPainter {
       ).createShader(Offset.zero & size);
     canvas.drawRect(Offset.zero & size, bg);
 
-    // 3 sanfte, wandernde „Blobs“ (Radial-Gradients)
     final w = size.width;
     final h = size.height;
-    final r = sqrt(w * w + h * h) * 0.55; // großer Radius
+    final r = sqrt(w * w + h * h) * 0.55;
 
-    // leichte Bewegung über Zeit
     Offset pos(double ox, double oy, double spx, double spy) {
       final a = t * 2 * pi;
       return Offset(

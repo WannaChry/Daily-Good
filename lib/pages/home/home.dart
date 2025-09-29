@@ -1,10 +1,6 @@
-// lib/profil/profil/home.dart
-//import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-// Achte auf snake_case-Dateinamen:
 import 'package:studyproject/pages/ButtonsReaktion.dart';
 import 'package:studyproject/pages/bottom_nav_only.dart';
 import 'package:studyproject/pages/second_page/activity_page.dart';
@@ -16,10 +12,6 @@ import 'package:studyproject/pages/home/mood/mood_dialog.dart';
 import 'package:studyproject/pages/models/tipp.dart';
 import 'package:studyproject/pages/models/task.dart';
 import 'package:studyproject/pages/home/tasks/goals_page.dart';
-
-import 'package:studyproject/pages/models/AppBadge.dart';
-
-import '../models/user.dart';
 
 class HomePage extends StatefulWidget {
   final List<Tipp> tips;
@@ -37,7 +29,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
-  int _totalPoints = 0; // Summe aus Seite 1
+  int _totalPoints = 0;
 
   late final GoalsPage _goalsPage;
 
@@ -55,7 +47,6 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F3FA),
 
-      // ---------- AppBar ----------
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -104,20 +95,18 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
 
-      // ---------- Body ----------
       body: IndexedStack(
         index: _currentIndex,
         children: [
-          _goalsPage,                               // Tab 1
+          _goalsPage,
           ActivityPage(
               totalPoints: _totalPoints,
             tasks: widget.tasks,),  // Tab 2
-          const CommunityPage(),                    // Tab 3
-          ProfilePage(totalPoints: _totalPoints),   // Tab 4
+          const CommunityPage(),
+          ProfilePage(totalPoints: _totalPoints),
         ],
       ),
 
-      // ---------- Bottom Nav ----------
       bottomNavigationBar: NavBar(
         currentIndex: _currentIndex,
         onTap: (i) => setState(() => _currentIndex = i),

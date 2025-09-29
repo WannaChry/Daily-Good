@@ -1,11 +1,8 @@
-// lib/profil/intro/questionnaire_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../widgets/cute_landscape.dart';
 import '../widgets/gradient_progress.dart';
-// Die beiden Imports sind hier unnötig; kannst du entfernen wenn du magst
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:studyproject/pages/models/user.dart';
+
 
 class QuestionnairePage extends StatefulWidget {
   const QuestionnairePage({super.key});
@@ -20,7 +17,6 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
   int step = 0;
   final Map<String, String> answers = {};
 
-  // Neue Frage 2: E-Mail
   final List<_Q> questions = const [
     _Q('Wie heißt du?', type: _QType.text, hint: 'Antwort eingeben'),
     _Q('Was ist dein Alter?', options: ['Unter 18', '18–22', '23–27', '28–35', '35–50', '50+']),
@@ -85,7 +81,6 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
         _textController.text = answers[step] ?? '';
       });
     } else {
-      // am Ende → Review & Confirm
       Navigator.of(context).pushNamed(
         '/intro/review',
         arguments: {
@@ -113,7 +108,6 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     final pastel = _pastels[step % _pastels.length];
     final bottomInset = MediaQuery.of(context).padding.bottom;
 
-    // Input-Setup je nach Frage
     List<TextInputFormatter>? inputFormatters;
     TextInputType? keyboardType;
     TextCapitalization capitalization = TextCapitalization.words;
@@ -152,16 +146,13 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
         : (answers[q.title]?.isNotEmpty ?? false);
 
 
-    // Spezielle Optik für die E-Mail-Frage
     final isEmailStep = q.title.startsWith('Wie lautet deine E');
 
     return Scaffold(
       body: SafeArea(
         child: Stack(
           children: [
-            // Hintergrund
             if (!isEmailStep)
-            // Standard-Gradient
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 decoration: BoxDecoration(
@@ -174,10 +165,8 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                 child: const SizedBox.expand(),
               )
             else
-            // Alternativer Look – radial + „Bubbles“ + großes @
               _EmailBackdrop(colors: pastel),
 
-            // Landscape (JETZT IMMER sichtbar) mit weichem Übergang
             Positioned(
               left: 0,
               right: 0,
@@ -190,7 +179,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [Colors.transparent, Colors.black],
-                      stops: [0.0, 0.22], // weiche Einblendung
+                      stops: [0.0, 0.22],
                     ).createShader(r),
                     blendMode: BlendMode.dstIn,
                     child: CuteLandscape(height: _landscapeH, variant: step),
@@ -199,7 +188,6 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
               ),
             ),
 
-            // Inhalt
             Padding(
               padding: EdgeInsets.fromLTRB(
                 16,
@@ -318,7 +306,6 @@ class _EmailBackdrop extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // Radialer Verlauf
         Positioned.fill(
           child: DecoratedBox(
             decoration: BoxDecoration(
@@ -337,7 +324,6 @@ class _EmailBackdrop extends StatelessWidget {
         Positioned(top: 80, left: -30, child: _bubble(120)),
         Positioned(top: 10, right: -24, child: _bubble(90)),
         Positioned(bottom: 100, right: 40, child: _bubble(70)),
-        // großes Mail-Icon sehr dezent
         Positioned.fill(
           child: IgnorePointer(
             child: Center(

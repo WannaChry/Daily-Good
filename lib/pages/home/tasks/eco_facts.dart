@@ -4,15 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:studyproject/pages/models/tipp.dart';
 
-/// Zeigt einen stylischen, zentrierten Klima-/Sozial-Fakt.
-/// Schließen: Tap außerhalb oder auf das X oben rechts.
 Future<void> showEcoFactDialog(BuildContext context, List<Tipp> tips) async {
   if (tips.isEmpty) return;
   final rnd = Random();
   final selectedtips = tips[rnd.nextInt(tips.length)];
-
-
-  // Zufälligen Fakt + Akzentfarben wählen
 
   final accents = [
     [const Color(0xFFA7E3A1), const Color(0xFF74C69D)],
@@ -29,7 +24,6 @@ Future<void> showEcoFactDialog(BuildContext context, List<Tipp> tips) async {
     barrierColor: Colors.black.withOpacity(0.25),
     transitionDuration: const Duration(milliseconds: 260),
     pageBuilder: (_, __, ___) {
-      // Inhalt kommt im transitionBuilder
       return const SizedBox.shrink();
     },
     transitionBuilder: (context, anim, _, __) {
@@ -45,7 +39,6 @@ Future<void> showEcoFactDialog(BuildContext context, List<Tipp> tips) async {
                 borderRadius: BorderRadius.circular(20),
                 child: Stack(
                   children: [
-                    // Glas/Blur Hintergrund
                     BackdropFilter(
                       filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
                       child: Container(
@@ -73,7 +66,6 @@ Future<void> showEcoFactDialog(BuildContext context, List<Tipp> tips) async {
                         child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
-                            // zarter farbiger Schimmer
                             gradient: LinearGradient(
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
@@ -88,7 +80,6 @@ Future<void> showEcoFactDialog(BuildContext context, List<Tipp> tips) async {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Kopfzeile
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
@@ -157,7 +148,6 @@ Future<void> showEcoFactDialog(BuildContext context, List<Tipp> tips) async {
                                 ),
                               ),
                               const SizedBox(height: 10),
-                              // subtile Fußzeile
                               Row(
                                 children: [
                                   Icon(Icons.bolt_rounded,

@@ -14,7 +14,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
   String visibility = 'Freunde'; // Öffentlich / Freunde / Privat
   bool locationAllowed = false;
   bool personalization = true;
-  bool analytics = true; // Crash und Usage
+  bool analytics = true;
 
   // Zwei Faktor UI Toggle nur visuell
   bool _twoFAEnabled = false;
@@ -260,7 +260,6 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
           e.code == 'user-not-found' ||
           e.code == 'invalid-credential' ||
           e.code == 'requires-recent-login') {
-        // Fallback: vermutlich kein Passwort Login verknüpft
         await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
         _toast('Kein Passwort Login verknüpft. Reset Mail gesendet.');
         if (mounted) Navigator.of(dialogCtx).pop();

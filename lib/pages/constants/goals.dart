@@ -5,5 +5,5 @@ class Goals {
 
   static const double co2MonthlyGoalKg = 20.0;
 
-  static const int impactMax = 200; // Max-Punkte für KPI-Progress
+  static const int impactMax = 200;
 }

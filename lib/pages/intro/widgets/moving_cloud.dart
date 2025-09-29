@@ -1,15 +1,13 @@
 import 'dart:math';
-import 'dart:ui' show lerpDouble; // <- für lerpDouble
+import 'dart:ui' show lerpDouble;
 import 'package:flutter/material.dart';
 
-/// Eine stilisierte Wolke, die von links nach rechts driftet und danach looped.
-/// Positionsangabe in relativen Koordinaten (-0.5 .. 1.5), y in 0..1.
 class MovingCloud extends StatefulWidget {
-  final double startX;   // z.B. -0.25 (links außerhalb)
-  final double endX;     // z.B. 1.25 (rechts außerhalb)
-  final double y;        // 0..1 (Höhe)
-  final double scale;    // 0.6 .. 1.2
-  final int seconds;     // Dauer für eine komplette Passage
+  final double startX;
+  final double endX;
+  final double y;
+  final double scale;
+  final int seconds;
 
   const MovingCloud({
     super.key,
@@ -47,18 +45,15 @@ class _MovingCloudState extends State<MovingCloud> with SingleTickerProviderStat
     return AnimatedBuilder(
       animation: _ctrl,
       builder: (context, _) {
-        final v = _ctrl.value; // 0..1
-        // Ease in-out für sanftere Bewegung
+        final v = _ctrl.value;
         final eased = 0.5 - 0.5 * cos(v * pi);
-        final x = lerpDouble(widget.startX, widget.endX, eased)!; // -0.25..1.25
+        final x = lerpDouble(widget.startX, widget.endX, eased)!;
 
         return LayoutBuilder(
           builder: (context, c) {
-            // Alignment.x nimmt -1..1 → wir mappen -0.5..1.5 → -1..1
             final alignX = (x - 0.5) * 2;
             final alignY = (widget.y - 0.5) * 2;
 
-            // leichte Auf-/Abbewegung
             final driftYpx = sin(v * 2 * pi) * 8 * widget.scale;
 
             return Align(

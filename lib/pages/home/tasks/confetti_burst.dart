@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
-/// Bunte Konfetti-Explosion rund um [globalTapPosition].
 void showConfettiBurst(BuildContext context, Offset globalTapPosition) {
   final overlay = Overlay.of(context, rootOverlay: true);
   if (overlay == null) return;

@@ -1,4 +1,3 @@
-// lib/profil/state/auth_state.dart
 import 'dart:typed_data';
 import 'package:flutter/widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fa;
@@ -84,7 +83,6 @@ class AuthState extends ChangeNotifier {
     return url;
   }
 
-  // Speichert mit Zeitstempel im Dateinamen -> garantiert neue URL (Cache-Busting)
   Future<String> _uploadAvatarBytesVersioned(String uid, Uint8List bytes) async {
     final ts = DateTime.now().millisecondsSinceEpoch;
     final ref = FirebaseStorage.instance.ref('users/$uid/profile_$ts.jpg');

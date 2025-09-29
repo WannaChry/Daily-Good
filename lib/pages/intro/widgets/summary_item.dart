@@ -11,7 +11,7 @@ class SummaryItem extends StatelessWidget {
     required this.leading,
     required this.label,
     required this.value,
-    this.iconColor = const Color(0xFF111111), // schwarz / sehr dunkel
+    this.iconColor = const Color(0xFF111111),
   });
 
   @override

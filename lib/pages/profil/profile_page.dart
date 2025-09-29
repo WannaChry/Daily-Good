@@ -1,4 +1,3 @@
-// lib/profil/profil/profile_page.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -31,7 +30,6 @@ import 'package:studyproject/pages/utils/friend_code.dart';
 import 'package:studyproject/pages/utils/profile_level.dart';
 import 'dart:async';
 
-// Pastell-Hintergrund (neuer, ruhiger)
 import 'package:studyproject/pages/intro/widgets/dailygood_profile_background.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -161,7 +159,6 @@ class _ProfilePageState extends State<ProfilePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // ---------- Header ----------
               StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
                 stream: uid == null
                     ? null
@@ -208,7 +205,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
               const SizedBox(height: 20),
 
-              // ---------- Punkte-Card (OHNE Level, OHNE 0/80) ----------
+              // ---------- Punkte-Card ----------
               Card(
                 elevation: 8,
                 color: Colors.white,
@@ -259,7 +256,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
               const SizedBox(height: 14),
 
-              // ---------- Abzeichen-Kachel (zwischen Punkte und Über mich) ----------
+              // ---------- Abzeichen-Kachel ----------
               BadgeEntryTile(
                 unlockedCount: _badgesUnlocked,
                 totalCount: _badgesTotal,
@@ -272,7 +269,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
               const SizedBox(height: 26),
 
-              // ---------- Über mich (weiße Card + gefülltes Textfeld) ----------
+              // ---------- Über mich ----------
               Card(
                 elevation: 8,
                 color: Colors.white,
@@ -424,9 +421,6 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 }
 
-// -----------------------------------------------------------------------------
-// Read-only Datenblatt (unverändert)
-// -----------------------------------------------------------------------------
 
 class ProfileView extends StatelessWidget {
   const ProfileView({super.key});

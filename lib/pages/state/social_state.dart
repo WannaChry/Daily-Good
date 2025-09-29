@@ -126,7 +126,7 @@ class SocialState extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ---- Provider (InheritedNotifier) ----
+  // ---- Provider ----
   static SocialState of(BuildContext context, {bool listen = true}) {
     final scope = listen
         ? context.dependOnInheritedWidgetOfExactType<SocialScope>()

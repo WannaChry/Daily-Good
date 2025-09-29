@@ -1,4 +1,3 @@
-// lib/services/task_service.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,7 +7,6 @@ class TaskService {
   final _firestore = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
 
-  /// Markiert einen Task als erledigt:
   Future<void> completeTask(Task task) async {
     final user = _auth.currentUser;
     if (user == null) {
@@ -16,10 +14,8 @@ class TaskService {
     }
 
     try {
-      // Schritt 1: Task lokal updaten
       task.isCompleted = true;
 
-      // Schritt 2: In Subcollection speichern
       final ref = _firestore
           .collection('users')
           .doc(user.uid)
@@ -40,7 +36,6 @@ class TaskService {
     }
   }
 
-  /// Prüfen, ob ein Task für den aktuellen User schon erledigt wurde
   Future<bool> isTaskCompleted(String taskId) async {
     final user = _auth.currentUser;
     if (user == null) return false;
@@ -85,7 +80,6 @@ class TaskService {
       }
     }
   }
-  // Alle Tasks laden, isCompleted bleibt false
   Future<List<Task>> fetchAllTasks() async {
     print('[Tasks] Lade Tasks von Firestore...');
     try {

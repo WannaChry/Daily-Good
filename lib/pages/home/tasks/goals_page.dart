@@ -1,20 +1,11 @@
-// lib/pages/home/tasks/goals_page.dart
 import 'package:flutter/material.dart';
-// import 'package:studyproject/pages/home/badge_dex_page.dart'; // (nicht genutzt)
-import 'package:studyproject/pages/home/tasks/TreeGrowth.dart';
 import 'package:studyproject/pages/home/tasks/SectionHeaderCard.dart';
 import 'package:studyproject/pages/home/tasks/progress_card.dart';
 import 'package:studyproject/pages/home/tasks/confetti_burst.dart' show showConfettiBurst;
 import 'package:studyproject/pages/models/submodels/categoryTheme.dart';
 import 'package:studyproject/pages/home/tree/home_tree_card.dart';
-
-// models
 import 'package:studyproject/pages/models/task.dart';
-
-// services
 import 'package:studyproject/pages/home/services/task_service.dart';
-
-// Hintergrund wie im Profil
 import 'package:studyproject/pages/intro/widgets/dailygood_profile_background.dart';
 
 class GoalsPage extends StatefulWidget {
@@ -102,7 +93,6 @@ class GoalsPageState extends State<GoalsPage>
           _tapPos = null;
         }
       } catch (e) {
-        // ignore: avoid_print
         print('Fehler beim Speichern des Tasks: $e');
       }
     }
@@ -111,10 +101,9 @@ class GoalsPageState extends State<GoalsPage>
   @override
   bool get wantKeepAlive => true;
 
-  // Pastell-Layer der Karte
   Color _cardFill(Color base, {required bool done}) {
-    if (done) return const Color(0xFFEAF6ED); // soft green bei erledigt
-    return base.withOpacity(0.08);             // dezenter Tint
+    if (done) return const Color(0xFFEAF6ED);
+    return base.withOpacity(0.08);
   }
 
   Color _cardBorder(Color base, {required bool done}) {
@@ -186,7 +175,6 @@ class GoalsPageState extends State<GoalsPage>
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              // --- Icon-Badge: Kreis mit Border ---
                               Container(
                                 width: 36,
                                 height: 36,
@@ -207,12 +195,10 @@ class GoalsPageState extends State<GoalsPage>
 
                               const SizedBox(width: 10),
 
-                              // --- Textbereich: bekommt den verfügbaren Platz ---
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    // Kein Durchstreichen – nur Farbwechsel bei erledigt
                                     Text(
                                       '${task.emoji} ${task.title}',
                                       maxLines: 2,
@@ -222,8 +208,8 @@ class GoalsPageState extends State<GoalsPage>
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600,
                                         color: isDone
-                                            ? const Color(0xFF1B5E20) // dunkler grünlicher Ton
-                                            : const Color(0xFF1F2937), // neutral/dunkel
+                                            ? const Color(0xFF1B5E20)
+                                            : const Color(0xFF1F2937),
                                       ),
                                     ),
                                     if (task.co2kg > 0)
@@ -240,7 +226,6 @@ class GoalsPageState extends State<GoalsPage>
 
                               const SizedBox(width: 10),
 
-                              // --- Punkte-Badge: keine Überläufe mehr ---
                               ConstrainedBox(
                                 constraints: const BoxConstraints(minWidth: 64),
                                 child: FittedBox(
@@ -261,7 +246,7 @@ class GoalsPageState extends State<GoalsPage>
                                       '+${task.points} P',
                                       style: TextStyle(
                                         fontWeight: FontWeight.w800,
-                                        fontSize: 15.5, // <- HIER minimal größer machen (z.B. 15.0–16.0)
+                                        fontSize: 15.5,
                                         color: isDone ? const Color(0xFF1B5E20) : const Color(0xFF111827),
                                       ),
                                     ),
